@@ -1,380 +1,348 @@
-import type { MailPackageResult, PackageStatus, CourierRule, MatchRule } from "./types";
-
-const MONTHS_MAP: Record<string, number> = {
-  january: 0, jan: 0, february: 1, feb: 1, march: 2, mar: 2, april: 3, apr: 3,
-  may: 4, june: 5, jun: 5, july: 6, jul: 6, august: 7, aug: 7, september: 8,
-  sep: 8, sept: 8, october: 9, oct: 9, november: 10, nov: 10, december: 11, dec: 11,
-  gennaio: 0, febbraio: 1, marzo: 2, aprile: 3, maggio: 4, giugno: 5, luglio: 6,
-  agosto: 7, settembre: 8, ottobre: 9, novembre: 10, dicembre: 11,
-  januar: 0, februar: 1, märz: 2, maerz: 2, mai: 4, juni: 5, juli: 6, dezember: 11,
-  styczeń: 0, stycznia: 0, luty: 1, lutego: 1, marzec: 2, marca: 2, kwiecień: 3,
-  kwietnia: 3, maja: 4, czerwiec: 5, czerwca: 5, lipiec: 6, lipca: 6, sierpień: 7,
-  sierpnia: 7, wrzesień: 8, września: 8, październik: 9, października: 9,
-  listopad: 10, listopada: 10, grudzień: 11, grudnia: 11
-};
-
+import type {
+  MailParcelResult, MailOrderResult, MailReturnResult, MailDunningResult,
+  ParcelStatus, ParcelRule,
+  OrderStatus, OrderRule,
+  ReturnStatus, ReturnRule,
+  DunningStatus, DunningRule,
+} from "./types";
+import { MONTHS_MAP, DELIVERY_WINDOW_REGEX, PARCEL_KEYWORDS, ORDER_KEYWORDS, RETURN_KEYWORDS, DUNNING_KEYWORDS } from "./const";
 
 /**
- * Performs high-performance prefix-based string matching
+ * Checks if a sender email address domain matches one of the specified domains (supports regex:)
  */
-export function stringMatchesRule(text: string, rule: string): boolean {
-	const textLower = text.toLowerCase();
+export function isDomainMatched(fromLower: string, domains: string[]): boolean {
+	const atIdx = fromLower.indexOf("@");
+	const domainPart = atIdx !== -1 ? fromLower.substring(atIdx + 1) : fromLower;
 	
-	if (rule.startsWith("nocase:")) {
-		const target = rule.substring(7).toLowerCase();
-		return textLower.includes(target);
-	}
-	if (rule.startsWith("case:")) {
-		const target = rule.substring(5);
-		return text.includes(target);
-	}
-	if (rule.startsWith("exact:")) {
-		const target = rule.substring(6);
-		return text === target;
-	}
-	if (rule.startsWith("exact-nocase:")) {
-		const target = rule.substring(13).toLowerCase();
-		return textLower === target;
-	}
-	if (rule.startsWith("regex:")) {
-		const target = rule.substring(6);
-		try {
-			const regex = new RegExp(target, "i");
-			return regex.test(text);
-		} catch (err) {
-			console.error(`Invalid matching regex pattern: ${target}`, err);
-			return false;
-		}
-	}
-	// Default: case-sensitive substring match
-	return text.includes(rule);
-}
-
-/**
- * Validates match rules (from, subject, body) using prefix-based matchers
- */
-function matchesMatchRule(emailData: { from: string; subject: string; body: string }, rule?: MatchRule): boolean {
-	if (!rule) return false;
-	
-	// Check email sender
-	if (rule.email && rule.email.length > 0) {
-		const matchEmail = rule.email.some(pattern => stringMatchesRule(emailData.from, pattern));
-		if (!matchEmail) return false;
-	}
-	
-	// Check subject
-	if (rule.subject && rule.subject.length > 0) {
-		const matchSub = rule.subject.some(pattern => stringMatchesRule(emailData.subject, pattern));
-		if (!matchSub) return false;
-	}
-	
-	// Check body
-	if (rule.body && rule.body.length > 0) {
-		const matchBody = rule.body.some(pattern => stringMatchesRule(emailData.body, pattern));
-		if (!matchBody) return false;
-	}
-	
-	return true;
-}
-
-export interface ExtractedVariables {
-	trackingNumbers: string[];
-	orderNumbers: string[];
-	amazonHubCode?: string;
-	deliveryDate?: Date;
-	itemNames?: string[];
-}
-
-/**
- * Extracts parsed fields using ES2018 Regex Named Capture Groups
- */
-export function extractVariablesFromText(
-	subject: string,
-	body: string,
-	patterns: string[]
-): ExtractedVariables {
-	const trackingNumbers: string[] = [];
-	const orderNumbers: string[] = [];
-	const itemNames: string[] = [];
-	let amazonHubCode: string | undefined = undefined;
-	let deliveryDate: Date | undefined = undefined;
-
-	const textToSearch = `${subject}\n${body}`;
-
-	for (const patternStr of patterns) {
-		try {
-			let isRegex = false;
-			let cleanPattern = patternStr;
-			
-			if (patternStr.startsWith("regex:")) {
-				cleanPattern = patternStr.substring(6);
-				isRegex = true;
+	return domains.some(pattern => {
+		if (pattern.startsWith("regex:")) {
+			try {
+				const regex = new RegExp(pattern.substring(6), "i");
+				return regex.test(domainPart);
+			} catch (err) {
+				console.error(`[Parser] Invalid domain regex: ${pattern}`, err);
+				return false;
 			}
-			
-			if (isRegex) {
-				// Fix legacy Australia Post typo
-				if (cleanPattern.includes("{7,10,12}")) {
-					cleanPattern = cleanPattern.replace("{7,10,12}", "{7,12}");
-				}
-				
-				const regex = new RegExp(cleanPattern, "gi");
-				const matches = textToSearch.matchAll(regex);
+		}
+		return domainPart === pattern || domainPart.endsWith(`.${pattern}`);
+	});
+}
 
-				for (const match of matches) {
-					if (match.groups) {
-						// Extract using Named Capture Groups
-						if (match.groups.trackingNumber) {
-							const val = match.groups.trackingNumber.trim();
-							if (val && !trackingNumbers.includes(val)) trackingNumbers.push(val);
-						}
-						if (match.groups.orderNumber) {
-							const val = match.groups.orderNumber.trim();
-							if (val && !orderNumbers.includes(val)) orderNumbers.push(val);
-						}
-						if (match.groups.amazonHubCode) {
-							amazonHubCode = match.groups.amazonHubCode.trim();
-						}
-						if (match.groups.deliveryDate) {
-							const dateVal = new Date(match.groups.deliveryDate.trim());
-							if (Number.isFinite(dateVal.getTime())) {
-								deliveryDate = dateVal;
-							}
-						}
-						if (match.groups.itemName) {
-							const val = match.groups.itemName.trim();
-							if (val && !itemNames.includes(val)) itemNames.push(val);
-						}
-					} else {
-						// Fallback: whole match is treated as tracking number
-						let val = match[0].trim();
-						if (val) {
-							val = val.replace(/^[^\w]+|[^\w]+$/g, "");
-							if (val && !trackingNumbers.includes(val)) {
-								trackingNumbers.push(val);
-							}
-						}
-					}
+/**
+ * Expands regex: domain patterns (e.g. regex:^amazon\.(com|de|co\.uk)$) into a plain list.
+ */
+export function expandDomains(domains: string[]): string[] {
+	const expanded: string[] = []
+	for (const pattern of domains) {
+		if (pattern.startsWith("regex:")) {
+			const regexStr = pattern.substring(6)
+				.replace(/^\^/, "")  // strip leading ^
+				.replace(/\$$/, ""); // strip trailing $
+
+			const groupStart = regexStr.indexOf("\\.(");
+			const groupEnd = regexStr.lastIndexOf(")");
+			if (groupStart !== -1 && groupEnd !== -1 && groupEnd > groupStart) {
+				const prefix = regexStr.substring(0, groupStart);
+				const groupContent = regexStr.substring(groupStart + 3, groupEnd);
+				const options = groupContent.split("|").map(opt => opt.replace(/\\\./g, ".").replace(/\\/g, ""));
+				for (const opt of options) {
+					expanded.push(`${prefix}.${opt}`);
 				}
 			} else {
-				// Substring check fallback
-				if (textToSearch.includes(patternStr)) {
-					const val = patternStr.trim();
-					if (val && !trackingNumbers.includes(val)) {
-						trackingNumbers.push(val);
-					}
-				}
+				expanded.push(pattern);
 			}
-		} catch (e) {
-			console.error(`Invalid regex pattern: ${patternStr}`, e);
+		} else {
+			expanded.push(pattern);
 		}
 	}
-
-	return {
-		trackingNumbers,
-		orderNumbers,
-		amazonHubCode,
-		deliveryDate,
-		itemNames
-	};
+	return expanded;
 }
 
 /**
- * Extracts tracking numbers matching given regex patterns from text (subject + body)
+ * Determines parcel status from keywords in text
  */
-export function extractTrackingNumbers(
-	subject: string,
-	body: string,
-	patterns: string[],
-): string[] {
-	const tracking: string[] = [];
-	const textToSearch = `${subject}\n${body}`;
-
-	for (const patternStr of patterns) {
-		try {
-			let fixedPattern = patternStr;
-			if (patternStr.includes("{7,10,12}")) {
-				fixedPattern = patternStr.replace("{7,10,12}", "{7,12}");
-			}
-			const regex = new RegExp(fixedPattern, "gi");
-			const matches = textToSearch.matchAll(regex);
-
-			for (const match of matches) {
-				let val = match[0].trim();
-				if (val) {
-					if (patternStr.includes(" ") && val.includes(" ")) {
-						const parts = val.split(" ");
-						if (parts.length > 1) {
-							val = parts[1].trim();
-						}
-					}
-					val = val.replace(/^[^\w]+|[^\w]+$/g, "");
-					if (val && !tracking.includes(val)) {
-						tracking.push(val);
-					}
-				}
-			}
-		} catch (e) {
-			console.error(`Invalid regex pattern: ${patternStr}`, e);
-		}
-	}
-	return tracking;
-}
-
-/**
- * Determines package status from keywords in text (subject + body)
- */
-function getStatusFromKeywords(subject: string, body: string): PackageStatus {
+function getParcelStatusFromKeywords(subject: string, body: string): ParcelStatus {
 	const text = `${subject} ${body}`.toLowerCase();
-
-	const deliveredKeywords = [
-		"delivered",
-		"zugestellt",
-		"geliefert",
-		"doręczona",
-		"odbioru",
-		"consegna effettuata",
-	];
-	const exceptionKeywords = [
-		"exception",
-		"running late",
-		"delay",
-		"delayed",
-		"verspätung",
-	];
-	const arrivingKeywords = [
-		"arriving",
-		"out for delivery",
-		"scheduled for delivery",
-		"dostawa dzisiaj",
-		"kommt heute",
-		"dziś doręczamy",
-		"arriverà",
-		"incoming",
-	];
-	const sentKeywords = [
-		"shipped",
-		"sent",
-		"on its way",
-		"w drodze",
-		"nadana",
-		"versendet",
-	];
-	const orderedKeywords = [
-		"ordered",
-		"bestellt",
-		"order confirmation",
-		"potwierdzenie zamówienia",
-	];
-
-	if (deliveredKeywords.some((k) => text.includes(k))) return "delivered";
-	if (exceptionKeywords.some((k) => text.includes(k))) return "exception";
-	if (arrivingKeywords.some((k) => text.includes(k))) return "arriving";
-	if (sentKeywords.some((k) => text.includes(k))) return "sent";
-	if (orderedKeywords.some((k) => text.includes(k))) return "ordered";
-
+	for (const [status, kws] of Object.entries(PARCEL_KEYWORDS)) {
+		if (kws.some(k => text.includes(k))) return status as ParcelStatus;
+	}
 	return "unknown";
 }
 
 /**
- * Main parser entry point. Completely generic dynamic parsing engine.
+ * Determines order status from keywords
  */
-export function parseEmail(
+function getOrderStatusFromKeywords(subject: string, body: string): OrderStatus {
+	const subjLower = subject.toLowerCase();
+	for (const [status, kws] of Object.entries(ORDER_KEYWORDS)) {
+		if (kws.some(k => subjLower.includes(k))) return status as OrderStatus;
+	}
+	const text = `${subject} ${body}`.toLowerCase();
+	for (const [status, kws] of Object.entries(ORDER_KEYWORDS)) {
+		if (status === "cancelled") {
+			// Avoid matching "cancel" keyword against legal/cancellation rights disclosures in the body
+			const strictKws = ["storniert", "cancelled", "stornierung"];
+			if (strictKws.some(k => text.includes(k))) return "cancelled";
+			continue;
+		}
+		if (kws.some(k => text.includes(k))) return status as OrderStatus;
+	}
+	return "unknown";
+}
+
+/**
+ * Determines return status from keywords
+ */
+function getReturnStatusFromKeywords(subject: string, body: string): ReturnStatus {
+	const text = `${subject} ${body}`.toLowerCase();
+	for (const [status, kws] of Object.entries(RETURN_KEYWORDS)) {
+		if (kws.some(k => text.includes(k))) return status as ReturnStatus;
+	}
+	return "unknown";
+}
+
+/**
+ * Determines dunning status from keywords
+ */
+function getDunningStatusFromKeywords(subject: string, body: string): DunningStatus {
+	const text = `${subject} ${body}`.toLowerCase();
+	for (const [status, kws] of Object.entries(DUNNING_KEYWORDS)) {
+		if (kws.some(k => text.includes(k))) return status as DunningStatus;
+	}
+	return "unknown";
+}
+
+/** Shared helper — builds the parser helpers object passed to custom parse() */
+function buildHelpers(): any {
+	return {
+		testRegex: (text: string, pattern: string): boolean => {
+			if (!pattern) return false;
+			let cleanPattern = pattern;
+			if (pattern.startsWith("regex:")) {
+				cleanPattern = pattern.substring(6);
+			}
+			try {
+				const regex = new RegExp(cleanPattern, "i");
+				return regex.test(text);
+			} catch {
+				return text.toLowerCase().includes(pattern.toLowerCase());
+			}
+		},
+		extractRegex: (text: string, pattern: string, groupIndexOrName: number | string = 0): string | undefined => {
+			if (!pattern) return undefined;
+			let cleanPattern = pattern;
+			if (pattern.startsWith("regex:")) {
+				cleanPattern = pattern.substring(6);
+			}
+			try {
+				const regex = new RegExp(cleanPattern, "i");
+				const match = regex.exec(text);
+				if (!match) return undefined;
+				if (typeof groupIndexOrName === "string") {
+					return match.groups?.[groupIndexOrName];
+				}
+				return match[groupIndexOrName];
+			} catch {
+				return undefined;
+			}
+		},
+		extractAllRegex: (text: string, pattern: string, groupName?: string): string[] => {
+			if (!pattern) return [];
+			let cleanPattern = pattern;
+			if (pattern.startsWith("regex:")) {
+				cleanPattern = pattern.substring(6);
+			}
+			if (cleanPattern.includes("{7,10,12}")) {
+				cleanPattern = cleanPattern.replace("{7,10,12}", "{7,12}");
+			}
+			try {
+				const regex = new RegExp(cleanPattern, "gi");
+				const matches = [...text.matchAll(regex)];
+				const results: string[] = [];
+				for (const m of matches) {
+					if (groupName && m.groups?.[groupName]) {
+						const val = m.groups[groupName].trim();
+						if (val && !results.includes(val)) results.push(val);
+					} else {
+						const val = m[0].trim();
+						if (val && !results.includes(val)) results.push(val);
+					}
+				}
+				return results;
+			} catch {
+				return [];
+			}
+		},
+		getParcelStatusFromKeywords,
+		getOrderStatusFromKeywords,
+		getReturnStatusFromKeywords,
+		getDunningStatusFromKeywords,
+		parseDeliveryWindow: (text: string) => {
+			if (!text) return undefined;
+			const match = DELIVERY_WINDOW_REGEX.exec(text);
+			if (!match) return undefined;
+
+			const raw = match[0].trim();
+			const startStr = match[1];
+			const startAmPm = match[2];
+			const endStr = match[3];
+			const endAmPm = match[4];
+
+			const to24h = (time: string, ampm?: string): string => {
+				const parts = time.split(":");
+				let hours = parseInt(parts[0], 10);
+				const mins = parts[1];
+				if (ampm) {
+					const isPm = ampm.toLowerCase() === "pm";
+					if (isPm && hours < 12) hours += 12;
+					else if (!isPm && hours === 12) hours = 0;
+				}
+				return `${hours.toString().padStart(2, "0")}:${mins}`;
+			};
+
+			return {
+				raw,
+				startTime: to24h(startStr, startAmPm || endAmPm),
+				endTime: to24h(endStr, endAmPm || startAmPm)
+			};
+		},
+		monthsMap: MONTHS_MAP,
+	};
+}
+
+// ─── parseParcelEmail ─────────────────────────────────────────────────────────
+
+export function parseParcelEmail(
 	from: string,
 	subject: string,
 	bodyPlain: string,
 	bodyHtml?: string,
-	dynamicRules?: CourierRule[],
-): MailPackageResult | null {
+	rules?: ParcelRule[],
+): MailParcelResult | null {
 	const fromLower = from.toLowerCase().trim();
-	const subClean = subject || "";
+	const subClean  = subject || "";
 	const bodyClean = bodyPlain || bodyHtml || "";
 
-	// 1. Evaluate Dynamic Outsourced Rules (Priority)
-	if (dynamicRules && dynamicRules.length > 0) {
-		for (const rule of dynamicRules) {
-			const matchesDomains = rule.domains.some(domain => 
-				fromLower.endsWith(`@${domain}`) || fromLower.endsWith(`.${domain}`)
-			);
-			
-			let isMatched = matchesDomains;
-			let detectedStatus: PackageStatus = "unknown";
-			
-			if (isMatched && rule.statusRules) {
-				const emailData = { from: fromLower, subject: subClean, body: bodyClean };
-				
-				if (matchesMatchRule(emailData, rule.statusRules.exception)) {
-					detectedStatus = "exception";
-				} else if (matchesMatchRule(emailData, rule.statusRules.delivered)) {
-					detectedStatus = "delivered";
-				} else if (matchesMatchRule(emailData, rule.statusRules.arriving)) {
-					detectedStatus = "arriving";
-				} else if (matchesMatchRule(emailData, rule.statusRules.sent)) {
-					detectedStatus = "sent";
-				} else if (matchesMatchRule(emailData, rule.statusRules.ordered)) {
-					detectedStatus = "ordered";
-				} else {
-					// None of the matched statuses passed
-					isMatched = false;
-				}
-			}
-			
-			if (isMatched) {
-				// Evaluate custom javascript parser logic if it exists
-				if (rule.parse) {
-					try {
-						const customResult = rule.parse(
-							{ from: fromLower, subject: subClean, bodyPlain: bodyClean, bodyHtml },
-							{
-								extractTrackingNumbers: (text, patterns) => {
-									return extractTrackingNumbers(subClean, text, patterns);
-								},
-								extractRegex: (text, pattern, groupIndex = 0) => {
-									try {
-										const regex = new RegExp(pattern, "i");
-										const match = regex.exec(text);
-										return match?.[groupIndex] || undefined;
-									} catch {
-										return undefined;
-									}
-								},
-								monthsMap: MONTHS_MAP
-							}
-						);
-						if (customResult) return customResult;
-					} catch (customError) {
-						console.error(`[Parser] Custom parser callback failed for ${rule.name}:`, customError);
-					}
-				}
+	if (!rules || rules.length === 0) return null;
 
-				// Fully declarative named capture group extraction
-				const extracted = extractVariablesFromText(subClean, bodyClean, rule.tracking?.patterns || []);
-				return {
-					courier: rule.id,
-					trackingNumbers: extracted.trackingNumbers,
-					status: detectedStatus,
-					orderNumbers: extracted.orderNumbers.length > 0 ? extracted.orderNumbers : undefined,
-					amazonHubCode: extracted.amazonHubCode,
-					deliveryDate: extracted.deliveryDate
-				};
+	for (const rule of rules) {
+		if (!isDomainMatched(fromLower, rule.domains)) continue;
+
+		if (rule.parse) {
+			try {
+				const customResult = rule.parse(
+					{ from: fromLower, subject: subClean, bodyPlain: bodyClean, bodyHtml },
+					buildHelpers(),
+					{ id: rule.id, name: rule.name, domains: expandDomains(rule.domains), patterns: rule.patterns }
+				);
+				if (customResult) return { courier: rule.id, ...customResult };
+			} catch (err) {
+				console.error(`[Parser] Custom parser failed for ${rule.name}:`, err);
 			}
 		}
 	}
 
-	// 2. Dynamic Fallback: Scan text for any valid dynamic courier tracking numbers
-	if (dynamicRules && dynamicRules.length > 0) {
-		for (const rule of dynamicRules) {
-			if (rule.tracking && rule.tracking.patterns.length > 0) {
-				const extracted = extractVariablesFromText(subClean, bodyClean, rule.tracking.patterns);
-				if (extracted.trackingNumbers.length > 0) {
-					return {
-						courier: rule.id,
-						trackingNumbers: extracted.trackingNumbers,
-						status: getStatusFromKeywords(subClean, bodyClean),
-						orderNumbers: extracted.orderNumbers.length > 0 ? extracted.orderNumbers : undefined,
-						amazonHubCode: extracted.amazonHubCode,
-						deliveryDate: extracted.deliveryDate
-					};
-				}
+	return null;
+}
+
+// ─── parseOrderEmail ──────────────────────────────────────────────────────────
+
+export function parseOrderEmail(
+	from: string,
+	subject: string,
+	bodyPlain: string,
+	bodyHtml?: string,
+	rules?: OrderRule[],
+): MailOrderResult | null {
+	const fromLower = from.toLowerCase().trim();
+	const subClean  = subject || "";
+	const bodyClean = bodyPlain || bodyHtml || "";
+
+	if (!rules || rules.length === 0) return null;
+
+	for (const rule of rules) {
+		if (!isDomainMatched(fromLower, rule.domains)) continue;
+
+		if (rule.parse) {
+			try {
+				const customResult = rule.parse(
+					{ from: fromLower, subject: subClean, bodyPlain: bodyClean, bodyHtml },
+					buildHelpers(),
+					{ id: rule.id, name: rule.name, domains: expandDomains(rule.domains), patterns: rule.patterns }
+				);
+				if (customResult && customResult.orderNumbers && customResult.orderNumbers.length > 0) return { courier: rule.id, ...customResult };
+			} catch (err) {
+				console.error(`[Parser] Custom order parser failed for ${rule.name}:`, err);
+			}
+		}
+	}
+
+	return null;
+}
+
+// ─── parseReturnEmail ─────────────────────────────────────────────────────────
+
+export function parseReturnEmail(
+	from: string,
+	subject: string,
+	bodyPlain: string,
+	bodyHtml?: string,
+	rules?: ReturnRule[],
+): MailReturnResult | null {
+	const fromLower = from.toLowerCase().trim();
+	const subClean  = subject || "";
+	const bodyClean = bodyPlain || bodyHtml || "";
+
+	if (!rules || rules.length === 0) return null;
+
+	for (const rule of rules) {
+		if (!isDomainMatched(fromLower, rule.domains)) continue;
+
+		if (rule.parse) {
+			try {
+				const customResult = rule.parse(
+					{ from: fromLower, subject: subClean, bodyPlain: bodyClean, bodyHtml },
+					buildHelpers(),
+					{ id: rule.id, name: rule.name, domains: expandDomains(rule.domains), patterns: rule.patterns }
+				);
+				if (customResult) return { courier: rule.id, ...customResult };
+			} catch (err) {
+				console.error(`[Parser] Custom return parser failed for ${rule.name}:`, err);
+			}
+		}
+	}
+
+	return null;
+}
+
+// ─── parseDunningEmail ────────────────────────────────────────────────────────
+
+export function parseDunningEmail(
+	from: string,
+	subject: string,
+	bodyPlain: string,
+	bodyHtml?: string,
+	rules?: DunningRule[],
+): MailDunningResult | null {
+	const fromLower = from.toLowerCase().trim();
+	const subClean  = subject || "";
+	const bodyClean = bodyPlain || bodyHtml || "";
+
+	if (!rules || rules.length === 0) return null;
+
+	for (const rule of rules) {
+		if (!isDomainMatched(fromLower, rule.domains)) continue;
+
+		if (rule.parse) {
+			try {
+				const customResult = rule.parse(
+					{ from: fromLower, subject: subClean, bodyPlain: bodyClean, bodyHtml },
+					buildHelpers(),
+					{ id: rule.id, name: rule.name, domains: expandDomains(rule.domains), patterns: rule.patterns }
+				);
+				if (customResult) return { courier: rule.id, ...customResult };
+			} catch (err) {
+				console.error(`[Parser] Custom dunning parser failed for ${rule.name}:`, err);
 			}
 		}
 	}
