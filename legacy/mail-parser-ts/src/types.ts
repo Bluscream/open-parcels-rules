@@ -25,6 +25,7 @@ export interface EmailData {
 export interface ParserHelpers {
   extractTrackingNumbers: (text: string, patterns: string[]) => string[];
   extractRegex: (text: string, pattern: string, groupIndex?: number) => string | undefined;
+  monthsMap: Record<string, number>;
 }
 
 export interface MatchRule {

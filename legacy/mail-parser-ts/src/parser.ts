@@ -1,5 +1,19 @@
 import type { MailPackageResult, PackageStatus, CourierRule, MatchRule } from "./types";
 
+const MONTHS_MAP: Record<string, number> = {
+  january: 0, jan: 0, february: 1, feb: 1, march: 2, mar: 2, april: 3, apr: 3,
+  may: 4, june: 5, jun: 5, july: 6, jul: 6, august: 7, aug: 7, september: 8,
+  sep: 8, sept: 8, october: 9, oct: 9, november: 10, nov: 10, december: 11, dec: 11,
+  gennaio: 0, febbraio: 1, marzo: 2, aprile: 3, maggio: 4, giugno: 5, luglio: 6,
+  agosto: 7, settembre: 8, ottobre: 9, novembre: 10, dicembre: 11,
+  januar: 0, februar: 1, märz: 2, maerz: 2, mai: 4, juni: 5, juli: 6, dezember: 11,
+  styczeń: 0, stycznia: 0, luty: 1, lutego: 1, marzec: 2, marca: 2, kwiecień: 3,
+  kwietnia: 3, maja: 4, czerwiec: 5, czerwca: 5, lipiec: 6, lipca: 6, sierpień: 7,
+  sierpnia: 7, wrzesień: 8, września: 8, październik: 9, października: 9,
+  listopad: 10, listopada: 10, grudzień: 11, grudnia: 11
+};
+
+
 /**
  * Performs high-performance prefix-based string matching
  */
@@ -322,7 +336,8 @@ export function parseEmail(
 									} catch {
 										return undefined;
 									}
-								}
+								},
+								monthsMap: MONTHS_MAP
 							}
 						);
 						if (customResult) return customResult;
