@@ -1,0 +1,22 @@
+{
+  "name": "mail-parser-ts",
+  "version": "1.0.0",
+  "description": "Port of Home Assistant Mail and Packages parsing logic to TypeScript",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mail",
+    "parser",
+    "tracking",
+    "parcel"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.4.2"
+  }
+}
