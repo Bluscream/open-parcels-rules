@@ -33,10 +33,14 @@ export interface ParserHelpers {
   monthsMap: Record<string, number>;
 }
 
+export type SecretType = "locker" | "courier" | "pickup";
+
 /** Base metadata for any rule — also passed to custom parse() callbacks */
 export interface RuleMetadata {
   id: string;
   name: string;
+  description: string;
+  icon_url: string;
   /** Domain list — may contain regex: prefixed patterns */
   domains: string[];
   /** Object of regex patterns defined by each rule */
@@ -60,7 +64,7 @@ export interface ParcelParseResult {
   deliveryDate?: Date;
   itemNames?: string[];
   secretCode?: string;
-  secretType?: "locker" | "courier" | "pickup" | string;
+  secretType?: SecretType;
   carrier?: string;
   deliveryLocation?: string;
   trackingUrl?: string;

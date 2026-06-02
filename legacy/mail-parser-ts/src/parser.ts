@@ -233,7 +233,7 @@ export function parseParcelEmail(
 				const customResult = rule.parse(
 					{ from: fromLower, subject: subClean, bodyPlain: bodyClean, bodyHtml },
 					buildHelpers(),
-					{ id: rule.id, name: rule.name, domains: expandDomains(rule.domains), patterns: rule.patterns }
+					{ id: rule.id, name: rule.name, description: rule.description, icon_url: rule.icon_url, domains: expandDomains(rule.domains), patterns: rule.patterns }
 				);
 				if (customResult) return { courier: rule.id, ...customResult };
 			} catch (err) {
@@ -268,7 +268,7 @@ export function parseOrderEmail(
 				const customResult = rule.parse(
 					{ from: fromLower, subject: subClean, bodyPlain: bodyClean, bodyHtml },
 					buildHelpers(),
-					{ id: rule.id, name: rule.name, domains: expandDomains(rule.domains), patterns: rule.patterns }
+					{ id: rule.id, name: rule.name, description: rule.description, icon_url: rule.icon_url, domains: expandDomains(rule.domains), patterns: rule.patterns }
 				);
 				if (customResult && customResult.orderNumbers && customResult.orderNumbers.length > 0) return { courier: rule.id, ...customResult };
 			} catch (err) {
@@ -303,7 +303,7 @@ export function parseReturnEmail(
 				const customResult = rule.parse(
 					{ from: fromLower, subject: subClean, bodyPlain: bodyClean, bodyHtml },
 					buildHelpers(),
-					{ id: rule.id, name: rule.name, domains: expandDomains(rule.domains), patterns: rule.patterns }
+					{ id: rule.id, name: rule.name, description: rule.description, icon_url: rule.icon_url, domains: expandDomains(rule.domains), patterns: rule.patterns }
 				);
 				if (customResult) return { courier: rule.id, ...customResult };
 			} catch (err) {
@@ -338,7 +338,7 @@ export function parseDunningEmail(
 				const customResult = rule.parse(
 					{ from: fromLower, subject: subClean, bodyPlain: bodyClean, bodyHtml },
 					buildHelpers(),
-					{ id: rule.id, name: rule.name, domains: expandDomains(rule.domains), patterns: rule.patterns }
+					{ id: rule.id, name: rule.name, description: rule.description, icon_url: rule.icon_url, domains: expandDomains(rule.domains), patterns: rule.patterns }
 				);
 				if (customResult) return { courier: rule.id, ...customResult };
 			} catch (err) {
