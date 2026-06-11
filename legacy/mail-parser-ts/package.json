@@ -1,6 +1,6 @@
 {
   "name": "mail-parser-ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Port of Home Assistant Mail and Packages parsing logic to TypeScript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
