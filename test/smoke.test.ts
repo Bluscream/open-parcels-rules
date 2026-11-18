@@ -25,6 +25,10 @@ interface Api {
   ) => { status: string };
   parseArrival: (rules: unknown, text: string, options: object) => { from: string } | null;
   parseMail: (rules: unknown, mail: object) => { ruleId: string }[];
+  ignoredStatus: (rules: unknown, carrier: string, raw: object) => string | null;
+  findCarrierKey: (rules: unknown, carrier: string, name: string) => { value: string } | undefined;
+  carrierKeys: (rules: unknown, carrier: string) => unknown[];
+  pastDayOffset: (rules: unknown, word: string) => number | undefined;
 }
 
 async function api(): Promise<Api> {
@@ -57,6 +61,10 @@ describe("built package", () => {
       text: "Sendungsnummer: 00340434123456789012",
     };
     expect(m.parseMail(rules, mail).length).toBeGreaterThan(0);
+    expect(m.ignoredStatus(rules, "amazon", { text: "Storniert" })).toBe("order_cancelled");
+    expect(m.findCarrierKey(rules, "evri", "website_key")?.value).not.toBe("");
+    expect(m.carrierKeys(rules, "amazon").length).toBeGreaterThan(1);
+    expect(m.pastDayOffset(rules, "gestern")).toBe(-1);
   });
 
   it("type-checks a strict consumer against the emitted declarations", () => {

@@ -33,6 +33,20 @@
               {
                 "type": "object",
                 "properties": {
+                  "code_prefix": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The code starts with this text (compared ignoring case). Tried after exact codes, in file order."
+                  }
+                },
+                "required": [
+                  "code_prefix"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
                   "text": {
                     "type": "string",
                     "minLength": 1,
@@ -48,10 +62,46 @@
                         "s"
                       ]
                     }
+                  },
+                  "fields": {
+                    "description": "Only when every listed raw field also equals its value, e.g. { lang: fr } for a sentence that exists in one page language only.",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+                      "description": "Name of a raw status field, as the carrier's payload calls it."
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "minLength": 1
+                    }
                   }
                 },
                 "required": [
                   "text"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+                      "description": "Name of a raw status field, as the carrier's payload calls it."
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minProperties": 1,
+                    "description": "Every listed field of the raw status equals its value (both trimmed, case kept). Tried before codes and texts, in file order, so list the most specific entry first."
+                  }
+                },
+                "required": [
+                  "fields"
                 ],
                 "additionalProperties": false
               }
@@ -80,6 +130,17 @@
             "description": "false marks a plausible guess not yet seen in real data. Defaults to true.",
             "type": "boolean"
           },
+          "label": {
+            "description": "A neutral English display text for the raw value, for carriers whose own wording can carry personal data (a shop name, an address).",
+            "type": "string",
+            "minLength": 1
+          },
+          "stage": {
+            "description": "Order of this step in the carrier's journey (higher is later), for consumers that must order events with the same time. Only meaningful within one table.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
           "note": {
             "type": "string"
           }
@@ -90,7 +151,135 @@
         ],
         "additionalProperties": false
       },
-      "description": "Checked in order; code entries are tried before text entries, first hit wins."
+      "description": "Field entries are tried first, then exact codes, then code prefixes, then texts; within each kind the first hit in file order wins."
+    },
+    "ignore": {
+      "default": [],
+      "description": "Values that say the item is no parcel at all (a cancelled or refunded order line). Matched like entries, but kept apart from them: mapping never returns these.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "match": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Exact machine status code (compared trimmed)."
+                  }
+                },
+                "required": [
+                  "code"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "code_prefix": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The code starts with this text (compared ignoring case). Tried after exact codes, in file order."
+                  }
+                },
+                "required": [
+                  "code_prefix"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Regex searched in the status text."
+                  },
+                  "flags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "i",
+                        "m",
+                        "s"
+                      ]
+                    }
+                  },
+                  "fields": {
+                    "description": "Only when every listed raw field also equals its value, e.g. { lang: fr } for a sentence that exists in one page language only.",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+                      "description": "Name of a raw status field, as the carrier's payload calls it."
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+                      "description": "Name of a raw status field, as the carrier's payload calls it."
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minProperties": 1,
+                    "description": "Every listed field of the raw status equals its value (both trimmed, case kept). Tried before codes and texts, in file order, so list the most specific entry first."
+                  }
+                },
+                "required": [
+                  "fields"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "event": {
+            "type": "string",
+            "enum": [
+              "order_placed",
+              "order_confirmed",
+              "order_shipped",
+              "order_cancelled",
+              "return_started",
+              "return_received",
+              "refund_issued",
+              "return_rejected",
+              "payment_reminder",
+              "payment_warning",
+              "debt_collection"
+            ],
+            "description": "What the value says instead of a parcel status, e.g. order_cancelled."
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "match",
+          "event"
+        ],
+        "additionalProperties": false
+      }
     },
     "tests": {
       "minItems": 1,
@@ -106,6 +295,17 @@
               },
               "text": {
                 "type": "string"
+              },
+              "fields": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+                  "description": "Name of a raw status field, as the carrier's payload calls it."
+                },
+                "additionalProperties": {
+                  "type": "string"
+                }
               }
             },
             "additionalProperties": false
@@ -134,6 +334,38 @@
           },
           "pickup": {
             "type": "boolean"
+          },
+          "stage": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "label": {
+            "type": "string"
+          },
+          "ignored": {
+            "description": "The event an `ignore` entry gives the input; null: no ignore entry matches.",
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "order_placed",
+                  "order_confirmed",
+                  "order_shipped",
+                  "order_cancelled",
+                  "return_started",
+                  "return_received",
+                  "refund_issued",
+                  "return_rejected",
+                  "payment_reminder",
+                  "payment_warning",
+                  "debt_collection"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [

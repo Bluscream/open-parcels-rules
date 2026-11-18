@@ -1,56 +1,130 @@
-import type { StatusEntry, StatusFile } from "./schema/status.ts";
+import type { IgnoreEntry, StatusEntry, StatusFile, StatusMatch } from "./schema/status.ts";
 import { compileDataRegex } from "./portability.ts";
-import type { MappedStatus, RawStatus, ResolvedStatus } from "./types.ts";
+import type { MailEvent, MappedStatus, RawStatus, ResolvedStatus } from "./types.ts";
 
-export interface CompiledStatusTable {
+/** Entries of one kind (status entries or ignore entries), indexed for matching. */
+export interface CompiledMatcher<E> {
+  readonly fields: readonly {
+    readonly fields: readonly (readonly [string, string])[];
+    readonly entry: E;
+  }[];
+  readonly codes: ReadonlyMap<string, E>;
+  readonly foldedCodes: ReadonlyMap<string, E>;
+  readonly prefixes: readonly { readonly prefix: string; readonly entry: E }[];
+  readonly texts: readonly {
+    readonly regex: RegExp;
+    /** Raw fields that must also match, when the entry names any. */
+    readonly fields: readonly (readonly [string, string])[];
+    readonly entry: E;
+  }[];
+}
+
+type FieldPairs = readonly (readonly [string, string])[];
+
+function fieldPairs(fields: Readonly<Record<string, string>> | undefined): [string, string][] {
+  return Object.entries(fields ?? {}).map(([k, v]) => [k, v.trim()]);
+}
+
+function fieldsHold(wanted: FieldPairs, given: RawStatus["fields"]): boolean {
+  return wanted.every(
+    ([name, value]) =>
+      given !== undefined && Object.hasOwn(given, name) && given[name]?.trim() === value,
+  );
+}
+
+export interface CompiledStatusTable extends CompiledMatcher<StatusEntry> {
   readonly carrier: string;
-  readonly codes: ReadonlyMap<string, StatusEntry>;
-  readonly foldedCodes: ReadonlyMap<string, StatusEntry>;
-  readonly texts: readonly { readonly regex: RegExp; readonly entry: StatusEntry }[];
+  readonly ignore: CompiledMatcher<IgnoreEntry>;
+}
+
+function compileMatcher<E extends { readonly match: StatusMatch }>(
+  entries: readonly E[],
+): CompiledMatcher<E> {
+  const fields: { fields: [string, string][]; entry: E }[] = [];
+  const codes = new Map<string, E>();
+  const foldedCodes = new Map<string, E>();
+  const prefixes: { prefix: string; entry: E }[] = [];
+  const texts: { regex: RegExp; fields: FieldPairs; entry: E }[] = [];
+  for (const entry of entries) {
+    const match = entry.match;
+    if ("code" in match) {
+      const code = match.code.trim();
+      if (!codes.has(code)) codes.set(code, entry);
+      if (!foldedCodes.has(code.toUpperCase())) foldedCodes.set(code.toUpperCase(), entry);
+    } else if ("code_prefix" in match) {
+      prefixes.push({ prefix: match.code_prefix.trim().toUpperCase(), entry });
+    } else if ("text" in match) {
+      const regex = compileDataRegex(match.text, match.flags);
+      texts.push({ regex, fields: fieldPairs(match.fields), entry });
+    } else {
+      fields.push({ fields: fieldPairs(match.fields), entry });
+    }
+  }
+  return { fields, codes, foldedCodes, prefixes, texts };
 }
 
 export function compileStatusTable(file: Omit<StatusFile, "tests">): CompiledStatusTable {
-  const codes = new Map<string, StatusEntry>();
-  const foldedCodes = new Map<string, StatusEntry>();
-  const texts: { regex: RegExp; entry: StatusEntry }[] = [];
-  for (const entry of file.entries) {
-    if ("code" in entry.match) {
-      const code = entry.match.code.trim();
-      if (!codes.has(code)) codes.set(code, entry);
-      if (!foldedCodes.has(code.toUpperCase())) foldedCodes.set(code.toUpperCase(), entry);
-    } else {
-      texts.push({ regex: compileDataRegex(entry.match.text, entry.match.flags), entry });
-    }
+  return {
+    carrier: file.carrier,
+    ...compileMatcher(file.entries),
+    ignore: compileMatcher(file.ignore),
+  };
+}
+
+/**
+ * The first entry for a raw value: field entries, then the exact code (as written, then ignoring
+ * case), then code prefixes, then text regexes. Within each kind, file order decides.
+ */
+function findEntry<E>(matcher: CompiledMatcher<E>, raw: RawStatus): E | undefined {
+  if (raw.fields !== undefined) {
+    const hit = matcher.fields.find(({ fields }) => fieldsHold(fields, raw.fields));
+    if (hit !== undefined) return hit.entry;
   }
-  return { carrier: file.carrier, codes, foldedCodes, texts };
-}
-
-function toMapped(entry: StatusEntry): MappedStatus {
-  const confirmed = entry.confirmed ?? true;
-  return entry.pickup === true
-    ? { status: entry.status, pickup: true, confirmed }
-    : { status: entry.status, confirmed };
-}
-
-export function mapWithTable(table: CompiledStatusTable, raw: RawStatus): MappedStatus | null {
   const code = raw.code?.trim();
   if (code !== undefined && code !== "") {
-    const entry = table.codes.get(code) ?? table.foldedCodes.get(code.toUpperCase());
-    if (entry !== undefined) return toMapped(entry);
+    const folded = code.toUpperCase();
+    const entry =
+      matcher.codes.get(code) ??
+      matcher.foldedCodes.get(folded) ??
+      matcher.prefixes.find(({ prefix }) => folded.startsWith(prefix))?.entry;
+    if (entry !== undefined) return entry;
   }
   const text = raw.text?.trim();
   if (text !== undefined && text !== "") {
-    const hit = table.texts.find(({ regex }) => regex.test(text));
-    if (hit !== undefined) return toMapped(hit.entry);
+    return matcher.texts.find(
+      ({ regex, fields }) => regex.test(text) && fieldsHold(fields, raw.fields),
+    )?.entry;
   }
-  return null;
+  return undefined;
+}
+
+function toMapped(entry: StatusEntry): MappedStatus {
+  return {
+    status: entry.status,
+    ...(entry.pickup === true ? { pickup: true } : {}),
+    confirmed: entry.confirmed ?? true,
+    ...(entry.stage === undefined ? {} : { stage: entry.stage }),
+    ...(entry.label === undefined ? {} : { label: entry.label }),
+  };
+}
+
+export function mapWithTable(table: CompiledStatusTable, raw: RawStatus): MappedStatus | null {
+  const entry = findEntry(table, raw);
+  return entry === undefined ? null : toMapped(entry);
+}
+
+/** The event an `ignore` entry gives a raw value, or null when none matches. */
+export function ignoredWithTable(table: CompiledStatusTable, raw: RawStatus): MailEvent | null {
+  return findEntry(table.ignore, raw)?.event ?? null;
 }
 
 function rawLabel(raw: RawStatus): string | null {
   const code = raw.code?.trim();
   if (code !== undefined && code !== "") return code;
   const text = raw.text?.trim();
-  return text !== undefined && text !== "" ? text : null;
+  if (text !== undefined && text !== "") return text;
+  const fields = Object.entries(raw.fields ?? {}).map(([name, value]) => `${name}=${value}`);
+  return fields.length === 0 ? null : fields.join(",");
 }
 
 /**

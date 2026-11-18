@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Dragonfly: the journey is a four-step ladder ("step:<n>"); negative steps are exceptions.
+carrier: dragonfly
+entries:
+  - { match: { code: "step:1" }, status: registered }
+  - { match: { code: "step:2" }, status: in_transit }
+  - { match: { code: "step:3" }, status: out_for_delivery }
+  - { match: { code: "step:4" }, status: delivered }
+  - { match: { code_prefix: "step:-" }, status: problem, note: "Negative steps are exceptions." }
+tests:
+  - { input: { code: "step:1" }, status: registered }
+  - { input: { code: "step:4" }, status: delivered }
+  - { input: { code: "step:-2" }, status: problem }
+  - { input: { code: "step:7" }, status: null }

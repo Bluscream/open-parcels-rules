@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# PostNord. "status:<STATUS>": the machine status, shared by shipments and their events.
+# "event:<code>": event codes that outrank the event's status.
+carrier: postnord
+entries:
+  - { match: { code: "status:CREATED" }, status: registered }
+  - { match: { code: "status:INFORMED" }, status: registered }
+  - { match: { code: "status:EN_ROUTE" }, status: in_transit }
+  - { match: { code: "status:AVAILABLE_FOR_DELIVERY" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "status:DELIVERY" }, status: out_for_delivery }
+  - { match: { code: "status:DELIVERED" }, status: delivered }
+  - { match: { code: "status:DELIVERY_IMPOSSIBLE" }, status: problem }
+  - { match: { code: "status:EXPECTED_DELAY" }, status: problem }
+  - { match: { code: "status:RETURNED" }, status: returning }
+  - { match: { code: "status:STOPPED" }, status: problem }
+  - { match: { code: "status:DELAYED" }, status: problem }
+  - { match: { code: "status:DELIVERY_REFUSED" }, status: returning }
+  # Event codes that say more than the status: "delivery in progress" while the shipment still
+  # says EN_ROUTE, and extended retention at the pickup point.
+  - { match: { code: "event:113" }, status: out_for_delivery }
+  - { match: { code: "event:45" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "event:z2F" }, status: at_pickup_point, pickup: true }
+tests:
+  - { input: { code: "status:EN_ROUTE" }, status: in_transit }
+  - { input: { code: "status:DELIVERY_REFUSED" }, status: returning }
+  - { input: { code: "event:113" }, status: out_for_delivery }
+  - { input: { code: "event:z2F" }, status: at_pickup_point }
+  - { input: { code: "status:OTHER" }, status: null }

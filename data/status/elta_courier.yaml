@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# ELTA Courier reports Greek sentences; each is matched whole.
+carrier: elta_courier
+entries:
+  - { match: { code: "Δημιουργία ΣΥ.ΔΕ.ΤΑ." }, status: registered }
+  - { match: { code: "Αποστολή βρίσκεται σε στάδιο μεταφοράς" }, status: in_transit }
+  - { match: { code: "Άφιξη σε" }, status: in_transit }
+  - { match: { code: "Σε διανομέα προς παράδοση" }, status: out_for_delivery }
+  - { match: { code: "Αποστολή παραδόθηκε" }, status: delivered }
+tests:
+  - { input: { code: "Δημιουργία ΣΥ.ΔΕ.ΤΑ." }, status: registered }
+  - { input: { code: "Σε διανομέα προς παράδοση" }, status: out_for_delivery }
+  - { input: { code: "Αποστολή παραδόθηκε" }, status: delivered }
+  - { input: { code: "Άγνωστο" }, status: null }

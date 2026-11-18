@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Evri tracking stage codes; the suffix tells courier, shop and locker apart. On a return parcel
+# (`leg: return`) the in-network stages 3 and 4 are the way back.
+carrier: evri
+entries:
+  - { match: { fields: { stage: "3", leg: return } }, status: returning }
+  - { match: { fields: { stage: "4", leg: return } }, status: returning }
+  - { match: { code: "0" }, status: registered }
+  - { match: { code: "1" }, status: registered }
+  - { match: { code: "2" }, status: in_transit }
+  - { match: { code: "3" }, status: in_transit }
+  - { match: { code: "4" }, status: in_transit }
+  - { match: { code: "6" }, status: problem }
+  - { match: { code: "4_COURIER" }, status: out_for_delivery }
+  - { match: { code: "4_SHOP" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "4_LOCKER" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "5_COURIER" }, status: delivered }
+  - { match: { code: "5_SHOP" }, status: delivered }
+  - { match: { code: "A" }, status: returning }
+  - { match: { code: "6_INFO" }, status: problem }
+  - { match: { code: "6_ACTION" }, status: problem }
+tests:
+  - { input: { code: "4_SHOP" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "5_COURIER" }, status: delivered }
+  - { input: { code: "3", fields: { stage: "3", leg: return } }, status: returning }
+  - { input: { code: "3", fields: { stage: "3", leg: forward } }, status: in_transit }
+  - { input: { code: "9" }, status: null }

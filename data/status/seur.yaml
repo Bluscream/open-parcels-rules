@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# SEUR situation codes seen on real parcels. LI569: announced for the shop, not collectable yet.
+carrier: seur
+entries:
+  - { match: { code: "SX010" }, status: registered }
+  - { match: { code: "SX001" }, status: in_transit }
+  - { match: { code: "LI567" }, status: in_transit }
+  - { match: { code: "LO001" }, status: in_transit }
+  - { match: { code: "SW189" }, status: in_transit }
+  - { match: { code: "LI569" }, status: in_transit }
+  - { match: { code: "LI574" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "LC003" }, status: out_for_delivery }
+  - { match: { code: "LL003" }, status: delivered }
+  - { match: { code: "LL010" }, status: delivered }
+tests:
+  - { input: { code: SX010 }, status: registered }
+  - { input: { code: LI569 }, status: in_transit }
+  - { input: { code: LI574 }, status: at_pickup_point, pickup: true }
+  - { input: { code: XX999 }, status: null }

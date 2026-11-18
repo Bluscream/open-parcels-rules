@@ -33,6 +33,14 @@ export const localeFileSchema = z.strictObject({
   relative_days: z.record(wordSchema, z.number().int().min(-7).max(7)).meta({
     description: "Words for a day relative to today, e.g. tomorrow: 1.",
   }),
+  past_days: z
+    .record(wordSchema, z.number().int().min(-7).max(0))
+    .default({})
+    .meta({
+      description:
+        "Words that name today or a past day on their own, as timeline headers and delivered " +
+        "lines use them (today: 0, yesterday: -1). Not used by the arrival parser.",
+    }),
   lead_ins: wordListSchema.meta({
     description:
       "Words that announce an arrival. A bare relative day or weekday only counts after one.",

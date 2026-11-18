@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# FedEx status and scan event codes.
+carrier: fedex
+entries:
+  - { match: { code: "OC" }, status: registered }
+  - { match: { code: "DO" }, status: registered }
+  - { match: { code: "IN" }, status: registered }
+  - { match: { code: "PD" }, status: problem }
+  - { match: { code: "CA" }, status: problem }
+  - { match: { code: "DD" }, status: problem }
+  - { match: { code: "SE" }, status: problem }
+  - { match: { code: "CD" }, status: problem }
+  - { match: { code: "DE" }, status: problem }
+  - { match: { code: "IP" }, status: in_transit }
+  - { match: { code: "DS" }, status: in_transit }
+  - { match: { code: "US" }, status: in_transit }
+  - { match: { code: "TR" }, status: in_transit }
+  - { match: { code: "DR" }, status: in_transit }
+  - { match: { code: "PM" }, status: in_transit }
+  - { match: { code: "MD" }, status: in_transit }
+  - { match: { code: "CH" }, status: in_transit }
+  - { match: { code: "AC" }, status: in_transit }
+  - { match: { code: "OX" }, status: in_transit }
+  - { match: { code: "CP" }, status: in_transit }
+  - { match: { code: "EA" }, status: in_transit }
+  - { match: { code: "AE" }, status: in_transit }
+  - { match: { code: "AO" }, status: in_transit }
+  - { match: { code: "DY" }, status: in_transit }
+  - { match: { code: "AR" }, status: in_transit }
+  - { match: { code: "AF" }, status: in_transit }
+  - { match: { code: "DP" }, status: in_transit }
+  - { match: { code: "CC" }, status: in_transit }
+  - { match: { code: "PU" }, status: in_transit }
+  - { match: { code: "IT" }, status: in_transit }
+  - { match: { code: "HP" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "OD" }, status: out_for_delivery }
+  - { match: { code: "DL" }, status: delivered }
+tests:
+  - { input: { code: OC }, status: registered }
+  - { input: { code: HP }, status: at_pickup_point, pickup: true }
+  - { input: { code: DL }, status: delivered }
+  - { input: { code: ZZ }, status: null }

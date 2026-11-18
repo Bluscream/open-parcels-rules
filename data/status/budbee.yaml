@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Budbee. Locker orders ("box:<status>") and every other order type ("delivery:<state>") use
+# the same words with different meanings: for a locker "Delivered" means waiting in the locker
+# and "PickedUp" is the hand-over. "ReturnedToTerminal" is arrival at a terminal, forward
+# progress.
+carrier: budbee
+entries:
+  - { match: { code: "delivery:NotStarted" }, status: registered }
+  - { match: { code: "delivery:OnRouteCollection" }, status: in_transit }
+  - { match: { code: "delivery:Collected" }, status: in_transit }
+  - { match: { code: "delivery:CollectedShippingLabel" }, status: in_transit }
+  - { match: { code: "delivery:CrossDocked" }, status: in_transit }
+  - { match: { code: "delivery:OnRouteDelivery" }, status: out_for_delivery }
+  - { match: { code: "delivery:Delivered" }, status: delivered }
+  - { match: { code: "delivery:Miss" }, status: problem }
+  - { match: { code: "delivery:Backordered" }, status: problem }
+  - { match: { code: "delivery:ReturnedToTerminal" }, status: in_transit }
+  - { match: { code: "delivery:ReturnedToMerchant" }, status: returning }
+  - { match: { code: "box:NotStarted" }, status: registered }
+  - { match: { code: "box:Pending" }, status: registered }
+  - { match: { code: "box:Collected" }, status: in_transit }
+  - { match: { code: "box:CollectedShippingLabel" }, status: in_transit }
+  - { match: { code: "box:DroppedOff" }, status: in_transit, pickup: true }
+  - { match: { code: "box:Delivered" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "box:PickedUp" }, status: delivered, pickup: true }
+  - { match: { code: "box:Undelivered" }, status: problem }
+  - { match: { code: "box:ReturnedToTerminal" }, status: in_transit }
+  - { match: { code: "box:ReturnedToMerchant" }, status: returning }
+tests:
+  - { input: { code: "delivery:Delivered" }, status: delivered }
+  - { input: { code: "box:Delivered" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "box:PickedUp" }, status: delivered }
+  - { input: { code: "delivery:Miss" }, status: problem }
+  - { input: { code: "delivery:PickedUp" }, status: null }

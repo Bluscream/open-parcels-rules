@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Ecoscooting (Cainiao's European last mile) event codes. Every code of the return leg starts
+# with RT_.
+carrier: ecoscooting
+entries:
+  - { match: { code: "CREATE" }, status: registered }
+  - { match: { code: "LABEL_CREATED" }, status: registered }
+  - { match: { code: "CREATE_ORDER_CES" }, status: registered }
+  - { match: { code: "GTMS_ACCEPT" }, status: in_transit }
+  - { match: { code: "SL_ACCEPT" }, status: in_transit }
+  - { match: { code: "PU_PICKUP_SUCCESS" }, status: in_transit }
+  - { match: { code: "TD_TRANSWH_OUTBOUND" }, status: in_transit }
+  - { match: { code: "TD_TRANS_ARRIVE_C" }, status: in_transit }
+  - { match: { code: "IN_TRANSIT" }, status: in_transit }
+  - { match: { code: "COMMON_INTRANSIT" }, status: in_transit }
+  - { match: { code: "PARTNER_OUTBOUND" }, status: in_transit }
+  - { match: { code: "TRANSFER_ARRIVE" }, status: in_transit }
+  - { match: { code: "TRANSFER_DEPART" }, status: in_transit }
+  - { match: { code: "SC_INBOUND" }, status: in_transit }
+  - { match: { code: "SC_OUTBOUND" }, status: in_transit }
+  - { match: { code: "GTMS_DO_DEPART" }, status: out_for_delivery }
+  - { match: { code: "LM_DELIVERY_DEPART" }, status: out_for_delivery }
+  - { match: { code: "GTMS_STA_SIGNED" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "PUDO_DELIVERY" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "GTMS_PUDO_INBOUND" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "PUDO_INBOUND" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "GTMS_SIGNED" }, status: delivered }
+  - { match: { code: "LM_SIGN_SUCCESS" }, status: delivered }
+  - { match: { code: "GTMS_PUDO_SIGNED" }, status: delivered }
+  - { match: { code: "PUDO_SIGN_SUCCESS" }, status: delivered }
+  - { match: { code: "GTMS_DEL_FAILURE" }, status: problem }
+  - { match: { code: "LM_DELIVERY_FAILURE" }, status: problem }
+  - { match: { code: "LM_PARCEL_EXCEPTION" }, status: problem }
+  - { match: { code: "GTMS_PUDO_OVERDUE" }, status: returning }
+  - { match: { code: "PUDO_OVERDUE" }, status: returning }
+  - { match: { code: "GTMS_SIGN_FAILURE" }, status: returning }
+  - { match: { code: "LM_UNREACHABLE_RETURN" }, status: returning }
+  - { match: { code_prefix: RT_ }, status: returning, note: "Every code of the return leg." }
+tests:
+  - { input: { code: CREATE }, status: registered }
+  - { input: { code: PUDO_INBOUND }, status: at_pickup_point, pickup: true }
+  - { input: { code: RT_SC_INBOUND }, status: returning }
+  - { input: { code: LM_UNREACHABLE_RETURN }, status: returning }
+  - { input: { code: NEW_CODE }, status: null }

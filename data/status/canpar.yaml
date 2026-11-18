@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Canpar event codes, and the summary number ("summary:<n>") used only when there are no events
+# yet. "NL" is a failed attempt (address not found), not a country.
+carrier: canpar
+entries:
+  - { match: { code: PIC }, status: in_transit }
+  - { match: { code: ARR }, status: in_transit }
+  - { match: { code: SRT }, status: in_transit }
+  - { match: { code: DPT }, status: in_transit }
+  - { match: { code: INO }, status: in_transit }
+  - { match: { code: COA }, status: in_transit }
+  - { match: { code: XC }, status: in_transit }
+  - { match: { code: WXX }, status: in_transit }
+  - { match: { code: WC }, status: out_for_delivery }
+  - { match: { code: DRP }, status: at_pickup_point, pickup: true }
+  - { match: { code: DEL }, status: delivered }
+  - { match: { code: NSR }, status: delivered }
+  - { match: { code: NH }, status: problem }
+  - { match: { code: HLD }, status: problem }
+  - { match: { code: MIS }, status: problem }
+  - { match: { code: NL }, status: problem }
+  - { match: { code: RTN }, status: returning }
+  - { match: { code: "summary:1" }, status: in_transit }
+  - { match: { code: "summary:2" }, status: delivered }
+  - { match: { code: "summary:4" }, status: out_for_delivery }
+  - { match: { code: "summary:6" }, status: registered }
+tests:
+  - { input: { code: PIC }, status: in_transit }
+  - { input: { code: DRP }, status: at_pickup_point, pickup: true }
+  - { input: { code: NL }, status: problem }
+  - { input: { code: "summary:6" }, status: registered }
+  - { input: { code: "summary:3" }, status: null }

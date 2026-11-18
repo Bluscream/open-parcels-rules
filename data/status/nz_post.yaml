@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# NZ Post. Keyed on the display text every event carries (wording whose meaning is unclear is left
+# out on purpose), with the numeric event code as the fallback for events without one.
+carrier: nz_post
+entries:
+  - { match: { code: "Tracking number allocated to parcel" }, status: registered }
+  - { match: { code: "Shipment data submitted" }, status: registered }
+  - { match: { code: "Label created" }, status: registered }
+  - { match: { code: "Parcel pickup request received" }, status: registered }
+  - { match: { code: "Parcel pickup request allocated to driver" }, status: registered }
+  - { match: { code: "Collected from sender" }, status: in_transit }
+  - { match: { code: "Picked up/Collected" }, status: in_transit }
+  - { match: { code: "Handover to airline" }, status: in_transit }
+  - { match: { code: "International departure" }, status: in_transit }
+  - { match: { code: "Flight arrival" }, status: in_transit }
+  - { match: { code: "International arrival" }, status: in_transit }
+  - { match: { code: "Handover for arrival processing" }, status: in_transit }
+  - { match: { code: "With border agency" }, status: in_transit }
+  - { match: { code: "Held for clearance" }, status: in_transit }
+  - { match: { code: "Released for delivery" }, status: in_transit }
+  - { match: { code: "Cleared for import" }, status: in_transit }
+  - { match: { code: "Arrival at sort depot" }, status: in_transit }
+  - { match: { code: "Arrival at sorting centre" }, status: in_transit }
+  - { match: { code: "Handed over" }, status: in_transit }
+  - { match: { code: "Processing at international depot" }, status: in_transit }
+  - { match: { code: "Processed at depot" }, status: in_transit }
+  - { match: { code: "Processed at outbound depot" }, status: in_transit }
+  - { match: { code: "Processed at facility" }, status: in_transit }
+  - { match: { code: "At local/regional depot" }, status: in_transit }
+  - { match: { code: "In transit with airline" }, status: in_transit }
+  - { match: { code: "In transit to local depot" }, status: in_transit }
+  - { match: { code: "Ready for courier" }, status: in_transit }
+  - { match: { code: "With courier for delivery" }, status: out_for_delivery }
+  - { match: { code: "Delayed" }, status: problem }
+  - { match: { code: "Delivery attempted - refer to card" }, status: problem }
+  - { match: { code: "Delivered" }, status: delivered }
+  - { match: { code: "997" }, status: registered }
+  - { match: { code: "205" }, status: registered }
+  - { match: { code: "206" }, status: registered }
+  - { match: { code: "5303" }, status: registered }
+  - { match: { code: "6908" }, status: registered }
+  - { match: { code: "13" }, status: in_transit }
+  - { match: { code: "144" }, status: in_transit }
+  - { match: { code: "5000" }, status: in_transit }
+  - { match: { code: "8" }, status: in_transit }
+  - { match: { code: "58" }, status: in_transit }
+  - { match: { code: "591" }, status: in_transit }
+  - { match: { code: "595" }, status: in_transit }
+  - { match: { code: "6028" }, status: in_transit }
+  - { match: { code: "5007" }, status: in_transit }
+  - { match: { code: "6025" }, status: in_transit }
+  - { match: { code: "5015" }, status: in_transit }
+  - { match: { code: "5016" }, status: in_transit }
+  - { match: { code: "5019" }, status: in_transit }
+  - { match: { code: "5023" }, status: in_transit }
+  - { match: { code: "5017" }, status: in_transit }
+  - { match: { code: "5360" }, status: in_transit }
+  - { match: { code: "5020" }, status: in_transit }
+  - { match: { code: "5041" }, status: in_transit }
+  - { match: { code: "5042" }, status: in_transit }
+  - { match: { code: "5064" }, status: in_transit }
+  - { match: { code: "5280" }, status: in_transit }
+  - { match: { code: "5282" }, status: in_transit }
+  - { match: { code: "5283" }, status: in_transit }
+  - { match: { code: "5284" }, status: in_transit }
+  - { match: { code: "5285" }, status: in_transit }
+  - { match: { code: "5292" }, status: in_transit }
+  - { match: { code: "6069" }, status: in_transit }
+  - { match: { code: "6068" }, status: in_transit }
+  - { match: { code: "6063" }, status: in_transit }
+  - { match: { code: "6049" }, status: in_transit }
+  - { match: { code: "6054" }, status: in_transit }
+  - { match: { code: "6071" }, status: in_transit }
+  - { match: { code: "5199" }, status: in_transit }
+  - { match: { code: "5213" }, status: in_transit }
+  - { match: { code: "32" }, status: out_for_delivery }
+  - { match: { code: "5045" }, status: out_for_delivery }
+  - { match: { code: "40" }, status: problem }
+  - { match: { code: "52" }, status: problem }
+  - { match: { code: "22" }, status: delivered }
+  - { match: { code: "5022" }, status: delivered }
+tests:
+  - { input: { code: Held for clearance }, status: in_transit }
+  - { input: { code: With courier for delivery }, status: out_for_delivery }
+  - { input: { code: "Delivery attempted - refer to card" }, status: problem }
+  - { input: { code: "5022" }, status: delivered }
+  - { input: { code: "1234" }, status: null }

@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# BOX NOW (Greece, Bulgaria, Croatia, Cyprus). The parcel's own `state` ("state:<value>") only
+# ever carries the terminal outcomes; each event has a `type` ("event:<value>").
+# `accepted-to-locker` is the sender dropping the parcel off; only `final-destination` means it
+# waits in the recipient's locker.
+carrier: box_now
+entries:
+  - { match: { code: "state:delivered" }, status: delivered }
+  - { match: { code: "state:missing" }, status: problem }
+  - { match: { code: "event:new" }, status: registered }
+  - { match: { code: "event:in-depot" }, status: in_transit }
+  - { match: { code: "event:accepted-to-locker" }, status: in_transit }
+  - { match: { code: "event:final-destination" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "event:delivered" }, status: delivered }
+  - { match: { code: "event:missing" }, status: problem }
+tests:
+  - { input: { code: "state:delivered" }, status: delivered }
+  - { input: { code: "event:accepted-to-locker" }, status: in_transit }
+  - { input: { code: "event:final-destination" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "state:new" }, status: null }

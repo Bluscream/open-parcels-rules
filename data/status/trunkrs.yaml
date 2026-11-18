@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Trunkrs `currentState.stateName` values seen on real parcels.
+carrier: trunkrs
+entries:
+  - { match: { code: "DATA_PROCESSED" }, status: registered }
+  - { match: { code: "SHIPMENT_SORTED" }, status: in_transit }
+  - { match: { code: "SHIPMENT_SORTED_AT_SUB_DEPOT" }, status: in_transit }
+  - { match: { code: "SHIPMENT_ACCEPTED_BY_DRIVER" }, status: out_for_delivery }
+  - { match: { code: "SHIPMENT_DELIVERED" }, status: delivered }
+tests:
+  - { input: { code: DATA_PROCESSED }, status: registered }
+  - { input: { code: SHIPMENT_ACCEPTED_BY_DRIVER }, status: out_for_delivery }
+  - { input: { code: SHIPMENT_DELIVERED }, status: delivered }
+  - { input: { code: SHIPMENT_LOST }, status: null }

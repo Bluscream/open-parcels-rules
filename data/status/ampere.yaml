@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Ampère (Netherlands): both wordings the page uses (the banner and the history log phrase the
+# "sorted" stage differently).
+carrier: ampere
+entries:
+  - {
+      match: { code: "Pakket is aangemeld maar nog niet ontvangen door Ampère" },
+      status: registered,
+    }
+  - { match: { code: "Pakket is klaar voor bezorging" }, status: in_transit }
+  - { match: { code: "Pakket is gesorteerd" }, status: in_transit }
+  - { match: { code: "Bezorger is onderweg" }, status: out_for_delivery }
+  - { match: { code: "Pakket is bezorgd" }, status: delivered }
+tests:
+  - { input: { code: "Pakket is gesorteerd" }, status: in_transit }
+  - { input: { code: "Bezorger is onderweg" }, status: out_for_delivery }
+  - { input: { code: "Pakket is bezorgd" }, status: delivered }
+  - { input: { code: "Pakket is zoek" }, status: null }

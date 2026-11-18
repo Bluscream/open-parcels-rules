@@ -1,0 +1,195 @@
+# yaml-language-server: $schema=../schema/keys.schema.json
+#
+# Fixed public values carriers expect from every client: keys their own website or app sends,
+# public app client ids, app versions and the User-Agents a carrier insists on. None of them
+# identifies a user; a user's credentials never belong here.
+#
+# `last_verified` is the date the value was last seen working. The first entries were moved here
+# from the open-parcels plug-ins, which recorded them on 2026-11-18.
+keys:
+  - carrier: amazon
+    name: app_version
+    purpose: "`app_version` of the Alexa iOS app sent with device registration and token refresh."
+    source: app
+    last_verified: 2026-11-18
+    value: "2.2.556530.0"
+  - carrier: amazon
+    name: device_type
+    purpose: Device type of the Alexa iOS app; identifies the client during device registration.
+    source: app
+    last_verified: 2026-11-18
+    value: A2IVLV5VM2W81
+  - carrier: amazon
+    name: device_id_suffix
+    purpose: Fixed suffix appended to the hex-encoded device serial to form the device id.
+    source: app
+    last_verified: 2026-11-18
+    value: 23413249564c5635564d32573831
+  - carrier: amazon
+    name: sdk_version
+    purpose: "`di.sdk.version`, `current_version` and `previous_version` of the registration call."
+    source: app
+    last_verified: 2026-11-18
+    value: "6.12.4"
+  - carrier: amazon
+    name: package_name
+    purpose: "`package_name` of the registration call."
+    source: app
+    last_verified: 2026-11-18
+    value: com.amazon.echo
+  - carrier: amazon
+    name: os_version
+    purpose: "`di.os.version` and `os_version` of the app's iOS device."
+    source: app
+    last_verified: 2026-11-18
+    value: "16.6"
+  - carrier: amazon
+    name: assoc_handle
+    purpose: "`openid.assoc_handle` and `pageId` of the app's sign-in page."
+    source: app
+    last_verified: 2026-11-18
+    value: amzn_dp_project_dee_ios
+  - carrier: amazon
+    name: browser_user_agent
+    purpose: The order pages answer a library User-Agent with a robot check; read as a mobile browser.
+    source: website
+    last_verified: 2026-11-18
+    value: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"
+  - carrier: an_post
+    name: site_key
+    purpose: "`apiKey` An Post's web pages send to their identity service."
+    source: website
+    last_verified: 2026-11-18
+    value: 4_-hnpKBjR2UeyQkTv_-11Pw
+  - carrier: canadapost
+    name: client_id
+    purpose: Public OAuth client of the Canada Post app (no client secret).
+    source: app
+    last_verified: 2026-11-18
+    value: cpc-nativeapp-2020
+  - carrier: ctt
+    name: browser_user_agent
+    purpose: The tracking hosts sit behind a firewall that rejects non-browser clients (error 1010).
+    source: website
+    last_verified: 2026-11-18
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+  - carrier: dao
+    name: client_id
+    purpose: Public OpenID Connect client of the DAO app (PKCE, no secret).
+    source: app
+    last_verified: 2026-11-18
+    value: dao-app
+  - carrier: dhl
+    name: de_client_id
+    purpose: Public OpenID Connect client of the DHL Paket app on login.dhl.de (empty Basic-auth secret).
+    source: app
+    last_verified: 2026-11-18
+    value: 83471082-5c13-4fce-8dcb-19d2a3fca413
+  - carrier: dhl
+    name: de_token_user_agent
+    purpose: User-Agent of the DHL Paket app; the login.dhl.de token endpoint rejects generic clients.
+    source: app
+    last_verified: 2026-11-18
+    value: DHLPaket_PROD/1367 CFNetwork/1240.0.4 Darwin/20.6.0
+  - carrier: dhl
+    name: de_tracking_user_agent
+    purpose: User-Agent of the DHL Paket app's web view, sent to the www.dhl.de tracking search.
+    source: app
+    last_verified: 2026-11-18
+    value: "Mozilla/5.0 (iPhone; CPU iPhone OS 14_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
+  - carrier: dpd
+    name: browser_user_agent
+    purpose: The myDPD sign-in and account pages are served to browsers; other clients get no parcel list.
+    source: website
+    last_verified: 2026-11-18
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  - carrier: ecoscooting
+    name: logistic_provider_id
+    purpose: "`logistic_provider_id` Ecoscooting's tracking page sends to its parent network's link gateway."
+    source: website
+    last_verified: 2026-11-18
+    value: DISTRIBUTOR_30250031
+  - carrier: evri
+    name: website_key
+    purpose: "`apikey` header Evri's public tracking website sends with every request."
+    source: website
+    last_verified: 2026-11-18
+    value: 0DExZiK9in2ihGce7cDPrnpQ4s4nIpWG
+  - carrier: hermes
+    name: app_key
+    purpose: Public client key of the Hermes mobile app for the account API; identifies the app, not the user.
+    source: app
+    last_verified: 2026-11-18
+    value: acefe97f-89fc-4f4e-9543-fc6b90f68928
+  - carrier: inpost
+    name: client_id
+    purpose: Public OAuth client of InPost's own sign-in (PKCE, no secret).
+    source: app
+    last_verified: 2026-11-18
+    value: inpost-mobile
+  - carrier: la_poste
+    name: user_agent
+    purpose: The tracking endpoint turns away unrecognised client User-Agents.
+    source: website
+    last_verified: 2026-11-18
+    value: PostmanRuntime/7.49.1
+  - carrier: mondial_relay
+    name: browser_user_agent
+    purpose: The public tracking page refuses requests that do not look like a browser.
+    source: website
+    last_verified: 2026-11-18
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  - carrier: posta_slovenije
+    name: client_id
+    purpose: Public OpenID Connect client of the MojaPošta app (password grant, no secret).
+    source: app
+    last_verified: 2026-11-18
+    value: mojaposta-ios
+  - carrier: posta_slovenije
+    name: user_agent
+    purpose: The API answers error.not.allowed to unknown clients; the app's User-Agent is accepted.
+    source: app
+    last_verified: 2026-11-18
+    value: MojaPosta/2.5.0 (android)
+  - carrier: postnl
+    name: tenant_id
+    purpose: Tenant in the path of PostNL's own login page.
+    source: website
+    last_verified: 2026-11-18
+    value: 101112a0-4a0f-4bbb-8176-2f1b2d370d7c
+  - carrier: postnl
+    name: client_id
+    purpose: Public OpenID Connect client of PostNL's website login (PKCE, no secret).
+    source: website
+    last_verified: 2026-11-18
+    value: bd9f1610-b56d-4e05-a09b-f696f05ddade
+  - carrier: postnord
+    name: web_client
+    purpose: "`x-bap-key` tag PostNord's own tracking website sends; a public client name."
+    source: website
+    last_verified: 2026-11-18
+    value: web-ncp
+  - carrier: seur
+    name: client_id
+    purpose: Public OAuth client of the miSEUR app for the password grant.
+    source: app
+    last_verified: 2026-11-18
+    value: miseur
+  - carrier: slovak_parcel_service
+    name: web_key
+    purpose: "`api-key` transport key the public MySPS website sends from every visitor's browser."
+    source: website
+    last_verified: 2026-11-18
+    value: 6VS314WZ+YtFPrYqqV2EZAoxKJNIyr13JGKTWjlOy6jz5zWKr-C8ZnpCJ7ChvZfW
+  - carrier: ukrposhta
+    name: public_bearer
+    purpose: Bearer token the carrier's own tracking widget sends; it identifies no user.
+    source: website
+    last_verified: 2026-11-18
+    value: c3e02b53-3b1d-386e-b676-141ffa054c57
+  - carrier: uniuni
+    name: public_key
+    purpose: Key UniUni's own public tracking page sends; it identifies no user.
+    source: website
+    last_verified: 2026-11-18
+    value: SMq45nJhQuNR3WHsJA6N

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { carriersFileSchema } from "./carriers.ts";
+import { keysFileSchema } from "./keys.ts";
 import { localeFileSchema } from "./locale.ts";
 import { mailRuleSchema } from "./mail.ts";
 import { statusFileSchema } from "./status.ts";
@@ -20,6 +21,7 @@ export const bundleSchema = z.strictObject({
   status: z.array(statusFileSchema.omit({ tests: true })),
   locales: z.array(localeFileSchema.omit({ tests: true })),
   mail: z.array(mailRuleSchema.omit({ tests: true })),
+  keys: keysFileSchema.shape.keys.default([]),
 });
 
 export type Bundle = z.infer<typeof bundleSchema>;

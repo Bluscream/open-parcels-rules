@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Matkahuolto sends a free English sentence per event, with no status code. Sentences are matched
+# on stable fragments, first match wins. Some name a pickup shop and its address, so `label` is
+# the generic text to show instead of the carrier's own words.
+carrier: matkahuolto
+entries:
+  - {
+      match: { text: "returned it to the sender", flags: [i] },
+      status: returning,
+      label: "Returned to sender",
+    }
+  - {
+      match: { text: "the consignment has been delivered", flags: [i] },
+      status: delivered,
+      label: "Delivered",
+    }
+  - {
+      match: { text: "available for pickup", flags: [i] },
+      status: at_pickup_point,
+      pickup: true,
+      label: "Available for pickup",
+    }
+  - {
+      match: { text: "sent the recipient a message about the arrival", flags: [i] },
+      status: at_pickup_point,
+      pickup: true,
+      label: "Arrival notice sent",
+    }
+  - {
+      match: { text: "forget to pick up your parcel", flags: [i] },
+      status: at_pickup_point,
+      pickup: true,
+      label: "Available for pickup",
+    }
+  - {
+      match: { text: "pick up point has changed", flags: [i] },
+      status: in_transit,
+      label: "Redirected to a new pickup point",
+    }
+  - {
+      match: { text: "collected the consignment from the parcel pick-up point", flags: [i] },
+      status: in_transit,
+      label: "Collected from a drop-off point",
+    }
+  - {
+      match: { text: "deliver the consignment to the pickup point", flags: [i] },
+      status: in_transit,
+      label: "On its way to a pickup point",
+    }
+  - {
+      match: { text: "ready to continue its journey", flags: [i] },
+      status: in_transit,
+      label: "Ready to continue its journey",
+    }
+  - { match: { text: "is on its way", flags: [i] }, status: in_transit, label: "On its way" }
+  - { match: { text: "has been sorted", flags: [i] }, status: in_transit, label: "Sorted" }
+  - {
+      match: { text: "waiting for the consignment from the sender", flags: [i] },
+      status: registered,
+      label: "Awaiting handover from sender",
+    }
+  - {
+      match: { text: "ready for delivery at the parcel pick-up point", flags: [i] },
+      status: registered,
+      label: "Waiting at a drop-off point",
+    }
+  - {
+      match: { text: "consignment is being processed", flags: [i] },
+      status: registered,
+      label: "Being processed",
+    }
+tests:
+  - {
+      input: { text: "Matkahuolto has returned it to the sender." },
+      status: returning,
+      label: "Returned to sender",
+    }
+  - {
+      input: { text: "Your parcel is available for pickup at Shop X, Street 1" },
+      status: at_pickup_point,
+      label: "Available for pickup",
+    }
+  - { input: { text: "The consignment is being processed" }, status: registered }
+  - { input: { text: "Something unheard of" }, status: null }

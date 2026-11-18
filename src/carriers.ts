@@ -1,3 +1,4 @@
+import { compileDataRegex } from "./portability.ts";
 import type { CarrierEntry } from "./schema/carriers.ts";
 import type { CarrierInfo } from "./types.ts";
 
@@ -28,6 +29,7 @@ export function buildCarrierIndex(entries: readonly CarrierEntry[]): CarrierInde
   const byCourierCode = new Map<string, string>();
   const byUpuCountry = new Map<string, string>();
   for (const entry of entries) {
+    const pattern = entry.tracking_number_pattern;
     const info: CarrierInfo = {
       id: entry.id,
       name: entry.name,
@@ -35,6 +37,9 @@ export function buildCarrierIndex(entries: readonly CarrierEntry[]): CarrierInde
       countries: entry.countries,
       domains: entry.domains,
       trackingUrls: entry.tracking_urls,
+      ...(pattern === undefined
+        ? {}
+        : { trackingNumberPattern: compileDataRegex(pattern.pattern, pattern.flags) }),
       crossref: entry.crossref,
     };
     list.push(info);

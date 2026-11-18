@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Helthjem (Norway). One enum serves the parcel and its events. Provisional: the vocabulary
+# could not be listed, so unknown values are reported rather than guessed.
+carrier: helthjem
+entries:
+  - { match: { code: "REGISTERED" }, status: registered }
+  - { match: { code: "PRE_TRANSIT" }, status: registered }
+  - { match: { code: "BOOKED" }, status: registered }
+  - { match: { code: "IN_TRANSIT" }, status: in_transit }
+  - { match: { code: "COLLECTED" }, status: in_transit }
+  - { match: { code: "AT_TERMINAL" }, status: in_transit }
+  - { match: { code: "OUT_FOR_DELIVERY" }, status: out_for_delivery }
+  - { match: { code: "DELIVERING" }, status: out_for_delivery }
+  - { match: { code: "READY_FOR_PICKUP" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "DELIVERED" }, status: delivered }
+  - { match: { code: "RETURNED" }, status: returning }
+  - { match: { code: "DEVIATION" }, status: problem }
+tests:
+  - { input: { code: BOOKED }, status: registered }
+  - { input: { code: READY_FOR_PICKUP }, status: at_pickup_point, pickup: true }
+  - { input: { code: DEVIATION }, status: problem }
+  - { input: { code: LOST }, status: null }

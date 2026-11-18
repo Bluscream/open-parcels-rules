@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Hrvatska pošta: the Croatian scan wording, whitespace collapsed (the English page merges two
+# scans).
+carrier: hrvatska_posta
+entries:
+  - {
+      match: { code: "Pošiljatelj je unio podatke, pošiljka još nije predana Hrvatskoj pošti" },
+      status: registered,
+    }
+  - { match: { code: "Pošiljka je zaprimljena" }, status: registered }
+  - { match: { code: "Pošiljka je prispjela" }, status: in_transit }
+  - { match: { code: "Pošiljka je u pripremi za otpremu" }, status: in_transit }
+  - { match: { code: "Pošiljka je otpremljena" }, status: in_transit }
+  - { match: { code: "Pošiljka je otpremljena prema unutrašnjem prometu" }, status: in_transit }
+  - { match: { code: "Pošiljka preusmjerena u paketomat" }, status: in_transit }
+  - { match: { code: "Dostava na adresu je u tijeku" }, status: out_for_delivery }
+  - { match: { code: "Pokušaj dostave pošiljke" }, status: problem }
+  - { match: { code: "Pošiljka nije uručena" }, status: problem }
+  - {
+      match: { code: "Pošiljku možete preuzeti u poštanskom uredu" },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { code: "Pošiljka predana u paketomat" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "Pošiljka je uručena" }, status: delivered }
+  - { match: { code: "Pošiljka je uručena primatelju" }, status: delivered }
+  - { match: { code: "Pošiljka se vraća pošiljatelju" }, status: returning }
+  - { match: { code: "Pošiljka je uručena pošiljatelju" }, status: returning }
+tests:
+  - { input: { code: "Pošiljka je zaprimljena" }, status: registered }
+  - { input: { code: "Pošiljka preusmjerena u paketomat" }, status: in_transit }
+  - { input: { code: "Pošiljka predana u paketomat" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "Pošiljka je uručena pošiljatelju" }, status: returning }
+  - { input: { code: "Pošiljka je izgubljena" }, status: null }

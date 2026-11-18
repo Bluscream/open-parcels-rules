@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Straightship status sentences after their location suffix and contact address are removed (the
+# address becomes "<address>").
+carrier: straightship
+entries:
+  - { match: { code: "Package information is created in the system" }, status: registered }
+  - { match: { code: "Package Received with Origin Scan warehouse" }, status: in_transit }
+  - { match: { code: "Package is received at a Straightship station" }, status: in_transit }
+  - { match: { code: "Package is in transit to a Straightship station" }, status: in_transit }
+  - { match: { code: "Loading" }, status: in_transit }
+  - { match: { code: "Package will be delivered before 9:00pm" }, status: out_for_delivery }
+  - {
+      match:
+        {
+          code: "An attempt was made to deliver your package-unable to leave package at safe location (please e-mail <address> to make arrangement)",
+        },
+      status: problem,
+    }
+  - { match: { code: "Delivered" }, status: delivered }
+tests:
+  - { input: { code: "Package information is created in the system" }, status: registered }
+  - { input: { code: "Package will be delivered before 9:00pm" }, status: out_for_delivery }
+  - { input: { code: Delivered }, status: delivered }
+  - { input: { code: "Package lost" }, status: null }

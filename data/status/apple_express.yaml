@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Apple Express (Canada): the status names of the order and its events, matched whole.
+carrier: apple_express
+entries:
+  - { match: { code: Order Created }, status: registered }
+  - { match: { code: Order Request Received }, status: registered }
+  - { match: { code: Waiting for Parcel }, status: registered }
+  - { match: { code: Pending Delivery Notification Sent }, status: registered }
+  - { match: { code: Delivery Notification Sent }, status: registered }
+  - { match: { code: Package Picked Up }, status: in_transit }
+  - { match: { code: Picked Up }, status: in_transit }
+  - { match: { code: Received at Local Sort Facility }, status: in_transit }
+  - { match: { code: "Parcel Received, Out for Delivery Soon" }, status: in_transit }
+  - { match: { code: Returned for Next Attempt }, status: in_transit }
+  - { match: { code: Second Attempt Planned }, status: in_transit }
+  - { match: { code: Out for Delivery }, status: out_for_delivery }
+  - { match: { code: Delivered }, status: delivered }
+  - { match: { code: "Exception - No Answer" }, status: problem }
+  - { match: { code: "Exception - No Suite or Unit Number" }, status: problem }
+  - { match: { code: FSA Not Serviced }, status: problem }
+tests:
+  - { input: { code: Order Created }, status: registered }
+  - { input: { code: "Parcel Received, Out for Delivery Soon" }, status: in_transit }
+  - { input: { code: Out for Delivery }, status: out_for_delivery }
+  - { input: { code: "Exception - No Answer" }, status: problem }
+  - { input: { code: Held at Depot }, status: null }

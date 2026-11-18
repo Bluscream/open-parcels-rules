@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Quickpac event codes: a few exact codes first, then the code's hundreds group
+# (`group` = the code divided by 100, rounded down).
+carrier: quickpac
+entries:
+  - { match: { fields: { code: "1000" } }, status: registered }
+  - { match: { fields: { code: "2600" } }, status: at_pickup_point, pickup: true }
+  - { match: { fields: { code: "2301" } }, status: in_transit }
+  - { match: { fields: { code: "2601" } }, status: in_transit }
+  - { match: { fields: { code: "2604" } }, status: in_transit }
+  - { match: { fields: { group: "21" } }, status: delivered }
+  - { match: { fields: { group: "24" } }, status: returning }
+  - { match: { fields: { group: "22" } }, status: in_transit }
+  - { match: { fields: { group: "25" } }, status: in_transit }
+  - { match: { fields: { group: "12" } }, status: in_transit }
+  - { match: { fields: { group: "14" } }, status: in_transit }
+  - { match: { fields: { group: "15" } }, status: in_transit }
+  - { match: { fields: { group: "18" } }, status: out_for_delivery }
+  - { match: { fields: { group: "19" } }, status: out_for_delivery }
+tests:
+  - { input: { fields: { code: "2600", group: "26" } }, status: at_pickup_point, pickup: true }
+  - { input: { fields: { code: "2150", group: "21" } }, status: delivered }
+  - { input: { fields: { code: "2301", group: "23" } }, status: in_transit }
+  - { input: { fields: { code: "2399", group: "23" } }, status: null }

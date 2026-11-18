@@ -2,14 +2,16 @@ import { parseWithGrammar } from "./arrival/parse.ts";
 import { buildTrackingUrl, lookupCarrier } from "./carriers.ts";
 import { parseMailWith } from "./mail/parse.ts";
 import type { Rules } from "./rules.ts";
-import { grammarFor } from "./rules.ts";
-import { mapWithTable, resolveWithTable } from "./status.ts";
+import { grammarFor, keyId } from "./rules.ts";
+import { ignoredWithTable, mapWithTable, resolveWithTable } from "./status.ts";
 import { detect } from "./tracking/detect.ts";
 import type {
   ArrivalOptions,
   ArrivalWindow,
   CarrierInfo,
+  CarrierKey,
   DetectHints,
+  MailEvent,
   MailInput,
   MailParseResult,
   MappedStatus,
@@ -66,6 +68,37 @@ export function mapStatus(rules: Rules, carrier: string, raw: RawStatus): Mapped
 }
 
 /**
+ * The event an `ignore` entry of the carrier's table gives a raw value (an order line that was
+ * cancelled, refunded or returned is no parcel), or null when none matches.
+ */
+export function ignoredStatus(rules: Rules, carrier: string, raw: RawStatus): MailEvent | null {
+  const id = lookupCarrier(rules.carriers, carrier)?.id ?? carrier;
+  const table = rules.statusTables.get(id);
+  return table === undefined ? null : ignoredWithTable(table, raw);
+}
+
+/**
+ * The day offset (0 today, -1 yesterday) a word names on its own, from the locales' `past_days`
+ * (all loaded locales unless `locales` names some), or undefined. The word is compared in lower
+ * case.
+ */
+export function pastDayOffset(
+  rules: Rules,
+  word: string,
+  locales?: readonly string[],
+): number | undefined {
+  const wanted = word.trim().toLowerCase();
+  const ids = locales?.map((id) => id.toLowerCase().split(/[-_]/u)[0] ?? id) ?? [
+    ...rules.locales.keys(),
+  ];
+  for (const id of ids) {
+    const offset = rules.locales.get(id)?.past_days[wanted];
+    if (offset !== undefined) return offset;
+  }
+  return undefined;
+}
+
+/**
  * The status of a parcel: the latest event if it maps, else the newest mapping history entry
  * (history is ordered newest first), else unknown. `unmapped` names the latest raw value when
  * it did not map, so callers can warn about it once.
@@ -78,6 +111,25 @@ export function resolveStatus(
 ): ResolvedStatus {
   const id = lookupCarrier(rules.carriers, carrier)?.id ?? carrier;
   return resolveWithTable(rules.statusTables.get(id), latest, history);
+}
+
+/**
+ * A fixed public value a carrier expects from every client (a website or app key, client id,
+ * app version or User-Agent), by carrier id or name and key name; undefined when not listed.
+ */
+export function findCarrierKey(
+  rules: Rules,
+  carrier: string,
+  name: string,
+): CarrierKey | undefined {
+  const id = lookupCarrier(rules.carriers, carrier)?.id ?? carrier;
+  return rules.keys.get(keyId(id, name));
+}
+
+/** Every fixed public key listed for a carrier. */
+export function carrierKeys(rules: Rules, carrier: string): CarrierKey[] {
+  const id = lookupCarrier(rules.carriers, carrier)?.id ?? carrier;
+  return [...rules.keys.values()].filter((key) => key.carrier === id);
 }
 
 /** A delivery date or window in text such as "Arriving 3 - 5 December" or "heute 17h - 19h". */

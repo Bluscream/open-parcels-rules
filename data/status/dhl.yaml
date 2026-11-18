@@ -161,6 +161,12 @@ entries:
   - { match: { code: RETURNED_NOT_COLLECTED }, status: returning }
   - { match: { code: RETURNED_TO_SHIPPER }, status: returning }
   - { match: { code: SPONTANEOUS_RETURN }, status: returning }
+  # DHL Parcel gateway return leg.
+  - { match: { code: RETURN_DELIVERED_AT_SHIPPER_CALCULATED }, status: returning }
+  - { match: { code: UNJUSTIFIED_SPONTANEOUS_RETURN }, status: returning }
+  - { match: { code_prefix: INTERVENTION_REQUEST_CANCEL_INTERVENTION }, status: returning }
+  - { match: { code_prefix: POSTPROCESS_ }, status: returning }
+  - { match: { code_prefix: REFUSED_RETURN }, status: returning }
   - { match: { code: STORAGE_PERIOD_ENDED_AT_ACCESSPOINT }, status: returning }
   - { match: { code: STORAGE_PERIOD_ENDED_AT_PARCELSHOP }, status: returning }
   - { match: { code: STORAGE_PERIOD_ENDED_AT_PARCELSTATION }, status: returning }
@@ -314,7 +320,92 @@ entries:
         },
       status: in_transit,
     }
+  # DHL eCommerce Iberia (Spain, Portugal): scan codes, the wording of scans without a code, and
+  # the solution code of a scan without either. ServicePoint codes carry pickup.
+  - { match: { code: "iberia:BS" }, status: in_transit }
+  - { match: { code: "iberia:HS" }, status: in_transit }
+  - { match: { code: "iberia:AS" }, status: in_transit, pickup: true }
+  - { match: { code: "iberia:ES" }, status: in_transit, pickup: true }
+  - { match: { code: "iberia:GT" }, status: in_transit }
+  - { match: { code: "iberia:DIA" }, status: in_transit }
+  - { match: { code: "iberia:EC" }, status: in_transit }
+  - { match: { code: "iberia:ZZZ" }, status: in_transit }
+  - { match: { code: "iberia:A" }, status: out_for_delivery }
+  - { match: { code: "iberia:IS" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "iberia:NH" }, status: problem }
+  - { match: { code: "iberia:CR" }, status: problem }
+  - { match: { code: "iberia:CH" }, status: problem }
+  - { match: { code: "iberia:PE" }, status: problem }
+  - { match: { code: "iberia:FM" }, status: problem }
+  - { match: { code: "iberia:OH" }, status: problem }
+  - { match: { code: "iberia:FA" }, status: problem }
+  - { match: { code: "iberia:AI" }, status: problem }
+  - { match: { code: "iberia:RT" }, status: returning }
+  - { match: { code: "iberia:R" }, status: delivered }
+  - { match: { code: "iberia:PC" }, status: delivered }
+  - { match: { code: "iberia:RS" }, status: delivered, pickup: true }
+  - { match: { code: "iberia:Shipment received at DHL Depot" }, status: in_transit }
+  - { match: { code: "iberia:Arrived at" }, status: in_transit }
+  - { match: { code: "iberia:In transit in" }, status: in_transit }
+  - { match: { code: "iberia:Departed from" }, status: in_transit }
+  - { match: { code: "iberia:Picked up" }, status: in_transit }
+  - { match: { code: "iberia:solution:DOC" }, status: registered }
+  # DHL Freight Sweden: `statusCode` and `reasonCode` of an event, and whether the shipment's
+  # delivery method is a home delivery (home) or not (servicepoint). A hand-over to the recipient
+  # is code 21 with reason 0 for home deliveries, reason 908 or 13 otherwise.
+  - {
+      match: { fields: { swedenStatus: "21", swedenReason: "0", delivery: home } },
+      status: delivered,
+    }
+  - {
+      match: { fields: { swedenStatus: "21", delivery: home } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { fields: { swedenStatus: "21", swedenReason: "908" } },
+      status: delivered,
+      pickup: true,
+    }
+  - {
+      match: { fields: { swedenStatus: "21", swedenReason: "13" } },
+      status: delivered,
+      pickup: true,
+    }
+  - { match: { fields: { swedenStatus: "21" } }, status: at_pickup_point, pickup: true }
+  - {
+      match: { fields: { swedenStatus: "20", swedenReason: "907" } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { fields: { swedenStatus: "24", swedenReason: "501" } }, status: out_for_delivery }
+  - { match: { fields: { swedenStatus: "56", swedenReason: "909" } }, status: returning }
+  - { match: { fields: { swedenStatus: "1" } }, status: in_transit }
+  - { match: { fields: { swedenStatus: "20" } }, status: in_transit }
+  - { match: { fields: { swedenStatus: "24" } }, status: in_transit }
 tests:
+  - { input: { code: "iberia:IS" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "iberia:Arrived at" }, status: in_transit }
+  - { input: { code: "iberia:solution:DOC" }, status: registered }
+  - {
+      input: { fields: { swedenStatus: "21", swedenReason: "0", delivery: home } },
+      status: delivered,
+    }
+  - {
+      input: { fields: { swedenStatus: "21", swedenReason: "908", delivery: home } },
+      status: at_pickup_point,
+    }
+  - {
+      input: { fields: { swedenStatus: "21", swedenReason: "908", delivery: servicepoint } },
+      status: delivered,
+    }
+  - { input: { fields: { swedenStatus: "24", swedenReason: "1" } }, status: in_transit }
+  - { input: { fields: { swedenStatus: "99" } }, status: null }
+  - { input: { code: INTERVENTION_REQUEST_CANCEL_INTERVENTION_BY_SHIPPER }, status: returning }
+  - { input: { code: POSTPROCESS_RETURN_TO_SHIPPER }, status: returning }
+  - { input: { code: REFUSED_RETURN_TO_SHIPPER }, status: returning }
+  - { input: { code: RETURN_DELIVERED_AT_SHIPPER_CALCULATED }, status: returning }
+  - { input: { code: UNJUSTIFIED_SPONTANEOUS_RETURN }, status: returning }
   - { input: { code: "fortschritt:4" }, status: out_for_delivery }
   - { input: { code: "fortschritt:5" }, status: delivered }
   - { input: { code: pre-transit }, status: registered }

@@ -157,7 +157,22 @@ entries:
         },
       status: in_transit,
     }
+  # Steps of the public tracking page (`statusInfo[].status`), as "step:<STEP>".
+  - { match: { code: "step:ACCEPTED" }, status: registered }
+  - { match: { code: "step:AT_SENDING_DEPOT" }, status: in_transit }
+  - { match: { code: "step:ON_THE_ROAD" }, status: in_transit }
+  - { match: { code: "step:AT_DELIVERY_DEPOT" }, status: in_transit }
+  - { match: { code: "step:OUT_FOR_DELIVERY" }, status: out_for_delivery }
+  - { match: { code: "step:PICKUP" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "step:DELIVERED" }, status: delivered }
+  # The account parcel list's `images/status_<N>.svg`: a DPD-internal code, not a slot index.
+  # Observed values only; the return icon (3) is recognised through the return wording instead.
+  - { match: { code: "icon:6" }, status: delivered }
 tests:
+  - { input: { code: "step:AT_DELIVERY_DEPOT" }, status: in_transit }
+  - { input: { code: "step:PICKUP" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "icon:6" }, status: delivered }
+  - { input: { code: "icon:3" }, status: null }
   - { input: { code: PARCEL_OUT_FOR_DELIVERY }, status: out_for_delivery }
   - { input: { code: UNSUCCESSFUL_DELIVERY_ATTEMPT }, status: problem }
   - { input: { code: DODEI }, status: at_pickup_point, pickup: true }

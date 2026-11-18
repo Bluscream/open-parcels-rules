@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Airmee: the courier status enum each timeline event carries (read from the app's own list),
+# and the display texts the tracker sends when the enum is missing. Codes compare ignoring
+# case, so both live here. `EDIT` (the order was amended) is not a stage and stays unmapped.
+carrier: airmee
+entries:
+  - { match: { code: REGISTERED }, status: registered }
+  - { match: { code: WAITING }, status: registered }
+  - { match: { code: UNASSIGNED }, status: registered }
+  - { match: { code: SCAN }, status: registered }
+  - { match: { code: ASSIGNED }, status: in_transit }
+  - { match: { code: ON_WAY_TO_PICKUP }, status: in_transit }
+  - { match: { code: PICKUP_CONFIRMED }, status: in_transit }
+  - { match: { code: ON_WAY_TO_DROPOFF }, status: out_for_delivery }
+  - { match: { code: READY_FOR_CUSTOMER_PICKUP }, status: at_pickup_point, pickup: true }
+  - { match: { code: DROPOFF_CONFIRMED }, status: delivered }
+  - { match: { code: POST_DROPOFF_CONFIRMED }, status: delivered }
+  - { match: { code: POSTPONED_UNREACHABLE_CUSTOMER }, status: problem }
+  - { match: { code: POSTPONED_OTHER }, status: problem }
+  - { match: { code: CANCELLED }, status: problem }
+  # Display texts.
+  - { match: { code: delivered }, status: delivered }
+  - { match: { code: out for delivery }, status: out_for_delivery }
+  - { match: { code: picked up }, status: in_transit }
+  - { match: { code: scanned }, status: registered }
+  - { match: { code: failed }, status: problem }
+  - { match: { code: returned }, status: returning }
+tests:
+  - { input: { code: READY_FOR_CUSTOMER_PICKUP }, status: at_pickup_point, pickup: true }
+  - { input: { code: Out for delivery }, status: out_for_delivery }
+  - { input: { code: unassigned }, status: registered }
+  - { input: { code: EDIT }, status: null }

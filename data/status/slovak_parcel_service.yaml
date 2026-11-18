@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Slovak Parcel Service: the named `statusCode` (preferred) and the numeric `status` (fallback).
+carrier: slovak_parcel_service
+entries:
+  - { match: { code: "8" }, status: registered }
+  - { match: { code: "10" }, status: registered }
+  - { match: { code: "30" }, status: out_for_delivery }
+  - { match: { code: "40" }, status: delivered }
+  - { match: { code: "44" }, status: in_transit }
+  - { match: { code: "50" }, status: in_transit }
+  - { match: { code: "DDEF" }, status: registered }
+  - { match: { code: "INIT" }, status: registered }
+  - { match: { code: "TOUR" }, status: out_for_delivery }
+  - { match: { code: "DELY" }, status: delivered }
+  - { match: { code: "PICK" }, status: in_transit }
+  - { match: { code: "RETC" }, status: in_transit }
+  # Known codes that describe no movement (delivery instructions given on the web).
+  - { match: { code: DDSP }, status: unknown }
+  - { match: { code: "38" }, status: unknown }
+tests:
+  - { input: { code: INIT }, status: registered }
+  - { input: { code: TOUR }, status: out_for_delivery }
+  - { input: { code: "40" }, status: delivered }
+  - { input: { code: DDSP }, status: unknown }
+  - { input: { code: ZZZZ }, status: null }

@@ -1,0 +1,115 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Poste Italiane reports only Italian sentences, no codes; consumers fold them (lower case,
+# whitespace collapsed, "e'" written as "è"). Short fragments sent as a whole event text are
+# codes; longer sentences are matched on their start (`use: status`), because dates and places
+# follow. With `use: pickup`, the entries tell sentences that put the parcel at a place the
+# recipient collects it from.
+carrier: poste_italiane
+entries:
+  - { match: { code: "all'estero" }, status: in_transit }
+  - { match: { code: "presso il paese estero in data" }, status: in_transit }
+  - { match: { code: "in data" }, status: in_transit }
+  - { match: { code: "con successo in data" }, status: delivered }
+  - {
+      match:
+        { text: "^la spedizione è stata presa in carico", flags: [i], fields: { use: status } },
+      status: registered,
+    }
+  - {
+      match: { text: "^da un nostro operatore", flags: [i], fields: { use: status } },
+      status: registered,
+    }
+  - {
+      match: { text: "^a seguito di acquisto da poste\\.it", flags: [i], fields: { use: status } },
+      status: registered,
+    }
+  - {
+      match: { text: "^disponibile per il ritiro", flags: [i], fields: { use: status } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { text: "^la spedizione è in transito", flags: [i], fields: { use: status } },
+      status: in_transit,
+    }
+  - {
+      match:
+        {
+          text: "^completata la fase di verifica per lo svincolo",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: in_transit,
+    }
+  - {
+      match: { text: "^consegna non andata a buon fine", flags: [i], fields: { use: status } },
+      status: problem,
+    }
+  - {
+      match:
+        {
+          text: "^sono in corso delle verifiche sulla spedizione",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: problem,
+    }
+  - {
+      match: { text: "^in restituzione al mittente", flags: [i], fields: { use: status } },
+      status: returning,
+    }
+  - {
+      match: { text: "^la spedizione è in consegna", flags: [i], fields: { use: status } },
+      status: out_for_delivery,
+    }
+  - {
+      match: { text: "^la spedizione è stata consegnata", flags: [i], fields: { use: status } },
+      status: delivered,
+    }
+  - {
+      match: { text: "^disponibile per il ritiro", flags: [i], fields: { use: pickup } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match:
+        {
+          text: "^la spedizione è stata presa in carico presso il punto poste",
+          flags: [i],
+          fields: { use: pickup },
+        },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match:
+        {
+          text: "^da un nostro operatore presso l'ufficio postale",
+          flags: [i],
+          fields: { use: pickup },
+        },
+      status: at_pickup_point,
+      pickup: true,
+    }
+tests:
+  - { input: { code: "in data" }, status: in_transit }
+  - { input: { code: "con successo in data" }, status: delivered }
+  - {
+      input: { text: "la spedizione è in consegna il 3 novembre", fields: { use: status } },
+      status: out_for_delivery,
+    }
+  - {
+      input: { text: "a seguito di acquisto da poste.it la spedizione", fields: { use: status } },
+      status: registered,
+    }
+  - {
+      input:
+        {
+          text: "da un nostro operatore presso l'ufficio postale di roma",
+          fields: { use: pickup },
+        },
+      status: at_pickup_point,
+    }
+  - { input: { text: "la spedizione è in transito", fields: { use: pickup } }, status: null }
+  - { input: { text: "sconosciuto", fields: { use: status } }, status: null }

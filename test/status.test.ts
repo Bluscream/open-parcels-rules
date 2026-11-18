@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { mapStatus, resolveStatus } from "../src/index.ts";
+import { ignoredStatus, mapStatus, pastDayOffset, resolveStatus } from "../src/index.ts";
+import { compileStatusTable, mapWithTable, resolveWithTable } from "../src/status.ts";
+import type { RawStatus } from "../src/types.ts";
 import { testData, testRules } from "./helpers/rules.ts";
 
 const rules = testRules();
@@ -13,6 +15,11 @@ describe("status table vectors", () => {
           const mapped = mapStatus(rules, file.carrier, vector.input);
           expect(mapped?.status ?? null).toBe(vector.status);
           if (vector.pickup !== undefined) expect(mapped?.pickup ?? false).toBe(vector.pickup);
+          if (vector.stage !== undefined) expect(mapped?.stage).toBe(vector.stage);
+          if (vector.label !== undefined) expect(mapped?.label).toBe(vector.label);
+          if (vector.ignored !== undefined) {
+            expect(ignoredStatus(rules, file.carrier, vector.input)).toBe(vector.ignored);
+          }
         });
       }
     });
@@ -58,6 +65,60 @@ describe("mapStatus", () => {
     expect(mapStatus(rules, "nonexistent", { code: "DELIVERED" })).toBeNull();
     expect(mapStatus(rules, "dhl", {})).toBeNull();
     expect(mapStatus(rules, "dhl", { code: "  ", text: "" })).toBeNull();
+  });
+});
+
+describe("match kinds", () => {
+  const table = compileStatusTable({
+    carrier: "example",
+    entries: [
+      { match: { fields: { kind: "OK", step: "32" } }, status: "at_pickup_point", pickup: true },
+      { match: { fields: { kind: "OK" } }, status: "delivered" },
+      { match: { code: "RETURN_LABEL" }, status: "registered" },
+      { match: { code_prefix: "RETURN_" }, status: "returning" },
+      { match: { code_prefix: "R" }, status: "problem" },
+      { match: { text: "zugestellt", flags: ["i"] }, status: "delivered" },
+    ],
+    ignore: [],
+  });
+  const map = (raw: RawStatus) => mapWithTable(table, raw)?.status ?? null;
+
+  it("tries fields first, most specific entry as listed", () => {
+    expect(map({ fields: { kind: "OK", step: " 32 " } })).toBe("at_pickup_point");
+    expect(map({ fields: { kind: "OK", step: "51" } })).toBe("delivered");
+    expect(map({ fields: { kind: "ok" } })).toBeNull();
+    expect(map({ fields: { kind: "OTHER" }, code: "RETURN_X" })).toBe("returning");
+  });
+
+  it("prefers an exact code over a prefix, and the first prefix in file order", () => {
+    expect(map({ code: "RETURN_LABEL" })).toBe("registered");
+    expect(map({ code: "return_delivered" })).toBe("returning");
+    expect(map({ code: "REFUSED" })).toBe("problem");
+    expect(map({ code: "XRETURN_" })).toBeNull();
+  });
+
+  it("names unmapped fields in the resolution", () => {
+    expect(resolveWithTable(table, { fields: { kind: "NEW" } }, []).unmapped).toBe("kind=NEW");
+  });
+});
+
+describe("ignore entries", () => {
+  it("keep ignored values out of the mapping", () => {
+    const line = { text: "Storniert" };
+    expect(ignoredStatus(rules, "amazon", line)).toBe("order_cancelled");
+    expect(mapStatus(rules, "amazon", line)).toBeNull();
+    expect(ignoredStatus(rules, "amazon", { text: "Zugestellt" })).toBeNull();
+    expect(ignoredStatus(rules, "no-such-carrier", line)).toBeNull();
+  });
+});
+
+describe("pastDayOffset", () => {
+  it("reads standalone past days in any loaded locale, or the named ones", () => {
+    expect(pastDayOffset(rules, "Yesterday")).toBe(-1);
+    expect(pastDayOffset(rules, "heute")).toBe(0);
+    expect(pastDayOffset(rules, "gestern", ["en"])).toBeUndefined();
+    expect(pastDayOffset(rules, "gestern", ["de-DE"])).toBe(-1);
+    expect(pastDayOffset(rules, "tomorrow")).toBeUndefined();
   });
 });
 

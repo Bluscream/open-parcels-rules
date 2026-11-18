@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Poczta Polska scan codes. Keyed on the scan code, never on the coarser state label, which can lag
+# behind a failed delivery.
+carrier: poczta_polska
+entries:
+  - { match: { code: "P_REJ_KN1" }, status: registered }
+  - { match: { code: "P_PPDN" }, status: in_transit }
+  - { match: { code: "P_NAD" }, status: in_transit }
+  - { match: { code: "P_PZL" }, status: in_transit }
+  - { match: { code: "P_WZL" }, status: in_transit }
+  - { match: { code: "P_WEOC" }, status: in_transit }
+  - { match: { code: "P_WYPL" }, status: in_transit }
+  - { match: { code: "P_WYOC" }, status: in_transit }
+  - { match: { code: "P_WEPL" }, status: in_transit }
+  - { match: { code: "P_WPUCPP" }, status: in_transit }
+  - { match: { code: "P_ZWC" }, status: in_transit }
+  - { match: { code: "P_WD" }, status: out_for_delivery }
+  - { match: { code: "P_WDML" }, status: out_for_delivery }
+  - { match: { code: "P_NDD" }, status: out_for_delivery }
+  - { match: { code: "P_A" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "P_KWD" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "P_PA" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "P_D" }, status: delivered }
+  - { match: { code: "P_OWU" }, status: delivered }
+  - { match: { code: "P_NDZ" }, status: returning }
+  - { match: { code: "P_ND" }, status: problem }
+  - { match: { code: "P_NDZK" }, status: problem }
+  - { match: { code: "P_NDPD" }, status: problem }
+  - { match: { code: "P_R" }, status: problem }
+  - { match: { code: "P_NDZAP" }, status: problem }
+  - { match: { code: "P_NDZKON" }, status: problem }
+  - { match: { code: "P_ZDUN" }, status: problem }
+  - { match: { code: "P_CZDKN" }, status: problem }
+  - { match: { code: "P_NDPJ" }, status: problem }
+tests:
+  - { input: { code: P_REJ_KN1 }, status: registered }
+  - { input: { code: P_KWD }, status: at_pickup_point, pickup: true }
+  - { input: { code: P_NDZ }, status: returning }
+  - { input: { code: P_XYZ }, status: null }

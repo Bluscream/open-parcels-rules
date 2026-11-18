@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# FAN Courier event codes, and the locker wording of event names.
+carrier: fan_courier
+entries:
+  - { match: { code: "C0" }, status: registered }
+  - { match: { code: "H0" }, status: in_transit }
+  - { match: { code: "H1" }, status: in_transit }
+  - { match: { code: "H2" }, status: in_transit }
+  - { match: { code: "H3" }, status: in_transit }
+  - { match: { code: "H4" }, status: in_transit }
+  - { match: { code: "H10" }, status: in_transit }
+  - { match: { code: "H11" }, status: in_transit }
+  - { match: { code: "H12" }, status: in_transit }
+  - { match: { code: "H13" }, status: in_transit }
+  - { match: { code: "H15" }, status: in_transit }
+  - { match: { code: "H17" }, status: in_transit }
+  - { match: { code: "S35" }, status: in_transit }
+  - { match: { code: "S47" }, status: in_transit }
+  - { match: { code: "C1" }, status: out_for_delivery }
+  - { match: { code: "S1" }, status: out_for_delivery }
+  - { match: { code: "S2" }, status: delivered }
+  - { match: { code: "S3" }, status: problem }
+  - { match: { code: "S4" }, status: problem }
+  - { match: { code: "S5" }, status: problem }
+  - { match: { code: "S6" }, status: problem }
+  - { match: { code: "S7" }, status: problem }
+  - { match: { code: "S10" }, status: problem }
+  - { match: { code: "S14" }, status: problem }
+  - { match: { code: "S15" }, status: problem }
+  - { match: { code: "S19" }, status: problem }
+  - { match: { code: "S20" }, status: problem }
+  - { match: { code: "S21" }, status: problem }
+  - { match: { code: "S22" }, status: problem }
+  - { match: { code: "S24" }, status: problem }
+  - { match: { code: "S25" }, status: problem }
+  - { match: { code: "S27" }, status: problem }
+  - { match: { code: "S28" }, status: problem }
+  - { match: { code: "S30" }, status: problem }
+  - { match: { code: "S37" }, status: problem }
+  - { match: { code: "S42" }, status: problem }
+  - { match: { code: "S50" }, status: problem }
+  - { match: { code: "S43" }, status: returning }
+  - { match: { code: "S46" }, status: at_pickup_point, pickup: true }
+  # Event names that mean the parcel waits in a locker whatever the code says (`use: locker`,
+  # matched anywhere in the lower-cased name).
+  - {
+      match: { text: "fanbox", flags: [i], fields: { use: locker } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { text: "easybox", flags: [i], fields: { use: locker } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { text: "locker", flags: [i], fields: { use: locker } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { text: "automat de colete", flags: [i], fields: { use: locker } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { text: "disponibil pentru ridicare", flags: [i], fields: { use: locker } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+tests:
+  - { input: { code: C0 }, status: registered }
+  - { input: { code: S2 }, status: delivered }
+  - { input: { code: S46 }, status: at_pickup_point, pickup: true }
+  - {
+      input: { text: "Colet disponibil pentru ridicare din FANbox", fields: { use: locker } },
+      status: at_pickup_point,
+    }
+  - { input: { text: "Livrat", fields: { use: locker } }, status: null }
+  - { input: { code: Z9 }, status: null }

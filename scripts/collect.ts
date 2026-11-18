@@ -9,6 +9,7 @@ import type { z } from "zod";
 import type { Bundle, TrackingSource } from "../src/schema/bundle.ts";
 import { bundleSchema } from "../src/schema/bundle.ts";
 import { carriersFileSchema } from "../src/schema/carriers.ts";
+import { keysFileSchema } from "../src/schema/keys.ts";
 import type { LocaleFile } from "../src/schema/locale.ts";
 import { localeFileSchema } from "../src/schema/locale.ts";
 import type { MailRule } from "../src/schema/mail.ts";
@@ -77,6 +78,7 @@ export function collectData(): DataFiles {
     parseFile(localeFileSchema, p),
   );
   const mail = listFiles(join(DATA, "mail"), ".yaml").map((p) => parseFile(mailRuleSchema, p));
+  const keys = parseFile(keysFileSchema, join(DATA, "keys.yaml"));
   const strip = <T extends { tests: unknown }>({ tests: _tests, ...rest }: T): Omit<T, "tests"> =>
     rest;
   const bundle = bundleSchema.parse({
@@ -87,6 +89,7 @@ export function collectData(): DataFiles {
     status: status.map(strip),
     locales: locales.map(strip),
     mail: mail.map(strip),
+    keys: keys.keys,
   });
   return { bundle, status, locales, mail };
 }

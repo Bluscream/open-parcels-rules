@@ -1,0 +1,599 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# bpost process steps (`activeStep.knownProcessStep`). The same vocabulary also appears,
+# case-flattened, as `activeStep.name` (codes compare ignoring case); "name:<name>" lists the
+# names that are not step codes. "prefix:<p>" maps every leading `_`-segment prefix of a known
+# name (lower case, first family wins) for names bpost has not shown yet: the consumer tries the
+# longest prefix first. Prefix matches are guesses.
+carrier: bpost
+entries: # registered
+  - { match: { code: IN_PREPARATION }, status: registered }
+  - { match: { code: IN_PREPARATION_AWAITING_DROPOFF }, status: registered }
+  - { match: { code: IN_PREPARATION_AWAITING_PICKUP }, status: registered }
+  - { match: { code: IN_PREPARATION_AWAITING_PICKUPDROPOFF }, status: registered }
+  - { match: { code: IN_PREPARATION_INTERNATIONAL }, status: registered }
+  - { match: { code: IN_PREPARATION_INTERNATIONAL_AWAITING_DROPOFF }, status: registered }
+  - { match: { code: IN_PREPARATION_INTERNATIONAL_AWAITING_PICKUP }, status: registered }
+  - { match: { code: IN_PREPARATION_INTERNATIONAL_AWAITING_PICKUPDROPOFF }, status: registered }
+  - { match: { code: PENDING_APPROVAL }, status: registered }
+  - { match: { code: PREPARATION }, status: registered }
+  - { match: { code: PREPARATION_AWAITING_DROPOFF }, status: registered }
+  - { match: { code: PREPARATION_AWAITING_PICKUP }, status: registered }
+  - { match: { code: PREPARATION_AWAITING_PICKUPDROPOFF }, status: registered }
+  - { match: { code: STATUS_PENDING }, status: registered }
+  - { match: { code: mpcPrinted }, status: registered }
+  # in_transit
+  - { match: { code: AWAITING }, status: in_transit }
+  - { match: { code: CUSTOMS }, status: in_transit }
+  - { match: { code: CUSTOMS_PAYMENT_NOT_REQUIRED }, status: in_transit }
+  - { match: { code: CUSTOMS_PAYMENT_SUCCESSFUL }, status: in_transit }
+  - { match: { code: EXPECTED }, status: in_transit }
+  - { match: { code: ON_THE_WAY }, status: in_transit }
+  - { match: { code: PROCESSING }, status: in_transit }
+  - { match: { code: PROCESSING_HOME }, status: in_transit }
+  - { match: { code: PROCESSING_INTERNATIONAL }, status: in_transit }
+  - { match: { code: PROCESSING_KARIBOO_POINT }, status: in_transit }
+  - { match: { code: PROCESSING_OUTBOUND_ABROAD }, status: in_transit }
+  - { match: { code: PROCESSING_OUTBOUND_ABROAD_PARCEL_LOCKER }, status: in_transit }
+  - { match: { code: PROCESSING_OUTBOUND_ABROAD_POST_POINT }, status: in_transit }
+  - { match: { code: PROCESSING_OUTBOUND_BPOST }, status: in_transit }
+  - { match: { code: PROCESSING_PARCEL_LOCKER }, status: in_transit }
+  - { match: { code: PROCESSING_PARCEL_LOCKER_AVISE }, status: in_transit }
+  - { match: { code: PROCESSING_POST_OFFICE }, status: in_transit }
+  - { match: { code: PROCESSING_POST_POINT }, status: in_transit }
+  - { match: { code: PROCESSING_SECOND_PRESENTATION }, status: in_transit }
+  - { match: { code: PROCESSING_SHOP }, status: in_transit }
+  # out_for_delivery
+  - { match: { code: ON_THE_WAY_TO_KARIBOO_POINT }, status: out_for_delivery }
+  - { match: { code: ON_THE_WAY_TO_PARCEL_LOCKER }, status: out_for_delivery }
+  - { match: { code: ON_THE_WAY_TO_PARCIFY_HUB }, status: out_for_delivery }
+  - { match: { code: ON_THE_WAY_TO_POSTAL_OFFICE }, status: out_for_delivery }
+  - { match: { code: ON_THE_WAY_TO_POST_OFFICE }, status: out_for_delivery }
+  - { match: { code: ON_THE_WAY_TO_POST_POINT }, status: out_for_delivery }
+  - { match: { code: ON_THE_WAY_TO_SHOP }, status: out_for_delivery }
+  - { match: { code: ON_THE_WAY_TO_YOU }, status: out_for_delivery }
+  - { match: { code: OUT_FOR_DELIVERY_HOME }, status: out_for_delivery }
+  - { match: { code: OUT_FOR_DELIVERY_KARIBOO_POINT }, status: out_for_delivery }
+  - { match: { code: OUT_FOR_DELIVERY_PARCIFY_HUB }, status: out_for_delivery }
+  - { match: { code: OUT_FOR_DELIVERY_POST_OFFICE }, status: out_for_delivery }
+  - { match: { code: OUT_FOR_DELIVERY_POST_POINT }, status: out_for_delivery }
+  - { match: { code: out_for_delivery_onFoot }, status: out_for_delivery }
+  - { match: { code: out_for_delivery_byBike }, status: out_for_delivery }
+  - { match: { code: out_for_delivery_byCar }, status: out_for_delivery }
+  - { match: { code: out_for_delivery_byEbike }, status: out_for_delivery }
+  - { match: { code: out_for_delivery_byECar }, status: out_for_delivery }
+  # at_pickup_point
+  - { match: { code: AVAILABLE }, status: at_pickup_point, pickup: true }
+  - { match: { code: AVAILABLE_ADVISED_POST_POINT }, status: at_pickup_point, pickup: true }
+  - {
+      match: { code: AVAILABLE_INTERNATIONAL_PARCEL_LOCKER },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { code: AVAILABLE_INTERNATIONAL_POST_POINT }, status: at_pickup_point, pickup: true }
+  - { match: { code: AVAILABLE_IN_KARIBOO_POINT }, status: at_pickup_point, pickup: true }
+  - { match: { code: AVAILABLE_IN_PARCEL_LOCKER }, status: at_pickup_point, pickup: true }
+  - {
+      match: { code: AVAILABLE_IN_PARCEL_LOCKER_INTERNATIONAL },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { code: AVAILABLE_IN_POST_OFFICE }, status: at_pickup_point, pickup: true }
+  - { match: { code: AVAILABLE_IN_POST_POINT }, status: at_pickup_point, pickup: true }
+  - {
+      match: { code: AVAILABLE_IN_POST_POINT_INTERNATIONAL },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { code: AVAILABLE_IN_SHOP }, status: at_pickup_point, pickup: true }
+  - { match: { code: AVAILABLE_KARIBOO_POINT }, status: at_pickup_point, pickup: true }
+  - { match: { code: AVAILABLE_PARCEL_LOCKER }, status: at_pickup_point, pickup: true }
+  - {
+      match: { code: AVAILABLE_PARCEL_LOCKER_INTERNATIONAL },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { code: AVAILABLE_POST_OFFICE }, status: at_pickup_point, pickup: true }
+  - { match: { code: AVAILABLE_POST_POINT }, status: at_pickup_point, pickup: true }
+  - { match: { code: AVAILABLE_POST_POINT_INTERNATIONAL }, status: at_pickup_point, pickup: true }
+  - { match: { code: AVAILABLE_SHOP }, status: at_pickup_point, pickup: true }
+  - { match: { code: REDELIVERY_CAN_PICKUP_POST_POINT }, status: at_pickup_point, pickup: true }
+  # delivered
+  - { match: { code: DELIVERED }, status: delivered }
+  - { match: { code: DELIVERED_AT_FORCED_NB }, status: delivered }
+  - { match: { code: DELIVERED_AT_FORCED_SP }, status: delivered }
+  - { match: { code: DELIVERED_AT_HOME }, status: delivered }
+  - { match: { code: DELIVERED_AT_NEIGHBOUR }, status: delivered }
+  - { match: { code: DELIVERED_IN_MAILBOX }, status: delivered }
+  - { match: { code: DELIVERED_MANUALLY }, status: delivered }
+  - { match: { code: DELIVERED_TO_KARIBOO }, status: delivered }
+  - { match: { code: DELIVERED_TO_SAFEPLACE }, status: delivered }
+  - { match: { code: PICKED_UP }, status: delivered }
+  - { match: { code: PICKED_UP_AT_INTERNATIONAL_PARCEL_LOCKER }, status: delivered }
+  - { match: { code: PICKED_UP_AT_INTERNATIONAL_POST_POINT }, status: delivered }
+  - { match: { code: PICKED_UP_IN_KARIBOO_POINT }, status: delivered }
+  - { match: { code: PICKED_UP_IN_PARCEL_LOCKER }, status: delivered }
+  - { match: { code: PICKED_UP_IN_PARCEL_LOCKER_INTERNATIONAL }, status: delivered }
+  - { match: { code: PICKED_UP_IN_POST_OFFICE }, status: delivered }
+  - { match: { code: PICKED_UP_IN_POST_POINT }, status: delivered }
+  - { match: { code: PICKED_UP_IN_POST_POINT_INTERNATIONAL }, status: delivered }
+  - { match: { code: PICKED_UP_IN_SHOP }, status: delivered }
+  - { match: { code: BTS_DELIVERED }, status: delivered }
+  - { match: { code: DELIVERED_TO_SENDER }, status: delivered }
+  - { match: { code: DELIVERED_TO_SENDER_RETURN }, status: delivered }
+  - { match: { code: PICKED_UP_BY_SENDER }, status: delivered }
+  - { match: { code: RETOUR_DELIVERED }, status: delivered }
+  # returning
+  - { match: { code: BTS_AVAILABLE_PARCEL_LOCKER }, status: returning }
+  - { match: { code: BTS_AVAILABLE_POST_POINT }, status: returning }
+  - { match: { code: BTS_OUT_FOR_DELIVERY_HOME }, status: returning }
+  - { match: { code: BTS_OUT_FOR_DELIVERY_KARIBOO_POINT }, status: returning }
+  - { match: { code: BTS_OUT_FOR_DELIVERY_PARCEL_LOCKER }, status: returning }
+  - { match: { code: BTS_OUT_FOR_DELIVERY_POST_OFFICE }, status: returning }
+  - { match: { code: BTS_OUT_FOR_DELIVERY_POST_POINT }, status: returning }
+  - { match: { code: ON_THE_WAY_TO_SENDER }, status: returning }
+  - { match: { code: OUT_FOR_DELIVERY_SENDER }, status: returning }
+  - { match: { code: RETOUR_AVAILABLE_POST_POINT }, status: returning }
+  - { match: { code: RETOUR_OUT_FOR_DELIVERY_HOME }, status: returning }
+  - { match: { code: RETOUR_OUT_FOR_DELIVERY_KARIBOO_POINT }, status: returning }
+  - { match: { code: RETOUR_OUT_FOR_DELIVERY_POST_OFFICE }, status: returning }
+  - { match: { code: RETOUR_OUT_FOR_DELIVERY_POST_POINT }, status: returning }
+  - { match: { code: RETURN_TO_SENDER }, status: returning }
+  - { match: { code: RETURN_TO_SENDER_INTERNATIONAL }, status: returning }
+  # problem
+  - { match: { code: AWAITING_CUSTOMS_PAYMENT }, status: problem }
+  - { match: { code: CUSTOMS_PAYMENT_CHALLENGED }, status: problem }
+  - { match: { code: CUSTOMS_PAYMENT_EXPIRED }, status: problem }
+  - { match: { code: CUSTOMS_PAYMENT_REFUSED }, status: problem }
+  - { match: { code: EXCEPTION }, status: problem }
+  - { match: { code: REDELIVERY_NO_PICKUP }, status: problem }
+  # `activeStep.name` only.
+  - { match: { code: "name:delivered_kariboo_point" }, status: delivered }
+  # Leading `_`-segment prefixes of known names (lower case), for unseen names.
+  - { match: { code: "prefix:in" }, status: registered, confirmed: false }
+  - { match: { code: "prefix:in_preparation" }, status: registered, confirmed: false }
+  - { match: { code: "prefix:in_preparation_awaiting" }, status: registered, confirmed: false }
+  - {
+      match: { code: "prefix:in_preparation_awaiting_dropoff" },
+      status: registered,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:in_preparation_awaiting_pickup" },
+      status: registered,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:in_preparation_awaiting_pickupdropoff" },
+      status: registered,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:in_preparation_international" }, status: registered, confirmed: false }
+  - {
+      match: { code: "prefix:in_preparation_international_awaiting" },
+      status: registered,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:in_preparation_international_awaiting_dropoff" },
+      status: registered,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:in_preparation_international_awaiting_pickup" },
+      status: registered,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:in_preparation_international_awaiting_pickupdropoff" },
+      status: registered,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:pending" }, status: registered, confirmed: false }
+  - { match: { code: "prefix:pending_approval" }, status: registered, confirmed: false }
+  - { match: { code: "prefix:preparation" }, status: registered, confirmed: false }
+  - { match: { code: "prefix:preparation_awaiting" }, status: registered, confirmed: false }
+  - { match: { code: "prefix:preparation_awaiting_dropoff" }, status: registered, confirmed: false }
+  - { match: { code: "prefix:preparation_awaiting_pickup" }, status: registered, confirmed: false }
+  - {
+      match: { code: "prefix:preparation_awaiting_pickupdropoff" },
+      status: registered,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:status" }, status: registered, confirmed: false }
+  - { match: { code: "prefix:status_pending" }, status: registered, confirmed: false }
+  - { match: { code: "prefix:mpcprinted" }, status: registered, confirmed: false }
+  - { match: { code: "prefix:awaiting" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:customs" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:customs_payment" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:customs_payment_not" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:customs_payment_not_required" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:customs_payment_successful" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:expected" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:on" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:on_the" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:on_the_way" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_home" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_international" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_kariboo" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_kariboo_point" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_outbound" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_outbound_abroad" }, status: in_transit, confirmed: false }
+  - {
+      match: { code: "prefix:processing_outbound_abroad_parcel" },
+      status: in_transit,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:processing_outbound_abroad_parcel_locker" },
+      status: in_transit,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:processing_outbound_abroad_post" },
+      status: in_transit,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:processing_outbound_abroad_post_point" },
+      status: in_transit,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:processing_outbound_bpost" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_parcel" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_parcel_locker" }, status: in_transit, confirmed: false }
+  - {
+      match: { code: "prefix:processing_parcel_locker_avise" },
+      status: in_transit,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:processing_post" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_post_office" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_post_point" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:processing_second" }, status: in_transit, confirmed: false }
+  - {
+      match: { code: "prefix:processing_second_presentation" },
+      status: in_transit,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:processing_shop" }, status: in_transit, confirmed: false }
+  - { match: { code: "prefix:on_the_way_to" }, status: out_for_delivery, confirmed: false }
+  - { match: { code: "prefix:on_the_way_to_kariboo" }, status: out_for_delivery, confirmed: false }
+  - {
+      match: { code: "prefix:on_the_way_to_kariboo_point" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:on_the_way_to_parcel" }, status: out_for_delivery, confirmed: false }
+  - {
+      match: { code: "prefix:on_the_way_to_parcel_locker" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:on_the_way_to_parcify" }, status: out_for_delivery, confirmed: false }
+  - {
+      match: { code: "prefix:on_the_way_to_parcify_hub" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:on_the_way_to_postal" }, status: out_for_delivery, confirmed: false }
+  - {
+      match: { code: "prefix:on_the_way_to_postal_office" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:on_the_way_to_post" }, status: out_for_delivery, confirmed: false }
+  - {
+      match: { code: "prefix:on_the_way_to_post_office" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:on_the_way_to_post_point" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:on_the_way_to_shop" }, status: out_for_delivery, confirmed: false }
+  - { match: { code: "prefix:on_the_way_to_you" }, status: out_for_delivery, confirmed: false }
+  - { match: { code: "prefix:out" }, status: out_for_delivery, confirmed: false }
+  - { match: { code: "prefix:out_for" }, status: out_for_delivery, confirmed: false }
+  - { match: { code: "prefix:out_for_delivery" }, status: out_for_delivery, confirmed: false }
+  - { match: { code: "prefix:out_for_delivery_home" }, status: out_for_delivery, confirmed: false }
+  - {
+      match: { code: "prefix:out_for_delivery_kariboo" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:out_for_delivery_kariboo_point" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:out_for_delivery_parcify" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:out_for_delivery_parcify_hub" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:out_for_delivery_post" }, status: out_for_delivery, confirmed: false }
+  - {
+      match: { code: "prefix:out_for_delivery_post_office" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:out_for_delivery_post_point" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:out_for_delivery_onfoot" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:out_for_delivery_bybike" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:out_for_delivery_bycar" }, status: out_for_delivery, confirmed: false }
+  - {
+      match: { code: "prefix:out_for_delivery_byebike" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:out_for_delivery_byecar" },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:available" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:available_advised" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:available_advised_post" }, status: at_pickup_point, confirmed: false }
+  - {
+      match: { code: "prefix:available_advised_post_point" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:available_international" }, status: at_pickup_point, confirmed: false }
+  - {
+      match: { code: "prefix:available_international_parcel" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:available_international_parcel_locker" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:available_international_post" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:available_international_post_point" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:available_in" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:available_in_kariboo" }, status: at_pickup_point, confirmed: false }
+  - {
+      match: { code: "prefix:available_in_kariboo_point" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:available_in_parcel" }, status: at_pickup_point, confirmed: false }
+  - {
+      match: { code: "prefix:available_in_parcel_locker" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:available_in_parcel_locker_international" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:available_in_post" }, status: at_pickup_point, confirmed: false }
+  - {
+      match: { code: "prefix:available_in_post_office" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:available_in_post_point" }, status: at_pickup_point, confirmed: false }
+  - {
+      match: { code: "prefix:available_in_post_point_international" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:available_in_shop" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:available_kariboo" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:available_kariboo_point" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:available_parcel" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:available_parcel_locker" }, status: at_pickup_point, confirmed: false }
+  - {
+      match: { code: "prefix:available_parcel_locker_international" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:available_post" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:available_post_office" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:available_post_point" }, status: at_pickup_point, confirmed: false }
+  - {
+      match: { code: "prefix:available_post_point_international" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:available_shop" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:redelivery" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:redelivery_can" }, status: at_pickup_point, confirmed: false }
+  - { match: { code: "prefix:redelivery_can_pickup" }, status: at_pickup_point, confirmed: false }
+  - {
+      match: { code: "prefix:redelivery_can_pickup_post" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:redelivery_can_pickup_post_point" },
+      status: at_pickup_point,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:delivered" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_at" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_at_forced" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_at_forced_nb" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_at_forced_sp" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_at_home" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_at_neighbour" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_in" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_in_mailbox" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_manually" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_to" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_to_kariboo" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_to_safeplace" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up_at" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up_at_international" }, status: delivered, confirmed: false }
+  - {
+      match: { code: "prefix:picked_up_at_international_parcel" },
+      status: delivered,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:picked_up_at_international_parcel_locker" },
+      status: delivered,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:picked_up_at_international_post" },
+      status: delivered,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:picked_up_at_international_post_point" },
+      status: delivered,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:picked_up_in" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up_in_kariboo" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up_in_kariboo_point" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up_in_parcel" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up_in_parcel_locker" }, status: delivered, confirmed: false }
+  - {
+      match: { code: "prefix:picked_up_in_parcel_locker_international" },
+      status: delivered,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:picked_up_in_post" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up_in_post_office" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up_in_post_point" }, status: delivered, confirmed: false }
+  - {
+      match: { code: "prefix:picked_up_in_post_point_international" },
+      status: delivered,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:picked_up_in_shop" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:bts" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:bts_delivered" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_to_sender" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_to_sender_return" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up_by" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:picked_up_by_sender" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:retour" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:retour_delivered" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:bts_available" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:bts_available_parcel" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:bts_available_parcel_locker" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:bts_available_post" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:bts_available_post_point" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:bts_out" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:bts_out_for" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:bts_out_for_delivery" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:bts_out_for_delivery_home" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:bts_out_for_delivery_kariboo" }, status: returning, confirmed: false }
+  - {
+      match: { code: "prefix:bts_out_for_delivery_kariboo_point" },
+      status: returning,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:bts_out_for_delivery_parcel" }, status: returning, confirmed: false }
+  - {
+      match: { code: "prefix:bts_out_for_delivery_parcel_locker" },
+      status: returning,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:bts_out_for_delivery_post" }, status: returning, confirmed: false }
+  - {
+      match: { code: "prefix:bts_out_for_delivery_post_office" },
+      status: returning,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:bts_out_for_delivery_post_point" },
+      status: returning,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:on_the_way_to_sender" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:out_for_delivery_sender" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:retour_available" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:retour_available_post" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:retour_available_post_point" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:retour_out" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:retour_out_for" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:retour_out_for_delivery" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:retour_out_for_delivery_home" }, status: returning, confirmed: false }
+  - {
+      match: { code: "prefix:retour_out_for_delivery_kariboo" },
+      status: returning,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:retour_out_for_delivery_kariboo_point" },
+      status: returning,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:retour_out_for_delivery_post" }, status: returning, confirmed: false }
+  - {
+      match: { code: "prefix:retour_out_for_delivery_post_office" },
+      status: returning,
+      confirmed: false,
+    }
+  - {
+      match: { code: "prefix:retour_out_for_delivery_post_point" },
+      status: returning,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:return" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:return_to" }, status: returning, confirmed: false }
+  - { match: { code: "prefix:return_to_sender" }, status: returning, confirmed: false }
+  - {
+      match: { code: "prefix:return_to_sender_international" },
+      status: returning,
+      confirmed: false,
+    }
+  - { match: { code: "prefix:awaiting_customs" }, status: problem, confirmed: false }
+  - { match: { code: "prefix:awaiting_customs_payment" }, status: problem, confirmed: false }
+  - { match: { code: "prefix:customs_payment_challenged" }, status: problem, confirmed: false }
+  - { match: { code: "prefix:customs_payment_expired" }, status: problem, confirmed: false }
+  - { match: { code: "prefix:customs_payment_refused" }, status: problem, confirmed: false }
+  - { match: { code: "prefix:exception" }, status: problem, confirmed: false }
+  - { match: { code: "prefix:redelivery_no" }, status: problem, confirmed: false }
+  - { match: { code: "prefix:redelivery_no_pickup" }, status: problem, confirmed: false }
+  - { match: { code: "prefix:delivered_kariboo" }, status: delivered, confirmed: false }
+  - { match: { code: "prefix:delivered_kariboo_point" }, status: delivered, confirmed: false }
+tests:
+  - { input: { code: IN_PREPARATION_AWAITING_DROPOFF }, status: registered }
+  - { input: { code: out_for_delivery_byBike }, status: out_for_delivery }
+  - { input: { code: available_in_parcel_locker }, status: at_pickup_point, pickup: true }
+  - { input: { code: RETOUR_DELIVERED }, status: delivered }
+  - { input: { code: BTS_OUT_FOR_DELIVERY_HOME }, status: returning }
+  - { input: { code: "name:delivered_kariboo_point" }, status: delivered }
+  - { input: { code: "prefix:processing_outbound" }, status: in_transit }
+  - { input: { code: "prefix:bts" }, status: delivered }
+  - { input: { code: NEW_STEP }, status: null }

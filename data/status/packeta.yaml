@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Packeta (Zásilkovna): the numeric `packetStatusId`, and the English history sentences.
+carrier: packeta
+entries:
+  - { match: { code: "1" }, status: in_transit }
+  - { match: { code: "2" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "3" }, status: delivered }
+  - { match: { code: "21" }, status: problem }
+  - { match: { code: "31" }, status: in_transit }
+  - { match: { code: "997" }, status: registered }
+  # History entries carry only an English sentence (the locale is pinned to en); the sentences
+  # are fixed templates, so a fragment match is safe.
+  - {
+      match: { text: "aware of your parcel and are waiting for the sender", flags: [i] },
+      status: registered,
+    }
+  - { match: { text: "assigned a tracking number", flags: [i] }, status: registered }
+  - {
+      match: { text: "successfully received the parcel for transport", flags: [i] },
+      status: in_transit,
+    }
+  - { match: { text: "on its way to the depot", flags: [i] }, status: in_transit }
+  - { match: { text: "arrived at the depot", flags: [i] }, status: in_transit }
+  - { match: { text: "has been handed over to the carrier", flags: [i] }, status: in_transit }
+  - { match: { text: "on its way to you", flags: [i] }, status: out_for_delivery }
+  - { match: { text: "ready for pickup", flags: [i] }, status: at_pickup_point, pickup: true }
+  - { match: { text: "the parcel is with you", flags: [i] }, status: delivered }
+  - { match: { text: "investigating the status of the parcel", flags: [i] }, status: problem }
+tests:
+  - { input: { code: "997" }, status: registered }
+  - { input: { code: "2" }, status: at_pickup_point, pickup: true }
+  - { input: { text: "The parcel is on its way to you." }, status: out_for_delivery }
+  - { input: { text: "Good news! The parcel is with you." }, status: delivered }
+  - { input: { code: "99" }, status: null }

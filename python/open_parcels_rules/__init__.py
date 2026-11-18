@@ -17,7 +17,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-__all__ = ["Rules", "load_rules", "validate_tracking_number", "detect_tracking_numbers", "map_status"]
+__all__ = [
+    "Rules",
+    "load_rules",
+    "validate_tracking_number",
+    "detect_tracking_numbers",
+    "map_status",
+    "ignored_status",
+]
 
 DEFAULT_BUNDLE = Path(__file__).resolve().parents[2] / "dist" / "bundle.json"
 _NAMED_GROUP = re.compile(r"\(\?<(?=[A-Za-z_])")
@@ -163,18 +170,67 @@ def load_rules(path: str | Path = DEFAULT_BUNDLE) -> Rules:
             upu_carriers[country] = carrier["id"]
         for name in [carrier["id"], carrier["name"], *carrier.get("aliases", [])]:
             carrier_names.setdefault(_normalize_name(name), carrier["id"])
-    status = {}
-    for table in bundle["status"]:
-        codes: dict[str, dict[str, Any]] = {}
-        texts = []
-        for entry in table["entries"]:
-            match = entry["match"]
-            if "code" in match:
-                codes.setdefault(match["code"].strip(), entry)
-            else:
-                texts.append((re.compile(to_python_regex(match["text"]), _flags(match.get("flags"))), entry))
-        status[table["carrier"]] = {"codes": codes, "texts": texts}
+    status = {
+        table["carrier"]: {
+            "entries": _compile_matcher(table["entries"]),
+            "ignore": _compile_matcher(table.get("ignore", [])),
+        }
+        for table in bundle["status"]
+    }
     return Rules(bundle["version"], types, courier_carriers, upu_carriers, carrier_names, status)
+
+
+def _compile_matcher(entries: list[dict[str, Any]]) -> dict[str, Any]:
+    codes: dict[str, dict[str, Any]] = {}
+    prefixes = []
+    fields = []
+    texts = []
+    for entry in entries:
+        match = entry["match"]
+        if "code" in match:
+            codes.setdefault(match["code"].strip(), entry)
+        elif "code_prefix" in match:
+            prefixes.append((match["code_prefix"].strip().upper(), entry))
+        elif "text" in match:
+            regex = re.compile(to_python_regex(match["text"]), _flags(match.get("flags")))
+            texts.append((regex, _field_pairs(match.get("fields")), entry))
+        else:
+            fields.append((_field_pairs(match["fields"]), entry))
+    return {"codes": codes, "prefixes": prefixes, "fields": fields, "texts": texts}
+
+
+def _field_pairs(fields: dict[str, str] | None) -> dict[str, str]:
+    return {k: v.strip() for k, v in (fields or {}).items()}
+
+
+def _fields_hold(wanted: dict[str, str], given: dict[str, str] | None) -> bool:
+    return all(given is not None and name in given and given[name].strip() == value for name, value in wanted.items())
+
+
+def _find_entry(
+    matcher: dict[str, Any], code: str | None, text: str | None, fields: dict[str, str] | None
+) -> dict[str, Any] | None:
+    """Field entries, then the exact code (as written, then ignoring case), prefixes, texts."""
+    if fields is not None:
+        for wanted, entry in matcher["fields"]:
+            if _fields_hold(wanted, fields):
+                return entry
+    if code and code.strip():
+        stripped = code.strip()
+        folded = stripped.upper()
+        entry = (
+            matcher["codes"].get(stripped)
+            or next((e for c, e in matcher["codes"].items() if c.upper() == folded), None)
+            or next((e for prefix, e in matcher["prefixes"] if folded.startswith(prefix)), None)
+        )
+        if entry is not None:
+            return entry
+    if text and text.strip():
+        return next(
+            (e for regex, wanted, e in matcher["texts"] if regex.search(text.strip()) and _fields_hold(wanted, fields)),
+            None,
+        )
+    return None
 
 
 def _strip(value: str | None) -> str | None:
@@ -248,23 +304,39 @@ def detect_tracking_numbers(rules: Rules, text: str) -> list[dict[str, Any]]:
     return list(found.values())
 
 
-def map_status(rules: Rules, carrier: str, code: str | None = None, text: str | None = None) -> dict[str, Any] | None:
-    """A carrier's raw status code or text as {status, pickup?, confirmed}, or None."""
-    carrier_id = rules.carrier_names.get(_normalize_name(carrier), carrier)
-    table = rules.status.get(carrier_id)
-    if table is None:
-        return None
-    entry = None
-    if code and code.strip():
-        stripped = code.strip()
-        entry = table["codes"].get(stripped) or next(
-            (e for c, e in table["codes"].items() if c.upper() == stripped.upper()), None
-        )
-    if entry is None and text and text.strip():
-        entry = next((e for regex, e in table["texts"] if regex.search(text.strip())), None)
+def map_status(
+    rules: Rules,
+    carrier: str,
+    code: str | None = None,
+    text: str | None = None,
+    fields: dict[str, str] | None = None,
+) -> dict[str, Any] | None:
+    """A carrier's raw status code, text or named fields as {status, pickup?, confirmed}, or None."""
+    table = _table(rules, carrier)
+    entry = None if table is None else _find_entry(table["entries"], code, text, fields)
     if entry is None:
         return None
     result = {"status": entry["status"], "confirmed": entry.get("confirmed", True)}
     if entry.get("pickup"):
         result["pickup"] = True
+    for name in ("stage", "label"):
+        if name in entry:
+            result[name] = entry[name]
     return result
+
+
+def ignored_status(
+    rules: Rules,
+    carrier: str,
+    code: str | None = None,
+    text: str | None = None,
+    fields: dict[str, str] | None = None,
+) -> str | None:
+    """The event an `ignore` entry gives a raw value (e.g. order_cancelled), or None."""
+    table = _table(rules, carrier)
+    entry = None if table is None else _find_entry(table["ignore"], code, text, fields)
+    return None if entry is None else entry["event"]
+
+
+def _table(rules: Rules, carrier: str) -> dict[str, Any] | None:
+    return rules.status.get(rules.carrier_names.get(_normalize_name(carrier), carrier))

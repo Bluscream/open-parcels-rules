@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# PDN Express event codes; mapping too little beats mapping wrongly. D845 comes from the tracking
+# page's stage list, not from a seen scan. D810 is a customer-service note: it says nothing about
+# where the parcel is.
+carrier: pdn_express
+entries:
+  - { match: { code: "D800" }, status: registered }
+  - { match: { code: "D830" }, status: in_transit }
+  - { match: { code: "D840" }, status: out_for_delivery }
+  - { match: { code: "D814" }, status: problem }
+  - { match: { code: "D850" }, status: problem }
+  - { match: { code: "D845" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "D860" }, status: delivered }
+  - { match: { code: "D890" }, status: returning }
+  - { match: { code: D810 }, status: unknown, note: "Customer-service note." }
+tests:
+  - { input: { code: D800 }, status: registered }
+  - { input: { code: D845 }, status: at_pickup_point, pickup: true }
+  - { input: { code: D810 }, status: unknown }
+  - { input: { code: D999 }, status: null }

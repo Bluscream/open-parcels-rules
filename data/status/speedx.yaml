@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# SpeedX: categories first, then numeric event codes. `unknown` marks codes seen that say nothing
+# about where the parcel is (an intercept, an internal hold).
+carrier: speedx
+entries:
+  - { match: { code: "50001" }, status: registered }
+  - { match: { code: "50002" }, status: in_transit }
+  - { match: { code: "52001" }, status: in_transit }
+  - { match: { code: "52002" }, status: in_transit }
+  - { match: { code: "57101" }, status: in_transit }
+  - { match: { code: "57102" }, status: in_transit }
+  - { match: { code: "57104" }, status: in_transit }
+  - { match: { code: "57110" }, status: in_transit }
+  - { match: { code: "57112" }, status: in_transit }
+  - { match: { code: "57113" }, status: in_transit }
+  - { match: { code: "57201" }, status: delivered }
+  - { match: { code: "57406" }, status: unknown }
+  - { match: { code: "57409" }, status: in_transit }
+  - { match: { code: "57413" }, status: problem }
+  - { match: { code: "57504" }, status: problem }
+  - { match: { code: "57607" }, status: problem }
+  - { match: { code: "57609" }, status: problem }
+  - { match: { code: "57614" }, status: problem }
+  - { match: { code: "57645" }, status: problem }
+  - { match: { code: "59116" }, status: problem }
+  - { match: { code: "PICKUP" }, status: registered }
+  - { match: { code: "ORIGIN_HANDLING" }, status: in_transit }
+  - { match: { code: "LAST_MILE_ENROUTE" }, status: in_transit }
+  - { match: { code: "LAST_MILE_DELIVERED" }, status: delivered }
+  - { match: { code: "LAST_MILE_ATTEMPTED" }, status: problem }
+  - { match: { code: "LAST_MILE_UNDELIVERED" }, status: problem }
+  - { match: { code: "LAST_MILE_INTERCEPT" }, status: unknown }
+tests:
+  - { input: { code: PICKUP }, status: registered }
+  - { input: { code: LAST_MILE_INTERCEPT }, status: unknown }
+  - { input: { code: "57201" }, status: delivered }
+  - { input: { code: "99999" }, status: null }

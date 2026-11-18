@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Better Trucks tracking status codes. `SCANNED_AT_HUB_<facility>`: the suffix names a hub, not
+# a state.
+carrier: better_trucks
+entries:
+  - { match: { code: SHIPMENT_CREATED }, status: registered }
+  - { match: { code: TRANSACTION_CREATED }, status: registered }
+  - { match: { code: INJECTED }, status: in_transit }
+  - { match: { code: OUT_FOR_DELIVERY }, status: out_for_delivery }
+  - { match: { code: DELIVERED }, status: delivered }
+  - { match: { code_prefix: SCANNED_AT_HUB }, status: in_transit }
+tests:
+  - { input: { code: SHIPMENT_CREATED }, status: registered }
+  - { input: { code: SCANNED_AT_HUB_LAX2 }, status: in_transit }
+  - { input: { code: DELIVERED }, status: delivered }
+  - { input: { code: UNKNOWN }, status: null }

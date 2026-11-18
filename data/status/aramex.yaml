@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Aramex Australia and New Zealand scan codes. Better to map too little than wrongly.
+carrier: aramex
+entries:
+  - { match: { code: PP8 }, status: registered }
+  - { match: { code: PPP }, status: in_transit }
+  - { match: { code: PP1 }, status: in_transit }
+  - { match: { code: PCY }, status: in_transit }
+  - { match: { code: "078" }, status: in_transit }
+  - { match: { code: RIA }, status: in_transit }
+  - { match: { code: B72 }, status: in_transit }
+  - { match: { code: S2M }, status: in_transit }
+  - { match: { code: SYD }, status: in_transit }
+  - { match: { code: TOO }, status: in_transit }
+  - { match: { code: TRN }, status: in_transit }
+  - { match: { code: ONB }, status: out_for_delivery }
+  - { match: { code: R36 }, status: delivered }
+  - { match: { code: "YES" }, status: delivered }
+  - { match: { code: U03 }, status: problem }
+  - { match: { code: UND }, status: problem }
+  - { match: { code: RTS }, status: returning }
+tests:
+  - { input: { code: PP8 }, status: registered }
+  - { input: { code: "078" }, status: in_transit }
+  - { input: { code: "YES" }, status: delivered }
+  - { input: { code: RTS }, status: returning }
+  - { input: { code: "NO" }, status: null }

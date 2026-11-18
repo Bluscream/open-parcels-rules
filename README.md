@@ -18,7 +18,8 @@ loader in [`python/`](python/) proves that.
 
 | Path | What it holds |
 | --- | --- |
-| [`data/carriers.yaml`](data/carriers.yaml) | Carrier registry: id, name, aliases, countries, mail domains, tracking URL templates per locale, cross-reference ids |
+| [`data/carriers.yaml`](data/carriers.yaml) | Carrier registry: id, name, aliases, countries, mail domains, tracking URL templates per locale, tracking-number shape, cross-reference ids |
+| [`data/keys.yaml`](data/keys.yaml) | Fixed public values carriers expect from every client (website and app keys, client ids, app versions, User-Agents), with purpose, source and last-verified date |
 | [`data/tracking-numbers/`](data/tracking-numbers/) | Our tracking-number formats, in the same schema as the vendored community files |
 | [`vendor/tracking_number_data/`](vendor/tracking_number_data/) | Pinned, unmodified copy of the community tracking_number_data courier files (MIT, see its `LICENSE` and `VERSION`) |
 | [`data/status/`](data/status/) | Status tables per carrier, with test vectors |

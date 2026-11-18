@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Ukrposhta numeric event codes. 24300 (held at the inward office of exchange) is left out on
+# purpose: it sits inside normal customs runs, so consumers fall back to the previous mapped event.
+# A refused parcel's way back reuses the forward codes; 31200 opens the return leg.
+carrier: ukrposhta
+entries:
+  - { match: { code: "2201" }, status: in_transit }
+  - { match: { code: "4006" }, status: in_transit }
+  - { match: { code: "4021" }, status: in_transit }
+  - { match: { code: "4024" }, status: in_transit }
+  - { match: { code: "4074" }, status: in_transit }
+  - { match: { code: "10100" }, status: registered }
+  - { match: { code: "10601" }, status: registered }
+  - { match: { code: "17100" }, status: registered }
+  - { match: { code: "20700" }, status: in_transit }
+  - { match: { code: "20800" }, status: in_transit }
+  - { match: { code: "21400" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "21500" }, status: in_transit }
+  - { match: { code: "21600" }, status: in_transit }
+  - { match: { code: "21700" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "27200" }, status: in_transit }
+  - { match: { code: "27900" }, status: in_transit }
+  - { match: { code: "29500" }, status: out_for_delivery }
+  - { match: { code: "31100" }, status: problem }
+  - { match: { code: "31200" }, status: returning }
+  - { match: { code: "31300" }, status: problem }
+  - { match: { code: "31400" }, status: problem }
+  - { match: { code: "41000" }, status: delivered }
+  - { match: { code: "48000" }, status: delivered }
+  - { match: { code: "60700" }, status: in_transit }
+  - { match: { code: "67300" }, status: in_transit }
+  - { match: { code: "70800" }, status: in_transit }
+  - { match: { code: "77600" }, status: in_transit }
+  - { match: { code: "80700" }, status: in_transit }
+  - { match: { code: "80800" }, status: in_transit }
+  - { match: { code: "82700" }, status: in_transit }
+  - { match: { code: "82800" }, status: in_transit }
+  - { match: { code: "89000" }, status: in_transit }
+  - { match: { code: "89100" }, status: in_transit }
+  - { match: { code: "90800" }, status: in_transit }
+  - { match: { code: "97700" }, status: in_transit }
+tests:
+  - { input: { code: "10100" }, status: registered }
+  - { input: { code: "21400" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "31200" }, status: returning }
+  - { input: { code: "24300" }, status: null }

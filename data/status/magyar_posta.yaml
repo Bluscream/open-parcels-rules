@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Magyar Posta scan categories ("bands") 1 to 5. In band 4 the detail code tells a counter
+# (waiting for pickup) from the courier's round; an unknown detail defaults to the round (a guess).
+carrier: magyar_posta
+entries:
+  - {
+      match: { fields: { category: "4", detail: KLHKT } },
+      status: at_pickup_point,
+      pickup: true,
+      note: "Waiting at a counter.",
+    }
+  - { match: { fields: { category: "4", detail: IKRKI } }, status: out_for_delivery }
+  - { match: { fields: { category: "4", detail: KIJKO } }, status: out_for_delivery }
+  - { match: { fields: { category: "1" } }, status: registered }
+  - { match: { fields: { category: "2" } }, status: in_transit }
+  - { match: { fields: { category: "3" } }, status: in_transit }
+  - {
+      match: { fields: { category: "4" } },
+      status: out_for_delivery,
+      confirmed: false,
+      note: "Unknown band 4 detail: read as the courier round.",
+    }
+  - { match: { fields: { category: "5" } }, status: delivered }
+tests:
+  - { input: { fields: { category: "1" } }, status: registered }
+  - { input: { fields: { category: "4", detail: KLHKT } }, status: at_pickup_point, pickup: true }
+  - { input: { fields: { category: "4", detail: KIJKO } }, status: out_for_delivery }
+  - { input: { fields: { category: "4", detail: ZZZZZ } }, status: out_for_delivery }
+  - { input: { fields: { category: "5" } }, status: delivered }
+  - { input: { fields: { category: "7" } }, status: null }

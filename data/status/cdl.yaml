@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# CDL Last Mile: the service sends English scan wording and no code; matched whole, ignoring
+# case.
+carrier: cdl
+entries:
+  - { match: { code: label has been created }, status: registered }
+  - { match: { code: awaiting package from shipper }, status: registered }
+  - { match: { code: cdl origin scan }, status: in_transit }
+  - { match: { code: cdl transfer scan }, status: in_transit }
+  - { match: { code: package scanned at local delivery center }, status: in_transit }
+  - { match: { code: package out for delivery }, status: out_for_delivery }
+  - { match: { code: package scanned at delivery }, status: out_for_delivery }
+  - { match: { code: delivery complete }, status: delivered }
+  - { match: { code: "delayed- wrong address" }, status: problem }
+  - { match: { code: order under investigation }, status: problem }
+tests:
+  - { input: { code: Label Has Been Created }, status: registered }
+  - { input: { code: package out for delivery }, status: out_for_delivery }
+  - { input: { code: Delivery Complete }, status: delivered }
+  - { input: { code: package lost }, status: null }

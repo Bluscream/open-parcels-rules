@@ -25,6 +25,9 @@ weekdays:
   - [freitag]
   - [samstag, sonnabend]
   - [sonntag]
+past_days:
+  heute: 0
+  gestern: -1
 relative_days:
   heute: 0
   morgen: 1

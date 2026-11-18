@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# DAO (Denmark). A status is the pair `statusType` + `statusCode`; `pickupPoint` (yes/no) says
+# whether the parcel was sent to a pickup point. Entries are tried in order:
+# 1. Codes that decide the status whatever type carries them (drop-off, on the way).
+# 2. `STATUS_OK` means the parcel arrived: a known code says how, else a pickup point says
+#    at_pickup_point and no pickup point says delivered.
+# 3. The other types.
+# 4. Values known to carry no status (STATUS_INFO, codes 1 and 12; codes 32 and 51 outside
+#    STATUS_OK), so consumers can tell them from new values.
+carrier: dao
+entries:
+  - { match: { fields: { statusCode: "11" } }, status: in_transit }
+  - { match: { fields: { statusCode: "23" } }, status: in_transit }
+  - { match: { fields: { statusCode: "25" } }, status: in_transit }
+  - { match: { fields: { statusCode: "26" } }, status: in_transit }
+  - {
+      match: { fields: { statusType: STATUS_OK, statusCode: "32" } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { fields: { statusType: STATUS_OK, statusCode: "51" } }, status: delivered }
+  - {
+      match: { fields: { statusType: STATUS_OK, pickupPoint: "yes" } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { fields: { statusType: STATUS_OK } }, status: delivered }
+  - { match: { fields: { statusType: STATUS_PROCESSING } }, status: registered }
+  - { match: { fields: { statusType: STATUS_IN_TRANSIT } }, status: in_transit }
+  - { match: { fields: { statusType: STATUS_RETURN } }, status: returning }
+  - { match: { fields: { statusType: STATUS_ALERT } }, status: problem }
+  - { match: { fields: { statusType: STATUS_INFO } }, status: unknown, note: "Informational." }
+  - { match: { fields: { statusCode: "1" } }, status: unknown }
+  - { match: { fields: { statusCode: "12" } }, status: unknown }
+  - { match: { fields: { statusCode: "32" } }, status: unknown }
+  - { match: { fields: { statusCode: "51" } }, status: unknown }
+tests:
+  - {
+      input: { fields: { statusType: STATUS_INFO, statusCode: "11", pickupPoint: "no" } },
+      status: in_transit,
+    }
+  - {
+      input: { fields: { statusType: STATUS_OK, statusCode: "51", pickupPoint: "yes" } },
+      status: delivered,
+    }
+  - {
+      input: { fields: { statusType: STATUS_OK, statusCode: "1", pickupPoint: "yes" } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      input: { fields: { statusType: STATUS_OK, statusCode: "1", pickupPoint: "no" } },
+      status: delivered,
+    }
+  - {
+      input: { fields: { statusType: STATUS_RETURN, statusCode: "32", pickupPoint: "no" } },
+      status: returning,
+    }
+  - { input: { fields: { statusType: STATUS_INFO, pickupPoint: "no" } }, status: unknown }
+  - { input: { fields: { statusCode: "12" } }, status: unknown }
+  - { input: { fields: { statusType: STATUS_NEW } }, status: null }
+  - { input: { fields: { statusCode: "99" } }, status: null }

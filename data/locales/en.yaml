@@ -23,6 +23,9 @@ weekdays:
   - [friday, fri]
   - [saturday, sat]
   - [sunday, sun]
+past_days:
+  today: 0
+  yesterday: -1
 relative_days:
   today: 0
   tonight: 0

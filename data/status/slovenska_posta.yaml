@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Slovenská pošta: the event `stateCode`. Both return codes are returning; the raw text keeps them
+# apart.
+carrier: slovenska_posta
+entries:
+  - { match: { code: "received" }, status: registered }
+  - { match: { code: "transit" }, status: in_transit }
+  - { match: { code: "notified" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "delivered" }, status: delivered }
+  - { match: { code: "returning" }, status: returning }
+  - { match: { code: "returned" }, status: returning }
+tests:
+  - { input: { code: received }, status: registered }
+  - { input: { code: notified }, status: at_pickup_point, pickup: true }
+  - { input: { code: returned }, status: returning }
+  - { input: { code: lost }, status: null }

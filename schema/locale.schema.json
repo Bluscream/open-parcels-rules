@@ -48,6 +48,20 @@
       },
       "description": "Words for a day relative to today, e.g. tomorrow: 1."
     },
+    "past_days": {
+      "default": {},
+      "description": "Words that name today or a past day on their own, as timeline headers and delivered lines use them (today: 0, yesterday: -1). Not used by the arrival parser.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": -7,
+        "maximum": 0
+      }
+    },
     "lead_ins": {
       "type": "array",
       "items": {

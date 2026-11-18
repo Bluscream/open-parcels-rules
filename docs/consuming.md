@@ -49,7 +49,11 @@ import type { Rules, ParcelStatus, CarrierInfo, TrackingCandidate } from "open-p
 | `findCarrier(rules, nameOrAlias)` | A carrier by id, name or alias; case, accents and punctuation are ignored. |
 | `trackingUrl(rules, carrierId, number, locale?)` | The tracking page: tries the full locale tag, then the language, then `default`. |
 | `detectTrackingNumbers(rules, text, hints?)` | Every plausible `{ carrier, trackingNumber, confidence, checksumValid, types }`, best first. |
-| `mapStatus(rules, carrier, { code?, text? })` | `{ status, pickup?, confirmed }` or `null` when the table lacks the value. |
+| `mapStatus(rules, carrier, { code?, text?, fields? })` | `{ status, pickup?, confirmed, stage?, label? }` or `null` when the table lacks the value. |
+| `ignoredStatus(rules, carrier, raw)` | The mail event an `ignore` entry gives the value (`order_cancelled`, `refund_issued`, ...), or `null`. |
+| `findCarrierKey(rules, carrier, name)` | `{ carrier, name, purpose, source, lastVerified, value }` from `keys.yaml`, or `undefined`. |
+| `carrierKeys(rules, carrier)` | Every key listed for a carrier. |
+| `pastDayOffset(rules, word, locales?)` | The offset (0 today, -1 yesterday) a standalone word names, or `undefined`. |
 | `resolveStatus(rules, carrier, latest, history)` | `{ status, source, unmapped }`; see below. |
 | `parseArrival(rules, text, { now, timeZone, locales? })` | `{ from, to, allDay, matched }` or `null`. |
 | `parseMail(rules, mail)` | An array of `MailParseResult`. |
@@ -105,6 +109,6 @@ reports.
 ## Python
 
 `python/open_parcels_rules` reads `dist/bundle.json` with the standard library only and offers
-`load_rules`, `validate_tracking_number`, `detect_tracking_numbers` (no confidence model) and
-`map_status`. `python -I python/run_vectors.py` runs the tracking and status vectors from
+`load_rules`, `validate_tracking_number`, `detect_tracking_numbers` (no confidence model),
+`map_status` and `ignored_status`. `python -I python/run_vectors.py` runs the tracking and status vectors from
 `dist/vectors.json`. Arrival parsing and mail rules are TypeScript only for now.

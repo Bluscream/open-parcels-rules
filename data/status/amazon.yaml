@@ -32,6 +32,12 @@ entries:
   - { match: { code: "live:NOT_DELIVERED" }, status: problem, confirmed: false }
   - { match: { code: "live:REJECTED" }, status: problem, confirmed: false }
   - { match: { code: "live:ADDRESS_NOT_FOUND" }, status: problem, confirmed: false }
+  # Amazon Shipping's by-number tracker (event and summary codes, in UPPER_SNAKE spelling).
+  - { match: { code: CREATION_CONFIRMED }, status: registered }
+  - { match: { code: PICKUP_DONE }, status: in_transit }
+  - { match: { code: RECEIVED }, status: in_transit }
+  - { match: { code: DEPARTED }, status: in_transit }
+  - { match: { code: DELIVERED_TO_DOORSTEP }, status: delivered }
   # Timeline events (whole message).
   - {
       match: { text: "^die sendung wurde vom empfänger abgeholt", flags: [i] },
@@ -94,6 +100,12 @@ entries:
       status: problem,
       confirmed: false,
     }
+# Order-list lines that are no parcel at all (start of the line).
+ignore:
+  - { match: { text: "^(?:cancelled|canceled|storniert)", flags: [i] }, event: order_cancelled }
+  - { match: { text: "^(?:refund|erstattet)", flags: [i] }, event: refund_issued }
+  - { match: { text: "^(?:return started|rückgabe)", flags: [i] }, event: return_started }
+  - { match: { text: "^(?:return complete|zurückgesendet)", flags: [i] }, event: return_received }
 tests:
   - { input: { code: OUT_FOR_DELIVERY }, status: out_for_delivery }
   - { input: { code: PICKED_UP }, status: delivered, pickup: true }
@@ -112,5 +124,10 @@ tests:
       pickup: true,
     }
   - { input: { text: "Package arrived at the final delivery station" }, status: in_transit }
-  - { input: { text: "Storniert" }, status: null }
-  - { input: { text: "Refund issued" }, status: null }
+  - { input: { text: "Storniert" }, status: null, ignored: order_cancelled }
+  - { input: { text: "Refund issued" }, status: null, ignored: refund_issued }
+  - { input: { text: "Rückgabe gestartet" }, status: null, ignored: return_started }
+  - { input: { text: "Return complete." }, status: null, ignored: return_received }
+  - { input: { text: "Zugestellt" }, status: delivered, ignored: null }
+  - { input: { code: PICKUP_DONE }, status: in_transit }
+  - { input: { code: DELIVERED_TO_DOORSTEP }, status: delivered }

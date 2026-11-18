@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# La Poste. "colissimo:<code>": Colissimo event groups and current-state codes. "chronopost:<code>":
+# Chronopost event codes.
+carrier: la_poste
+entries:
+  - { match: { code: "colissimo:EXPANN" }, status: registered }
+  - { match: { code: "colissimo:EDRDEP" }, status: in_transit }
+  - { match: { code: "colissimo:EDRINT" }, status: in_transit }
+  - { match: { code: "colissimo:ACHNAT" }, status: in_transit }
+  - { match: { code: "colissimo:ACHORI" }, status: in_transit }
+  - { match: { code: "colissimo:ACHERI" }, status: in_transit }
+  - { match: { code: "colissimo:ACHDOU" }, status: in_transit }
+  - { match: { code: "colissimo:DISINTAS" }, status: in_transit }
+  - { match: { code: "colissimo:DISARR" }, status: in_transit }
+  - { match: { code: "colissimo:DISTOU" }, status: in_transit }
+  - { match: { code: "colissimo:DISIRST" }, status: in_transit }
+  - { match: { code: "colissimo:AARIDOU" }, status: in_transit }
+  - { match: { code: "colissimo:AARENDDOU" }, status: in_transit }
+  - { match: { code: "colissimo:AARIREF" }, status: in_transit }
+  - { match: { code: "colissimo:ACHIECA" }, status: problem }
+  - { match: { code: "colissimo:AARAREF" }, status: problem }
+  - { match: { code: "colissimo:AARABECH" }, status: problem }
+  - { match: { code: "colissimo:DISIECHEC" }, status: problem }
+  - { match: { code: "colissimo:DESLIVD" }, status: delivered }
+  - { match: { code: "colissimo:DESOBS" }, status: delivered }
+  - { match: { code: "colissimo:DESLIVHD" }, status: delivered }
+  - { match: { code: "colissimo:DESMDREXP" }, status: returning }
+  - { match: { code: "colissimo:DISINS" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "chronopost:PC1" }, status: in_transit }
+  - { match: { code: "chronopost:ET1" }, status: in_transit }
+  - { match: { code: "chronopost:EP1" }, status: in_transit }
+  - { match: { code: "chronopost:MD2" }, status: in_transit }
+  - { match: { code: "chronopost:DR1" }, status: in_transit }
+  - { match: { code: "chronopost:MD1" }, status: out_for_delivery }
+  - { match: { code: "chronopost:AG1" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "chronopost:RE1" }, status: returning }
+  - { match: { code: "chronopost:DI1" }, status: delivered }
+tests:
+  - { input: { code: "colissimo:EXPANN" }, status: registered }
+  - { input: { code: "colissimo:DISINS" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "chronopost:RE1" }, status: returning }
+  - { input: { code: "chronopost:DI1" }, status: delivered }
+  - { input: { code: "colissimo:DI1" }, status: null }

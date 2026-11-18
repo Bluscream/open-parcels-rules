@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Colisweb `step` values, lower-cased with `_` and `-` removed. The reply has no event list,
+# only milestone timestamps; "milestone:<field>" names the stage each one marks.
+carrier: colisweb
+entries:
+  - { match: { code: idle }, status: registered }
+  - { match: { code: confirmed }, status: registered }
+  - { match: { code: courseaccepted }, status: registered }
+  - { match: { code: pickedup }, status: in_transit }
+  - { match: { code: packagewithdrawn }, status: in_transit }
+  - { match: { code: packagewithdrawalpbok }, status: in_transit }
+  - { match: { code: outfordelivery }, status: out_for_delivery }
+  - { match: { code: deliveryinprogress }, status: out_for_delivery }
+  - { match: { code: delivered }, status: delivered }
+  - { match: { code: deliverypbok }, status: delivered }
+  - { match: { code: pickupfailed }, status: problem }
+  - { match: { code: packagewithdrawalfailed }, status: problem }
+  - { match: { code: deliveryfailed }, status: problem }
+  - { match: { code: nondeliverable }, status: problem }
+  - { match: { code: canceled }, status: problem }
+  - { match: { code: cancelled }, status: problem }
+  - { match: { code: deliverycanceled }, status: problem }
+  - { match: { code: deliverycancelled }, status: problem }
+  - { match: { code: packagereturned }, status: returning }
+  - { match: { code: deliveryreturned }, status: returning }
+  - { match: { code: packagereturnfailed }, status: returning }
+  - { match: { code: deliveryreturnfailed }, status: returning }
+  - { match: { code: "milestone:deliveryConfirmationDate" }, status: registered }
+  - { match: { code: "milestone:pickedUpDate" }, status: in_transit }
+  - { match: { code: "milestone:deliveredDate" }, status: delivered }
+tests:
+  - { input: { code: courseaccepted }, status: registered }
+  - { input: { code: deliveryinprogress }, status: out_for_delivery }
+  - { input: { code: packagereturnfailed }, status: returning }
+  - { input: { code: "milestone:pickedUpDate" }, status: in_transit }
+  - { input: { code: delivery_in_progress }, status: null }

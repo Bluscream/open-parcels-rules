@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# ICS Courier. Only the delivered code has been seen and confirmed.
+carrier: ics_courier
+entries:
+  - { match: { code: "DELIV" }, status: delivered }
+tests:
+  - { input: { code: DELIV }, status: delivered }
+  - { input: { code: PICKUP }, status: null }

@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# PostNL track & trace observation codes, the notice codes that never move the parcel (unknown),
+# and the status-phase wording.
+carrier: postnl
+entries:
+  - { match: { code: "A01" }, status: registered }
+  - { match: { code: "A03" }, status: registered }
+  - { match: { code: "M02" }, status: registered }
+  - { match: { code: "B01" }, status: in_transit }
+  - { match: { code: "C02" }, status: in_transit }
+  - { match: { code: "F01" }, status: in_transit }
+  - { match: { code: "J01" }, status: in_transit }
+  - { match: { code: "R01" }, status: in_transit }
+  - { match: { code: "J10" }, status: in_transit }
+  - { match: { code: "J04" }, status: in_transit }
+  - { match: { code: "J21" }, status: in_transit }
+  - { match: { code: "J31" }, status: in_transit }
+  - { match: { code: "J32" }, status: in_transit }
+  - { match: { code: "J30" }, status: in_transit }
+  - { match: { code: "J39" }, status: in_transit }
+  - { match: { code: "J40" }, status: in_transit }
+  - { match: { code: "J46" }, status: in_transit }
+  - { match: { code: "J44" }, status: in_transit }
+  - { match: { code: "J55" }, status: in_transit }
+  - { match: { code: "X01" }, status: in_transit }
+  - { match: { code: "X02" }, status: in_transit }
+  - { match: { code: "X03" }, status: in_transit }
+  - { match: { code: "X04" }, status: in_transit }
+  - { match: { code: "X08" }, status: in_transit }
+  - { match: { code: "X19" }, status: in_transit }
+  - { match: { code: "A21" }, status: in_transit }
+  - { match: { code: "I07" }, status: in_transit }
+  - { match: { code: "G01" }, status: in_transit }
+  - { match: { code: "G03" }, status: in_transit }
+  - { match: { code: "G05" }, status: in_transit }
+  - { match: { code: "K01" }, status: in_transit }
+  - { match: { code: "J14" }, status: in_transit }
+  - { match: { code: "K70" }, status: in_transit }
+  - { match: { code: "T04" }, status: in_transit }
+  - { match: { code: "T02" }, status: in_transit }
+  - { match: { code: "V06" }, status: in_transit }
+  - { match: { code: "H04" }, status: returning }
+  - { match: { code: "J05" }, status: out_for_delivery }
+  - { match: { code: "I08" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "J02" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "J12" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "J23" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "A80" }, status: delivered }
+  - { match: { code: "I01" }, status: delivered }
+  - { match: { code: "I02" }, status: delivered }
+  - { match: { code: "I05" }, status: delivered }
+  - { match: { code: "I10" }, status: delivered }
+  - { match: { code: "I11" }, status: delivered }
+  - { match: { code: "I12" }, status: delivered }
+  - { match: { code: "Z01" }, status: delivered }
+  # Notices and admin events: they never move the parcel and inherit the stage before them.
+  - { match: { code: A04 }, status: unknown }
+  - { match: { code: A18 }, status: unknown }
+  - { match: { code: A19 }, status: unknown }
+  - { match: { code: A24 }, status: unknown }
+  - { match: { code: A25 }, status: unknown }
+  - { match: { code: A44 }, status: unknown }
+  - { match: { code: A65 }, status: unknown }
+  - { match: { code: A94 }, status: unknown }
+  - { match: { code: A95 }, status: unknown }
+  - { match: { code: A96 }, status: unknown }
+  - { match: { code: A98 }, status: unknown }
+  - { match: { code: A20 }, status: unknown }
+  - { match: { code: B03 }, status: unknown }
+  - { match: { code: J09 }, status: unknown }
+  - { match: { code: K33 }, status: unknown }
+  - { match: { code: K50 }, status: unknown }
+  - { match: { code: P21 }, status: unknown }
+  - { match: { code: P02 }, status: unknown }
+  # Status-phase wording (lower case, dashes as spaces), for parcels without any recognised
+  # observation. First match wins.
+  - {
+      match: { text: "ligt klaar bij postnl punt", flags: [i] },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { text: "afgeleverd op postnl punt", flags: [i] },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { text: "klaar bij postnl punt", flags: [i] }, status: at_pickup_point, pickup: true }
+  - { match: { text: "teruggestuurd", flags: [i] }, status: returning }
+  - { match: { text: "retour", flags: [i] }, status: returning }
+  - { match: { text: "wordt vandaag bezorgd", flags: [i] }, status: out_for_delivery }
+  - { match: { text: "onderweg naar het bezorgadres", flags: [i] }, status: out_for_delivery }
+  - { match: { text: "onderweg naar de bezorger", flags: [i] }, status: out_for_delivery }
+  - { match: { text: "aangemeld", flags: [i] }, status: registered }
+  - { match: { text: "verwacht", flags: [i] }, status: registered }
+  - { match: { text: "bezorgmoment is bijgewerkt", flags: [i] }, status: in_transit }
+  - { match: { text: "lukt vandaag niet", flags: [i] }, status: in_transit }
+  - { match: { text: "duurt de bezorging wat langer", flags: [i] }, status: in_transit }
+  - { match: { text: "ontvangen", flags: [i] }, status: in_transit }
+  - { match: { text: "gesorteerd", flags: [i] }, status: in_transit }
+  - { match: { text: "onderweg", flags: [i] }, status: in_transit }
+  - { match: { text: "klaar voor verzending", flags: [i] }, status: in_transit }
+  - { match: { text: "de grens over", flags: [i] }, status: in_transit }
+  - { match: { text: "aangekomen in het land van bestemming", flags: [i] }, status: in_transit }
+  - { match: { text: "bezorgd", flags: [i] }, status: delivered }
+tests:
+  - { input: { code: A01 }, status: registered }
+  - { input: { code: J05 }, status: out_for_delivery }
+  - { input: { code: Z01 }, status: delivered }
+  - { input: { code: K33 }, status: unknown }
+  - { input: { text: "pakket ligt klaar bij postnl punt" }, status: at_pickup_point }
+  - { input: { text: "pakket is bezorgd" }, status: delivered }
+  - { input: { code: Q99 }, status: null }

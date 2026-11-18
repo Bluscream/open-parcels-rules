@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Amazon Shipping's tracker: the exact codes are in the amazon table. This table holds only the
+# fallback for codes never seen on the wire, matched by wording against the code reduced to
+# A-Z and 0-9 (OutForDelivery -> OUTFORDELIVERY). Every match here is a guess (confirmed: false).
+# Return and failure words come before DELIVERED, which many of them contain. Schedule words
+# (DELAYED) say nothing about where the parcel is and map to unknown.
+carrier: amazon_shipping
+entries:
+  - { match: { text: "DELAYED" }, status: unknown, note: "A schedule flag, not a whereabouts." }
+  - { match: { text: "RETURN" }, status: returning, confirmed: false }
+  - {
+      match: { text: "NOTDELIVERED|UNDELIVER|ATTEMPT|FAIL|EXCEPTION|DAMAGE|LOST|CANCEL|REFUS" },
+      status: problem,
+      confirmed: false,
+    }
+  - {
+      match: { text: "READYFORPICKUP|READYFORCOLLECTION|AWAITINGPICKUP|AWAITINGCOLLECTION" },
+      status: at_pickup_point,
+      pickup: true,
+      confirmed: false,
+    }
+  - { match: { text: "CUSTOMS" }, status: in_transit, confirmed: false }
+  - { match: { text: "OUTFORDELIVERY" }, status: out_for_delivery, confirmed: false }
+  - { match: { text: "DELIVERED" }, status: delivered, confirmed: false }
+tests:
+  - { input: { text: "DELIVERYDELAYED" }, status: unknown }
+  - { input: { text: "RETURNTOSENDERDELIVERED" }, status: returning }
+  - { input: { text: "DELIVERYATTEMPTFAILED" }, status: problem }
+  - { input: { text: "READYFORPICKUP" }, status: at_pickup_point, pickup: true }
+  - { input: { text: "PARCELDELIVEREDSAFE" }, status: delivered }
+  - { input: { text: "SORTED" }, status: null }

@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# GoBolt label status names.
+carrier: gobolt
+entries:
+  - { match: { code: "label_created" }, status: registered }
+  - { match: { code: "label_scanned" }, status: in_transit }
+  - { match: { code: "label_received_at_destination" }, status: in_transit }
+  - { match: { code: "label_out_for_delivery" }, status: out_for_delivery }
+  - { match: { code: "label_delivered" }, status: delivered }
+  - { match: { code: "label_failed" }, status: problem }
+  - { match: { code: "label_returned_to_warehouse" }, status: returning }
+tests:
+  - { input: { code: label_created }, status: registered }
+  - { input: { code: label_out_for_delivery }, status: out_for_delivery }
+  - { input: { code: label_returned_to_warehouse }, status: returning }
+  - { input: { code: label_lost }, status: null }

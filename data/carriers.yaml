@@ -15,6 +15,8 @@ carriers:
         DHL Parcel,
         DHL eCommerce,
         Warenpost,
+        DHL Connect,
+        DHL DE,
       ]
     countries: [DE]
     domains: [dhl.de, dhl.com, deutschepost.de]
@@ -27,37 +29,50 @@ carriers:
 
   - id: dpd
     name: DPD
-    aliases: [DPD Deutschland, DPD Polska, DPD PL, DPD UK, Dynamic Parcel Distribution, dpdgroup]
+    aliases:
+      [DPD Deutschland, DPD DE, DPD Polska, DPD PL, DPD UK, Dynamic Parcel Distribution, dpdgroup]
     countries: [DE, AT, PL, GB, NL, BE, FR]
     domains: [dpd.de, dpd.com, dpd.com.pl, dpd.co.uk, dpdgroup.com, dpd.at]
     tracking_urls:
       default: "https://tracking.dpd.de/status/en_US/parcel/{tracking_number}"
       de: "https://tracking.dpd.de/status/de_DE/parcel/{tracking_number}"
       pl: "https://tracktrace.dpd.com.pl/parcelDetails?p1={tracking_number}"
+    tracking_number_pattern: { pattern: "^[0-9]{14}$" }
     crossref: { 17track: "100007" }
 
   - id: hermes
     name: Hermes
-    aliases: [Hermes Germany, Hermes Einrichtungs Service, myHermes, Evri]
-    countries: [DE, AT, GB]
-    domains: [myhermes.de, hermesworld.com, hermes-europe.eu, evri.com, myhermes.co.uk]
+    aliases: [Hermes Germany, Hermes DE, Hermes Einrichtungs Service, myHermes]
+    countries: [DE, AT]
+    domains: [myhermes.de, hermesworld.com, hermes-europe.eu]
     tracking_urls:
       default: "https://www.myhermes.de/empfangen/sendungsverfolgung/sendungsinformation/#{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
     crossref: { 17track: "100031" }
+
+  - id: evri
+    name: Evri
+    aliases: [Hermes UK, myHermes UK]
+    countries: [GB]
+    domains: [evri.com, myhermes.co.uk]
+    tracking_urls:
+      default: "https://www.evri.com/track/parcel/{tracking_number}/details"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$" }
 
   - id: gls
     name: GLS
-    aliases: [General Logistics Systems, GLS Germany, GLS Group, GLS Poland]
+    aliases: [General Logistics Systems, GLS Germany, GLS DE, GLS Group, GLS Poland]
     countries: [DE, AT, NL, PL, ES, IT, FR, DK, BE]
     domains: [gls-group.eu, gls-group.com, gls-pakete.de, gls-poland.com]
     tracking_urls:
       default: "https://gls-group.com/EU/en/parcel-tracking?match={tracking_number}"
       de: "https://gls-group.com/DE/de/paketverfolgung?match={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,24}$", flags: [i] }
     crossref: { 17track: "100005" }
 
   - id: amazon
     name: Amazon Logistics
-    aliases: [Amazon, Amazon Shipping, AMZL, Amazon Logistik]
+    aliases: [Amazon, AMZL, Amazon Logistik]
     domains:
       [
         amazon.de,
@@ -91,6 +106,7 @@ carriers:
     domains: [fedex.com]
     tracking_urls:
       default: "https://www.fedex.com/fedextrack/?trknbr={tracking_number}"
+    tracking_number_pattern: { pattern: "^[0-9]{10,22}$" }
     crossref: { 17track: "100003" }
 
   - id: usps
@@ -101,6 +117,7 @@ carriers:
     upu_countries: [US]
     tracking_urls:
       default: "https://tools.usps.com/go/TrackConfirmAction?tLabels={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{10,40}$", flags: [i] }
     crossref: { 17track: "21051" }
 
   - id: postnl
@@ -142,6 +159,7 @@ carriers:
     upu_countries: [CA]
     tracking_urls:
       default: "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{10,40}$", flags: [i] }
     crossref: { 17track: "3041" }
 
   - id: inpost
@@ -151,6 +169,7 @@ carriers:
     domains: [inpost.pl, paczkomaty.pl]
     tracking_urls:
       default: "https://inpost.pl/sledzenie-przesylek?number={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
     crossref: { 17track: "100043" }
 
   - id: poczta_polska
@@ -161,6 +180,7 @@ carriers:
     upu_countries: [PL]
     tracking_urls:
       default: "https://emonitoring.poczta-polska.pl/?numer={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
     crossref: { 17track: "16081" }
 
   - id: china_post
@@ -176,6 +196,7 @@ carriers:
     domains: [cainiao.com]
     tracking_urls:
       default: "https://global.cainiao.com/newDetail.htm?mailNoList={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
 
   - id: 4px
     name: 4PX
@@ -183,6 +204,7 @@ carriers:
     domains: [4px.com]
     tracking_urls:
       default: "https://track.4px.com/#/result/0/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
 
   - id: yodel
     name: Yodel
@@ -199,6 +221,7 @@ carriers:
     domains: [canpar.com]
     tracking_urls:
       default: "https://www.canpar.com/en/track/tracking.jsp?reference={tracking_number}&locale=en"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
     crossref: { 17track: "100146" }
 
   - id: purolator
@@ -215,6 +238,7 @@ carriers:
     domains: [ontrac.com]
     tracking_urls:
       default: "https://www.ontrac.com/tracking/?number={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
     crossref: { 17track: "100049" }
 
   - id: lasership
@@ -228,6 +252,7 @@ carriers:
     countries: [US]
     tracking_urls:
       default: "https://www.gofoexpress.com/tracking.html?searchID={tracking_number}"
+    tracking_number_pattern: { pattern: "^GF([A-Z]{2})[A-Z0-9]{4,40}$" }
 
   - id: landmark
     name: Landmark Global
@@ -246,8 +271,431 @@ carriers:
     countries: [US]
     tracking_urls:
       default: "https://www.speedeedelivery.com/track/?tracking={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
 
   - id: yunexpress
     name: YunExpress
     tracking_urls:
       default: "https://www.yuntrack.com/parcelTracking?id={tracking_number}"
+
+  # Carriers with an open-parcels plug-in. The tracking-number pattern is the shape the
+  # carrier's own tracker accepts, checked before a lookup is sent.
+  - id: amazon_shipping
+    name: Amazon Shipping
+    aliases: [Amazon Swiship, Swiship]
+    countries: [GB, FR, IT, ES, US]
+    tracking_urls:
+      default: "https://track.amazon.com/tracking/{tracking_number}"
+      en-GB: "https://track.amazon.co.uk/tracking/{tracking_number}"
+      fr: "https://track.amazon.fr/tracking/{tracking_number}"
+      it: "https://track.amazon.it/tracking/{tracking_number}"
+      es: "https://track.amazon.es/tracking/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: acs_courier
+    name: ACS Courier
+    aliases: [ACS]
+    countries: [GR, CY]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{6,30}$", flags: [i] }
+
+  - id: airmee
+    name: Airmee
+    countries: [SE]
+    tracking_urls:
+      default: "https://tracking.airmee.com/track/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Za-z0-9_-]{6,120}$" }
+
+  - id: ampere
+    name: Ampère
+    countries: [NL]
+
+  - id: an_post
+    name: An Post
+    countries: [IE]
+    upu_countries: [IE]
+    tracking_urls:
+      default: "https://www.anpost.com/Post-Parcels/Track/Search?trackingNumber={tracking_number}"
+
+  - id: apple_express
+    name: Apple Express
+    countries: [CA]
+    tracking_urls:
+      default: "https://track.appleexpress.com/en-US/orderNumber/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{4,40}$", flags: [i] }
+
+  - id: aramex
+    name: Aramex
+    aliases: [Aramex Australia, Aramex New Zealand, Fastway]
+    countries: [AU, NZ]
+    tracking_urls:
+      default: "https://www.aramex.com.au/tools/track?l={tracking_number}"
+      en-NZ: "https://www.aramex.co.nz/tools/track?l={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{6,40}$", flags: [i] }
+
+  - id: better_trucks
+    name: Better Trucks
+    countries: [US]
+    tracking_urls:
+      default: "https://tracking.bettertrucks.com/track/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9_-]{6,40}$", flags: [i] }
+
+  - id: box_now
+    name: BOX NOW
+    countries: [GR, BG, HR, CY]
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$", flags: [i] }
+
+  - id: bpost
+    name: bpost
+    aliases: [Belgian Post, bpost Belgium]
+    countries: [BE]
+    upu_countries: [BE]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: budbee
+    name: Budbee
+    countries: [SE, NL, BE, DK, FI]
+    tracking_urls:
+      default: "https://track.budbee.com/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$", flags: [i] }
+
+  - id: cdl
+    name: CDL Last Mile
+    countries: [US]
+    tracking_urls:
+      default: "https://apps.cdldelivers.com/Tracking-Page/track?id={tracking_number}"
+    tracking_number_pattern: { pattern: "^(?:CDL[0-9]{11}|[0-9]{9}-[0-9])$" }
+
+  - id: ceska_posta
+    name: Česká pošta
+    aliases: [Czech Post, Balíkovna]
+    countries: [CZ]
+    upu_countries: [CZ]
+    tracking_urls:
+      default: "https://www.balikovna.cz/cs/sledovat-balik/-/balik/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
+
+  - id: colis_prive
+    name: Colis Privé
+    countries: [FR, BE, NL]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
+
+  - id: colisweb
+    name: Colisweb
+    countries: [FR]
+    tracking_urls:
+      default: "https://www.colisweb.com/suivi-livraison?tracking={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$", flags: [i] }
+
+  - id: correos
+    name: Correos
+    aliases: [Correos España]
+    countries: [ES]
+    upu_countries: [ES]
+    tracking_urls:
+      default: "https://www.correos.es/es/es/herramientas/localizador/envios/detalle?tracking-number={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
+
+  - id: ctt
+    name: CTT
+    aliases: [CTT Correios de Portugal, CTT Express]
+    countries: [PT, ES]
+    upu_countries: [PT]
+    tracking_urls:
+      default: "https://www.ctt.pt/feapl_2/app/open/objectSearch/objectSearch.jspx?objects={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
+
+  - id: dao
+    name: DAO
+    aliases: [DAO365]
+    countries: [DK]
+    tracking_urls:
+      default: "https://dao.as/find-din-pakke/#q={tracking_number}"
+
+  - id: delhivery
+    name: Delhivery
+    countries: [IN]
+    tracking_urls:
+      default: "https://www.delhivery.com/track-v2/package/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[0-9]{8,20}$" }
+
+  - id: dragonfly
+    name: Dragonfly
+    countries: [NL, AU, CA]
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$" }
+
+  - id: dynalogic
+    name: Dynalogic
+    countries: [NL, BE]
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{5,30}$" }
+
+  - id: early_bird
+    name: Early Bird
+    countries: [SE]
+    tracking_urls:
+      default: "https://earlybird.se/spara-och-hjalp?id={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$" }
+
+  - id: econt
+    name: Econt
+    aliases: [Econt Express]
+    countries: [BG]
+    tracking_number_pattern: { pattern: "^[0-9]{6,20}$" }
+
+  - id: ecoscooting
+    name: Ecoscooting
+    countries: [ES]
+    tracking_urls:
+      default: "https://www.ecoscooting.com/tracking/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$" }
+
+  - id: elta_courier
+    name: ELTA Courier
+    countries: [GR]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$" }
+
+  - id: fan_courier
+    name: FAN Courier
+    countries: [RO]
+    tracking_number_pattern: { pattern: "^[0-9]{8,20}$" }
+
+  - id: geniki_taxydromiki
+    name: Geniki Taxydromiki
+    aliases: [Γενική Ταχυδρομική]
+    countries: [GR, CY]
+    tracking_urls:
+      default: "https://taxydromiki.com/track/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{6,30}$", flags: [i] }
+
+  - id: gobolt
+    name: GoBolt
+    countries: [CA]
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$", flags: [i] }
+
+  - id: helthjem
+    name: Helthjem
+    countries: [NO]
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$", flags: [i] }
+
+  - id: hrvatska_posta
+    name: Hrvatska pošta
+    aliases: [Croatian Post]
+    countries: [HR]
+    upu_countries: [HR]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: ics_courier
+    name: ICS Courier
+    countries: [CA]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{6,40}$", flags: [i] }
+
+  - id: la_poste
+    name: La Poste
+    aliases: [Colissimo, Chronopost, La Poste (Colissimo, Chronopost)]
+    countries: [FR]
+    upu_countries: [FR]
+    tracking_urls:
+      default: "https://www.laposte.fr/outils/suivre-vos-envois?code={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
+
+  - id: magyar_posta
+    name: Magyar Posta
+    aliases: [Hungarian Post]
+    countries: [HU]
+    upu_countries: [HU]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: matkahuolto
+    name: Matkahuolto
+    countries: [FI]
+    tracking_urls:
+      default: "https://www.matkahuolto.fi/seuranta?parcelNumber={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{6,40}$", flags: [i] }
+
+  - id: mondial_relay
+    name: Mondial Relay
+    countries: [FR, BE, NL, ES, PT, LU]
+    tracking_number_pattern: { pattern: "^[0-9]{6,20}$" }
+
+  - id: nova_post
+    name: Nova Post
+    aliases: [Nova Poshta, Нова пошта]
+    countries: [UA, MD, PL, DE, CZ, SK, RO, LT, LV, EE, IT, ES, FR, GB]
+    tracking_urls:
+      default: "https://novaposhta.ua/tracking/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[0-9]{8,20}$" }
+
+  - id: nz_post
+    name: NZ Post
+    aliases: [New Zealand Post, CourierPost]
+    countries: [NZ]
+    upu_countries: [NZ]
+    tracking_urls:
+      default: "https://www.nzpost.co.nz/tools/tracking?trackid={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: oesterreichische_post
+    name: Österreichische Post
+    aliases: [Austrian Post]
+    countries: [AT]
+    upu_countries: [AT]
+    tracking_urls:
+      default: "https://www.post.at/s/sendungsdetails?snr={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: orlen_paczka
+    name: ORLEN Paczka
+    countries: [PL]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: paack
+    name: Paack
+    countries: [ES, PT, FR, IT]
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$", flags: [i] }
+
+  - id: packeta
+    name: Packeta
+    aliases: [Zásilkovna, Packeta (Zásilkovna)]
+    countries: [CZ, SK, HU, RO, PL, DE, AT]
+    tracking_number_pattern: { pattern: "^Z?[A-Z0-9]{8,30}$", flags: [i] }
+
+  - id: pdn_express
+    name: PDN Express
+    tracking_urls:
+      default: "https://pdn.express/en/track/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{6,40}$", flags: [i] }
+
+  - id: planzer
+    name: Planzer
+    countries: [CH, LI]
+    tracking_urls:
+      default: "https://tracking.app.planzer.ch/?deliveryNumber={tracking_number}&system=Pak"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{6,40}$", flags: [i] }
+
+  - id: posta_slovenije
+    name: Pošta Slovenije
+    aliases: [Slovenian Post, Posta Slovenije]
+    countries: [SI]
+    upu_countries: [SI]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: poste_italiane
+    name: Poste Italiane
+    aliases: [Italian Post]
+    countries: [IT]
+    upu_countries: [IT]
+    tracking_urls:
+      default: "https://www.poste.it/cerca/index.html#/risultati-spedizioni/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: posti
+    name: Posti
+    aliases: [Finnish Post, Itella]
+    countries: [FI]
+    upu_countries: [FI]
+    tracking_urls:
+      default: "https://www.posti.fi/seuranta/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: postnord
+    name: PostNord
+    aliases: [PostNord Sverige, PostNord Danmark]
+    countries: [DK, SE, NO, FI]
+    upu_countries: [DK, SE]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: quickpac
+    name: Quickpac
+    countries: [CH]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: sameday
+    name: Sameday
+    aliases: [Sameday Courier]
+    countries: [RO, HU, BG]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{6,30}$", flags: [i] }
+
+  - id: seur
+    name: SEUR
+    countries: [ES]
+
+  - id: shopee_xpress
+    name: Shopee Xpress
+    aliases: [SPX, SPX Express]
+    countries: [BR, ID, MY, PH, TH, VN]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
+
+  - id: slovak_parcel_service
+    name: Slovak Parcel Service
+    aliases: [SPS, MySPS]
+    countries: [SK]
+    tracking_urls:
+      default: "https://mysps.sk/sk/tracking/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{6,30}$", flags: [i] }
+
+  - id: slovenska_posta
+    name: Slovenská pošta
+    aliases: [Slovak Post]
+    countries: [SK]
+    upu_countries: [SK]
+    tracking_urls:
+      default: "https://www.posta.sk/en/tracking-of-items#parcel={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
+
+  - id: speedx
+    name: SpeedX
+    countries: [US]
+    tracking_urls:
+      default: "https://tracking.speedx.io/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
+
+  - id: straightship
+    name: Straightship
+    countries: [US]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{6,30}$", flags: [i] }
+
+  - id: sunyou
+    name: SunYou
+    aliases: [Sunyou Logistics]
+    tracking_urls:
+      default: "https://sypost.net/search?orderNo={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
+
+  - id: swiss_post
+    name: Swiss Post
+    aliases: [La Poste Suisse, Posta Svizzera]
+    countries: [CH, LI]
+    upu_countries: [CH]
+    tracking_urls:
+      default: "https://service.post.ch/ekp-web/ui/entry/search/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9.]{8,40}$", flags: [i] }
+
+  - id: tipsa
+    name: TIPSA
+    countries: [ES, PT, AD]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{10,30}$", flags: [i] }
+
+  - id: trunkrs
+    name: Trunkrs
+    countries: [NL, BE]
+    tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,30}$", flags: [i] }
+
+  - id: ukrposhta
+    name: Ukrposhta
+    aliases: [Укрпошта, Ukrainian Post]
+    countries: [UA]
+    upu_countries: [UA]
+    tracking_urls:
+      default: "https://track.ukrposhta.ua/en/?barcode={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,20}$", flags: [i] }
+
+  - id: uniuni
+    name: UniUni
+    countries: [CA, US]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: vinted_go
+    name: Vinted Go
+    countries: [NL, BE, FR]
+    tracking_urls:
+      default: "https://vintedgo.com/en/tracking/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }

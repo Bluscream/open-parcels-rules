@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Planzer has no status codes, so the German text (trimmed, whitespace collapsed, lower case) is
+# the key: the English one renders "Zugestellt" as "Shipped". Only observed texts are listed.
+carrier: planzer
+entries:
+  - { match: { code: "sendung zugestellt" }, status: delivered }
+  - { match: { code: "erfasst" }, status: registered }
+  - { match: { code: "übergeben" }, status: in_transit }
+  - { match: { code: "in zustellung" }, status: out_for_delivery }
+  - { match: { code: "zugestellt" }, status: delivered }
+tests:
+  - { input: { code: erfasst }, status: registered }
+  - { input: { code: in zustellung }, status: out_for_delivery }
+  - { input: { code: Sendung zugestellt }, status: delivered }
+  - { input: { code: verloren }, status: null }

@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# TIPSA status wordings, folded (upper case, no accents). A missort is in transit by decision:
+# TIPSA draws it as a normal step and such parcels go on to be delivered. Some wordings are followed
+# by an agency, hub, point or reason and match on their start.
+carrier: tipsa
+entries:
+  - { match: { code: "PENDIENTE DE ENTREGAR A TIPSA" }, status: registered }
+  - { match: { code: "DOCUMENTADO" }, status: registered }
+  - { match: { code: "TRANSITO" }, status: in_transit }
+  - { match: { code: "EN CAMINO" }, status: in_transit }
+  - { match: { code: "PENDIENTE DE LLEGADA" }, status: in_transit }
+  - { match: { code: "MAL CLASIFICADO" }, status: in_transit }
+  - { match: { code: "LEIDO EN DESTINO" }, status: in_transit }
+  - { match: { code: "AUSENTE" }, status: problem }
+  - { match: { code: "REPARTO" }, status: out_for_delivery }
+  - { match: { code: "EN REPARTO" }, status: out_for_delivery }
+  - { match: { code: "ENTREGADO" }, status: delivered }
+  - { match: { code_prefix: "LECTURA EN AGENCIA DESTINO" }, status: in_transit }
+  - { match: { code_prefix: "LECTURA EN HUB" }, status: in_transit }
+  - { match: { code_prefix: "DISPONIBLE" }, status: at_pickup_point, pickup: true }
+  - { match: { code_prefix: "INCIDENCIA" }, status: problem }
+tests:
+  - { input: { code: MAL CLASIFICADO }, status: in_transit }
+  - { input: { code: "LECTURA EN HUB MADRID" }, status: in_transit }
+  - { input: { code: "DISPONIBLE EN PUNTO" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "INCIDENCIA: DIRECCION" }, status: problem }
+  - { input: { code: DEVUELTO }, status: null }

@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Vinted Go event `group` values, which do not depend on the language. A return leg reuses the plain
+# groups. `returned`: the return is concluded, the parcel is back with the sender.
+carrier: vinted_go
+entries:
+  - { match: { code: "created" }, status: registered }
+  - { match: { code: "tracking_code_created" }, status: registered }
+  - { match: { code: "shipped" }, status: in_transit }
+  - { match: { code: "hand_over" }, status: in_transit }
+  - { match: { code: "in_depot" }, status: in_transit }
+  - { match: { code: "left_depot" }, status: in_transit }
+  - { match: { code: "in_transit" }, status: in_transit }
+  - { match: { code: "redirected" }, status: in_transit }
+  - { match: { code: "left_our_network" }, status: in_transit }
+  - { match: { code: "in_delivery" }, status: out_for_delivery }
+  - { match: { code: "available_for_pickup" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "ready_for_pickup" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "ready_for_collection_at_merchant" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "delivered" }, status: delivered }
+  - { match: { code: "concluded" }, status: delivered }
+  - { match: { code: "disposed" }, status: problem }
+  - { match: { code: "empty_locker_found" }, status: problem }
+  - { match: { code: "lost" }, status: problem }
+  - { match: { code: "pickup_failed" }, status: problem }
+  - { match: { code: "cancelled" }, status: problem }
+  - { match: { code: "pickup_cancelled" }, status: problem }
+  - { match: { code: "return" }, status: returning }
+  - { match: { code: "returned" }, status: delivered }
+  - { match: { code: "return_return" }, status: returning }
+  - { match: { code: "return_to_sender" }, status: returning }
+  - { match: { code: "return_in_transit" }, status: returning }
+  - { match: { code: "return_ready_for_pickup" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "return_delivered" }, status: delivered }
+  - { match: { code: "return_lost" }, status: problem }
+  - { match: { code: "return_disposed" }, status: problem }
+  - { match: { code: "return_empty_locker_found" }, status: problem }
+  - { match: { code: "return_cancelled" }, status: problem }
+tests:
+  - { input: { code: tracking_code_created }, status: registered }
+  - { input: { code: ready_for_collection_at_merchant }, status: at_pickup_point, pickup: true }
+  - { input: { code: returned }, status: delivered }
+  - { input: { code: return_in_transit }, status: returning }
+  - { input: { code: teleported }, status: null }

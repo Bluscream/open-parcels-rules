@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Österreichische Post: the carrier's complete tracking state vocabulary. `DELIVERY_INTERUPTED` is
+# the carrier's own spelling. `UNKNOWN` is left out on purpose: seeing it means the vocabulary
+# moved. DELIVERY_PARKED (left at the agreed safe place) counts as delivered, as the carrier does.
+carrier: oesterreichische_post
+entries:
+  - { match: { code: "PENDING_INFORMATION" }, status: registered }
+  - { match: { code: "PARCEL_STAMP" }, status: registered }
+  - { match: { code: "AVISO" }, status: registered }
+  - { match: { code: "ALLES_POST" }, status: registered }
+  - { match: { code: "DELIVERY_HAND_OVER" }, status: in_transit }
+  - { match: { code: "IN_DISTRIBUTION" }, status: in_transit }
+  - { match: { code: "CUSTOMS_CLEARANCE" }, status: in_transit }
+  - { match: { code: "DELIVERY_IN_CUSTOMS" }, status: in_transit }
+  - { match: { code: "IN_DELIVERY" }, status: out_for_delivery }
+  - { match: { code: "NOTIFIED" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "READY_FOR_PICK_UP" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "READY_FOR_PICK_UP_STATION" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "READY_FOR_PICK_UP_POINT" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "READY_FOR_PICK_UP_BOX" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "DELIVERED" }, status: delivered }
+  - { match: { code: "DELIVERY_PARKED" }, status: delivered }
+  - { match: { code: "DELIVERY_IN_RETURN" }, status: returning }
+  - { match: { code: "DELIVERY_DELAYED" }, status: problem }
+  - { match: { code: "DELIVERY_INTERUPTED" }, status: problem }
+  - { match: { code: "NOT_REACHABLE" }, status: problem }
+tests:
+  - { input: { code: AVISO }, status: registered }
+  - { input: { code: READY_FOR_PICK_UP_BOX }, status: at_pickup_point, pickup: true }
+  - { input: { code: DELIVERY_INTERUPTED }, status: problem }
+  - { input: { code: UNKNOWN }, status: null }

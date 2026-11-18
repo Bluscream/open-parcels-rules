@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Pošta Slovenije scan codes. `V` is read with its English non-delivery action (`scan: V`).
+carrier: posta_slovenije
+entries:
+  - { match: { code: "NAJ" }, status: registered }
+  - { match: { code: "S" }, status: in_transit }
+  - { match: { code: "EMC" }, status: in_transit }
+  - { match: { code: "N" }, status: out_for_delivery }
+  - { match: { code: "VLPAKP" }, status: out_for_delivery }
+  - { match: { code: "IZR" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "PVI" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "VDO" }, status: problem }
+  - { match: { code: "POTPKTM" }, status: problem }
+  - { match: { code: "VRP" }, status: returning }
+  # Delivery scans; after a return they are the return arriving (the consumer decides that).
+  - { match: { code: VL }, status: delivered }
+  - { match: { code: VR }, status: delivered }
+  # `V` (not delivered): a problem; read with its action (scan: V) it can be a return.
+  - {
+      match: { text: "returned to (the )?sender", flags: [i], fields: { scan: V } },
+      status: returning,
+    }
+  - { match: { code: V }, status: problem }
+tests:
+  - { input: { code: NAJ }, status: registered }
+  - { input: { code: IZR }, status: at_pickup_point, pickup: true }
+  - { input: { code: VL }, status: delivered }
+  - { input: { text: "Returned to the sender", fields: { scan: V } }, status: returning }
+  - { input: { text: "Next attempt tomorrow", fields: { scan: V } }, status: null }
+  - { input: { code: V }, status: problem }
+  - { input: { code: XX }, status: null }

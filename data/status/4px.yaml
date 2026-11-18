@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# 4PX event codes (`tkCode`). Only codes seen on real parcels.
+carrier: 4px
+entries:
+  - { match: { code: FPX_L_RPIF }, status: registered }
+  - { match: { code: FPX_O_IR }, status: registered }
+  - { match: { code: FPX_O_IRI }, status: registered }
+  - { match: { code: FPX_C_SPLS }, status: in_transit }
+  - { match: { code: FPX_C_AAF }, status: in_transit }
+  - { match: { code: FPX_C_ADFF }, status: in_transit }
+  - { match: { code: FPX_O_RR }, status: in_transit }
+  - { match: { code: FPX_M_HA }, status: in_transit }
+  - { match: { code: FPX_M_DFOA }, status: in_transit }
+  - { match: { code: FPX_M_ATA }, status: in_transit }
+  - { match: { code: FPX_M_CRSD }, status: in_transit }
+  - { match: { code: FPX_M_IT }, status: in_transit }
+  - { match: { code: FPX_F_ST }, status: in_transit }
+  - { match: { code: FPX_I_RCUK }, status: in_transit }
+  - { match: { code: FPX_D_AOPC }, status: in_transit }
+  - { match: { code: FPX_D_APC }, status: in_transit }
+  - { match: { code: FPX_D_AAD }, status: in_transit }
+  - { match: { code: FPX_D_STPP }, status: in_transit }
+  - { match: { code: FPX_D_HQ }, status: in_transit }
+  - { match: { code: FPX_D_SD }, status: out_for_delivery }
+  - { match: { code: FPX_D_FD }, status: problem }
+  - { match: { code: FPX_S_OK }, status: delivered }
+tests:
+  - { input: { code: FPX_L_RPIF }, status: registered }
+  - { input: { code: FPX_D_SD }, status: out_for_delivery }
+  - { input: { code: FPX_S_OK }, status: delivered }
+  - { input: { code: FPX_X_NEW }, status: null }

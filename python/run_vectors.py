@@ -12,7 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from open_parcels_rules import load_rules, map_status, validate_tracking_number  # noqa: E402
+from open_parcels_rules import ignored_status, load_rules, map_status, validate_tracking_number  # noqa: E402
 
 
 def main() -> int:
@@ -42,12 +42,20 @@ def main() -> int:
         for test in table["tests"]:
             checked += 1
             raw = test["input"]
-            mapped = map_status(rules, table["carrier"], raw.get("code"), raw.get("text"))
+            mapped = map_status(rules, table["carrier"], raw.get("code"), raw.get("text"), raw.get("fields"))
             status = None if mapped is None else mapped["status"]
             if status != test["status"]:
                 failures.append(f"status/{table['carrier']}: {raw} gave {status}, expected {test['status']}")
             elif "pickup" in test and bool(mapped and mapped.get("pickup")) != test["pickup"]:
                 failures.append(f"status/{table['carrier']}: {raw} pickup flag differs")
+            elif "stage" in test and (mapped or {}).get("stage") != test["stage"]:
+                failures.append(f"status/{table['carrier']}: {raw} stage differs")
+            elif "label" in test and (mapped or {}).get("label") != test["label"]:
+                failures.append(f"status/{table['carrier']}: {raw} label differs")
+            elif "ignored" in test:
+                ignored = ignored_status(rules, table["carrier"], raw.get("code"), raw.get("text"), raw.get("fields"))
+                if ignored != test["ignored"]:
+                    failures.append(f"status/{table['carrier']}: {raw} ignored as {ignored}, expected {test['ignored']}")
 
     for failure in failures:
         print(f"FAIL {failure}")

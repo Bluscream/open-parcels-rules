@@ -74,6 +74,32 @@
               "pattern": "^https:\\/\\/\\S*\\{tracking_number\\}\\S*$"
             }
           },
+          "tracking_number_pattern": {
+            "description": "Shape of a number the carrier's own tracker accepts, anchored with ^ and $: a plausibility check before a lookup is sent, not detection (see tracking-numbers).",
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "minLength": 1,
+                "description": "A regex in the portable subset."
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "i",
+                    "m",
+                    "s"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "pattern"
+            ],
+            "additionalProperties": false
+          },
           "crossref": {
             "default": {},
             "description": "Identifiers of this carrier in other systems, e.g. 17track: '100001'.",

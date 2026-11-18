@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# OnTrac event codes. NFRP ("delivered" to another carrier) is deliberately absent: neither
+# delivered nor in transit is certain.
+carrier: ontrac
+entries:
+  - { match: { code: "EXRL" }, status: registered }
+  - { match: { code: "INRL" }, status: registered }
+  - { match: { code: "ORIG" }, status: in_transit }
+  - { match: { code: "ARRD" }, status: in_transit }
+  - { match: { code: "SFCT" }, status: in_transit }
+  - { match: { code: "FCTF" }, status: in_transit }
+  - { match: { code: "LOAD" }, status: in_transit }
+  - { match: { code: "OFDL" }, status: out_for_delivery }
+  - { match: { code: "DLVD" }, status: delivered }
+  - { match: { code: "BCLD" }, status: problem }
+  - { match: { code: "NDMI" }, status: problem }
+  - { match: { code: "UTLV" }, status: problem }
+  - { match: { code: "ONHD" }, status: problem }
+tests:
+  - { input: { code: EXRL }, status: registered }
+  - { input: { code: OFDL }, status: out_for_delivery }
+  - { input: { code: DLVD }, status: delivered }
+  - { input: { code: NFRP }, status: null }

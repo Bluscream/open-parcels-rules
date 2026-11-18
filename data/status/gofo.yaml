@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# GOFO Express. "process:<code>": event process codes, shared by every country. "item:<status>":
+# the coarse item status, used only when the latest event has no mapped code.
+carrier: gofo
+entries:
+  - { match: { code: "process:100" }, status: registered }
+  - { match: { code: "process:200" }, status: in_transit }
+  - { match: { code: "process:201" }, status: in_transit }
+  - { match: { code: "process:202" }, status: in_transit }
+  - { match: { code: "process:203" }, status: in_transit }
+  - { match: { code: "process:204" }, status: problem }
+  - { match: { code: "process:205" }, status: delivered }
+  - { match: { code: "process:206" }, status: problem }
+  - { match: { code: "process:208" }, status: out_for_delivery }
+  - { match: { code: "process:411" }, status: in_transit }
+  - { match: { code: "process:412" }, status: in_transit }
+  - { match: { code: "process:LS004" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "item:Processing" }, status: registered }
+  - { match: { code: "item:Transit" }, status: in_transit }
+  - { match: { code: "item:Delivered" }, status: delivered }
+tests:
+  - { input: { code: "process:100" }, status: registered }
+  - { input: { code: "process:LS004" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "process:205" }, status: delivered }
+  - { input: { code: "item:Transit" }, status: in_transit }
+  - { input: { code: "process:999" }, status: null }

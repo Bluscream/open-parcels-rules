@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Česká pošta / Balíkovna state ids. Pickup-point designation records can follow the final
+# event, so consumers take the furthest status reached rather than the newest. Notification and
+# designation records are not parcel states (unknown).
+carrier: ceska_posta
+entries:
+  - { match: { code: "-L" }, status: registered }
+  - { match: { code: "-M" }, status: registered }
+  - { match: { code: "21" }, status: in_transit }
+  - { match: { code: "-F" }, status: in_transit }
+  - { match: { code: "-I" }, status: in_transit }
+  - { match: { code: "-B" }, status: in_transit }
+  - { match: { code: "-K" }, status: in_transit }
+  - { match: { code: "5K" }, status: in_transit }
+  - { match: { code: "51" }, status: in_transit }
+  - { match: { code: "53" }, status: out_for_delivery }
+  - { match: { code: P2 }, status: at_pickup_point, pickup: true }
+  - { match: { code: "82" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "91" }, status: delivered }
+  - { match: { code: "42" }, status: unknown, note: "Notification record." }
+  - { match: { code: "43" }, status: unknown, note: "Notification record." }
+  - { match: { code: BG1 }, status: unknown, note: "Designation record." }
+  - { match: { code: BG4 }, status: unknown, note: "Designation record." }
+  - { match: { code: BG5 }, status: unknown, note: "Designation record." }
+tests:
+  - { input: { code: "-L" }, status: registered }
+  - { input: { code: "53" }, status: out_for_delivery }
+  - { input: { code: P2 }, status: at_pickup_point, pickup: true }
+  - { input: { code: "91" }, status: delivered }
+  - { input: { code: BG4 }, status: unknown }
+  - { input: { code: "-3" }, status: null }

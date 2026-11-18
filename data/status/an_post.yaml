@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# An Post: `lastTrackingEventCategoryId`, the carrier's own coarse stage, written as
+# "category:<n>". There is no pickup stage.
+carrier: an_post
+entries:
+  - { match: { code: "category:0" }, status: in_transit }
+  - { match: { code: "category:1" }, status: in_transit, note: "Customs, with nothing owed." }
+  - { match: { code: "category:2" }, status: registered, note: "Item received." }
+  - { match: { code: "category:3" }, status: in_transit, note: "Sorting." }
+  - { match: { code: "category:4" }, status: delivered }
+  - { match: { code: "category:5" }, status: problem, note: "Delivery attempted." }
+  - { match: { code: "category:6" }, status: returning }
+  - { match: { code: "category:7" }, status: registered, note: "Information received." }
+tests:
+  - { input: { code: "category:2" }, status: registered }
+  - { input: { code: "category:4" }, status: delivered }
+  - { input: { code: "category:5" }, status: problem }
+  - { input: { code: "category:8" }, status: null }

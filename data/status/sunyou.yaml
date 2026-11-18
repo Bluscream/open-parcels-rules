@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# SunYou: the numeric event `status`. A failed delivery for "return" is the reason, not the return
+# leg.
+carrier: sunyou
+entries:
+  - { match: { code: "101" }, status: registered }
+  - { match: { code: "102" }, status: registered }
+  - { match: { code: "105" }, status: in_transit }
+  - { match: { code: "106" }, status: in_transit }
+  - { match: { code: "200" }, status: in_transit }
+  - { match: { code: "201" }, status: in_transit }
+  - { match: { code: "205" }, status: in_transit }
+  - { match: { code: "206" }, status: in_transit }
+  - { match: { code: "207" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "208" }, status: problem }
+  - { match: { code: "209" }, status: delivered }
+  - { match: { code: "210" }, status: returning }
+  - { match: { code: "220" }, status: problem }
+  - { match: { code: "2061" }, status: in_transit }
+  - { match: { code: "2062" }, status: in_transit }
+  - { match: { code: "2064" }, status: in_transit }
+  - { match: { code: "2067" }, status: in_transit }
+  - { match: { code: "2068" }, status: out_for_delivery }
+  - { match: { code: "2071" }, status: out_for_delivery }
+  - { match: { code: "2072" }, status: out_for_delivery }
+  - { match: { code: "20622" }, status: in_transit }
+  - { match: { code: "20801" }, status: problem }
+  - { match: { code: "20802" }, status: problem }
+  - { match: { code: "20803" }, status: problem }
+  - { match: { code: "20806" }, status: problem }
+  - { match: { code: "20810" }, status: problem }
+  - { match: { code: "20899" }, status: problem }
+  - { match: { code: "20903" }, status: delivered }
+  - { match: { code: "20906" }, status: delivered }
+tests:
+  - { input: { code: "101" }, status: registered }
+  - { input: { code: "207" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "20899" }, status: problem }
+  - { input: { code: "999" }, status: null }

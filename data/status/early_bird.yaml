@@ -1,0 +1,220 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Early Bird (Sweden) has no status codes, only sentences in English or Swedish, recognised by
+# how they start (a sentence that names a city or a time still begins the same way). Consumers
+# ask with `use: status`. Sentences that are known but say nothing new map to unknown: the
+# status before them still holds.
+#
+# With `use: locker`, the entries answer a second question: does a text put the parcel in a
+# locker at some point, even when its status says otherwise (matched anywhere in the text)?
+carrier: early_bird
+entries:
+  - {
+      match:
+        { text: "^your delivery is booked with early bird", flags: [i], fields: { use: status } },
+      status: registered,
+    }
+  - {
+      match: { text: "^din leverans är bokad med early bird", flags: [i], fields: { use: status } },
+      status: registered,
+    }
+  - {
+      match:
+        {
+          text: "^leveransen till dig är bokad av e-handlaren",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: registered,
+    }
+  - {
+      match: { text: "^early bird has received your package", flags: [i], fields: { use: status } },
+      status: in_transit,
+    }
+  - {
+      match: { text: "^early bird har tagit emot ditt paket", flags: [i], fields: { use: status } },
+      status: in_transit,
+    }
+  - {
+      match:
+        {
+          text: "^your package has arrived at the terminal in",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: in_transit,
+    }
+  - {
+      match:
+        { text: "^ditt paket har kommit till terminalen i", flags: [i], fields: { use: status } },
+      status: in_transit,
+    }
+  - {
+      match:
+        {
+          text: "^paketet har ankommit till sorteringsterminal",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: in_transit,
+    }
+  - {
+      match:
+        {
+          text: "^your package is on its way\\. you will receive a notification",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: in_transit,
+    }
+  - {
+      match:
+        {
+          text: "^paketet är på väg\\. du får ett meddelande",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: in_transit,
+    }
+  - {
+      match:
+        {
+          text: "^since we were unable to deliver the parcel to your home",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: in_transit,
+      pickup: true,
+    }
+  - {
+      match:
+        {
+          text: "^eftersom vi inte kunde leverera paketet hem",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: in_transit,
+      pickup: true,
+    }
+  - {
+      match: { text: "^we failed to deliver your package", flags: [i], fields: { use: status } },
+      status: problem,
+    }
+  - {
+      match: { text: "^vi misslyckades med att leverera", flags: [i], fields: { use: status } },
+      status: problem,
+    }
+  - {
+      match:
+        { text: "^we were unable to access the entrance", flags: [i], fields: { use: status } },
+      status: problem,
+    }
+  - {
+      match: { text: "^vi kunde inte komma in i porten", flags: [i], fields: { use: status } },
+      status: problem,
+    }
+  - {
+      match:
+        {
+          text: "^your package is now ready for collection from the parcel locker",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { text: "^ditt paket finns nu redo att hämtas", flags: [i], fields: { use: status } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match:
+        {
+          text: "^the package has been collected from the parcel locker",
+          flags: [i],
+          fields: { use: status },
+        },
+      status: delivered,
+      pickup: true,
+    }
+  - {
+      match: { text: "^paketet har hämtats ur paketskåpet", flags: [i], fields: { use: status } },
+      status: delivered,
+      pickup: true,
+    }
+  - {
+      match: { text: "^the package has been delivered", flags: [i], fields: { use: status } },
+      status: delivered,
+    }
+  - {
+      match: { text: "^ditt paket har nu levererats", flags: [i], fields: { use: status } },
+      status: delivered,
+    }
+  - {
+      match: { text: "^we have scheduled a new attempt", flags: [i], fields: { use: status } },
+      status: unknown,
+    }
+  - {
+      match: { text: "^vi har bokat in ett nytt försök", flags: [i], fields: { use: status } },
+      status: unknown,
+    }
+  - {
+      match: { text: "parcel locker", flags: [i], fields: { use: locker } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { text: "paketskåp", flags: [i], fields: { use: locker } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match:
+        {
+          text: "since we were unable to deliver the parcel to your home",
+          flags: [i],
+          fields: { use: locker },
+        },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match:
+        {
+          text: "eftersom vi inte kunde leverera paketet hem",
+          flags: [i],
+          fields: { use: locker },
+        },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { text: "ditt paket finns nu redo att hämtas", flags: [i], fields: { use: locker } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+tests:
+  - {
+      input: { text: "Early Bird has received your package.", fields: { use: status } },
+      status: in_transit,
+    }
+  - {
+      input: { text: "Your package has arrived at the terminal in Malmö", fields: { use: status } },
+      status: in_transit,
+    }
+  - {
+      input: { text: "Paketet har hämtats ur paketskåpet", fields: { use: status } },
+      status: delivered,
+    }
+  - {
+      input: { text: "We have scheduled a new attempt for tomorrow", fields: { use: status } },
+      status: unknown,
+    }
+  - { input: { text: "Something else entirely", fields: { use: status } }, status: null }
+  - {
+      input: { text: "Picked up from the Parcel Locker", fields: { use: locker } },
+      status: at_pickup_point,
+    }
+  - { input: { text: "Picked up from the Parcel Locker", fields: { use: status } }, status: null }
+  - { input: { text: "The package has been delivered", fields: { use: locker } }, status: null }

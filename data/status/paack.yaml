@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Paack event labels; prefer mapping too little over mapping wrongly.
+carrier: paack
+entries:
+  - { match: { code: "manifested" }, status: registered }
+  - { match: { code: "created" }, status: registered }
+  - { match: { code: "appointmentChangedToNextAvailableDay" }, status: registered }
+  - { match: { code: "scannedAtOrigin" }, status: in_transit }
+  - { match: { code: "receivedAtHub" }, status: in_transit }
+  - { match: { code: "sorted" }, status: in_transit }
+  - { match: { code: "warehouse" }, status: in_transit }
+  - { match: { code: "inDelivery" }, status: out_for_delivery }
+  - { match: { code: "driverAssigned" }, status: out_for_delivery }
+  - { match: { code: "inProgress" }, status: out_for_delivery }
+  - { match: { code: "readyForPickup" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "atPickupPoint" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "droppedInPudo" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "delivered" }, status: delivered }
+  - { match: { code: "collectedByCustomer" }, status: delivered }
+  - { match: { code: "returnedToSender" }, status: returning }
+  - { match: { code: "returnedToRetailer" }, status: returning }
+  - { match: { code: "logisticIssueOpen" }, status: problem }
+  - { match: { code: "incorrectAddress" }, status: problem }
+  - { match: { code: "damaged" }, status: problem }
+  - { match: { code: "lost" }, status: problem }
+tests:
+  - { input: { code: manifested }, status: registered }
+  - { input: { code: droppedInPudo }, status: at_pickup_point, pickup: true }
+  - { input: { code: returnedToRetailer }, status: returning }
+  - { input: { code: teleported }, status: null }

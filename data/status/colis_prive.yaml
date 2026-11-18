@@ -1,0 +1,108 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Colis Privé tracking-page sentences, one set per page language (`lang` field: fr, nl, en). A
+# sentence is only matched against the language it was requested in: the sentences are the
+# carrier's own, not translations of each other. Consumers fold typographic apostrophes and
+# whitespace first. `stage` orders same-day rows (the page gives dates without times).
+carrier: colis_prive
+entries:
+  - {
+      match: { text: "livré en boîte aux lettres", flags: [i], fields: { lang: fr } },
+      status: delivered,
+      stage: 5,
+    }
+  - {
+      match: { text: "en cours de distribution", flags: [i], fields: { lang: fr } },
+      status: out_for_delivery,
+      stage: 4,
+    }
+  - {
+      match: { text: "arrivé sur notre agence régionale", flags: [i], fields: { lang: fr } },
+      status: in_transit,
+      stage: 3,
+    }
+  - {
+      match: { text: "pris en charge par colis privé", flags: [i], fields: { lang: fr } },
+      status: in_transit,
+      stage: 2,
+    }
+  - {
+      match: { text: "préparation par l'expéditeur", flags: [i], fields: { lang: fr } },
+      status: registered,
+      stage: 1,
+    }
+  - {
+      match: { text: "in de brievenbus bezorgd", flags: [i], fields: { lang: nl } },
+      status: delivered,
+      stage: 5,
+    }
+  - {
+      match: { text: "onderweg naar jou", flags: [i], fields: { lang: nl } },
+      status: out_for_delivery,
+      stage: 4,
+    }
+  - {
+      match:
+        { text: "toegekomen bij onze regionale bezorgpartner", flags: [i], fields: { lang: nl } },
+      status: in_transit,
+      stage: 3,
+    }
+  - {
+      match: { text: "nationaal platform", flags: [i], fields: { lang: nl } },
+      status: in_transit,
+      stage: 2,
+    }
+  - {
+      match: { text: "klaargemaakt door de webshop", flags: [i], fields: { lang: nl } },
+      status: registered,
+      stage: 1,
+    }
+  - {
+      match: { text: "delivered in letterbox", flags: [i], fields: { lang: en } },
+      status: delivered,
+      stage: 5,
+    }
+  - {
+      match: { text: "being delivered by the driver", flags: [i], fields: { lang: en } },
+      status: out_for_delivery,
+      stage: 4,
+    }
+  - {
+      match:
+        { text: "arrived at our regional distribution office", flags: [i], fields: { lang: en } },
+      status: in_transit,
+      stage: 3,
+    }
+  - {
+      match: { text: "well received by a colis privé branch", flags: [i], fields: { lang: en } },
+      status: in_transit,
+      stage: 2,
+    }
+  - {
+      match: { text: "prepared by your webmerchant", flags: [i], fields: { lang: en } },
+      status: registered,
+      stage: 1,
+    }
+tests:
+  - {
+      input: { text: "Votre colis a été livré en boîte aux lettres", fields: { lang: fr } },
+      status: delivered,
+      stage: 5,
+    }
+  - {
+      input: { text: "Pris en charge par Colis Privé", fields: { lang: fr } },
+      status: in_transit,
+      stage: 2,
+    }
+  - {
+      input: { text: "Pakket is onderweg naar jou", fields: { lang: nl } },
+      status: out_for_delivery,
+      stage: 4,
+    }
+  - {
+      input: { text: "Parcel prepared by your webmerchant", fields: { lang: en } },
+      status: registered,
+      stage: 1,
+    }
+  - { input: { text: "Delivered in letterbox", fields: { lang: fr } }, status: null }
+  - { input: { text: "Delivered in letterbox" }, status: null }

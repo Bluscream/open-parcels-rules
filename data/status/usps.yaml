@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# USPS `statusCategory` / `status` / `eventType` texts (trimmed, lower case), matched on their
+# start, in order.
+carrier: usps
+entries:
+  - { match: { code_prefix: "pre-shipment" }, status: registered }
+  - { match: { code_prefix: "shipping label created" }, status: registered }
+  - { match: { code_prefix: "label created" }, status: registered }
+  - { match: { code_prefix: "accepted" }, status: in_transit }
+  - { match: { code_prefix: "usps in possession" }, status: in_transit }
+  - { match: { code_prefix: "in transit" }, status: in_transit }
+  - { match: { code_prefix: "arrived" }, status: in_transit }
+  - { match: { code_prefix: "departed" }, status: in_transit }
+  - { match: { code_prefix: "processed" }, status: in_transit }
+  - { match: { code_prefix: "preparing for delivery" }, status: in_transit }
+  - { match: { code_prefix: "out for delivery" }, status: out_for_delivery }
+  - { match: { code_prefix: "available for pickup" }, status: at_pickup_point, pickup: true }
+  - { match: { code_prefix: "ready for pickup" }, status: at_pickup_point, pickup: true }
+  - { match: { code_prefix: "held at post office" }, status: at_pickup_point, pickup: true }
+  - { match: { code_prefix: "delivered" }, status: delivered }
+  - { match: { code_prefix: "return to sender" }, status: returning }
+  - { match: { code_prefix: "returning" }, status: returning }
+  - { match: { code_prefix: "alert" }, status: problem }
+  - { match: { code_prefix: "delivery exception" }, status: problem }
+  - { match: { code_prefix: "undeliverable" }, status: problem }
+  - { match: { code_prefix: "forwarded" }, status: problem }
+tests:
+  - { input: { code: "pre-shipment info sent to usps" }, status: registered }
+  - { input: { code: "arrived at usps regional facility" }, status: in_transit }
+  - { input: { code: "delivered, in/at mailbox" }, status: delivered }
+  - { input: { code: "held at post office, at customer request" }, status: at_pickup_point }
+  - { input: { code: "notice left" }, status: null }

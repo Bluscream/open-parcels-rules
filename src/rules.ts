@@ -7,6 +7,7 @@ import { compileMailRule } from "./mail/compile.ts";
 import type { Bundle } from "./schema/bundle.ts";
 import { bundleSchema } from "./schema/bundle.ts";
 import type { CompiledStatusTable } from "./status.ts";
+import type { CarrierKey } from "./types.ts";
 import { compileStatusTable } from "./status.ts";
 import type { CompiledTrackingType } from "./tracking/compile.ts";
 import { compileTrackingTypes } from "./tracking/compile.ts";
@@ -22,6 +23,12 @@ export interface Rules {
   /** Merged locale grammars, keyed by the sorted locale list. */
   readonly grammarCache: Map<string, Grammar>;
   readonly trackingKeywords: RegExp;
+  /** Fixed public carrier keys, keyed "carrier/name". */
+  readonly keys: ReadonlyMap<string, CarrierKey>;
+}
+
+export function keyId(carrier: string, name: string): string {
+  return `${carrier}/${name}`;
 }
 
 function keywordRegex(locales: readonly LocaleTable[]): RegExp {
@@ -44,6 +51,19 @@ export function compileBundle(bundle: Bundle): Rules {
     mailRules: bundle.mail.map(compileMailRule),
     grammarCache: new Map(),
     trackingKeywords: keywordRegex(bundle.locales),
+    keys: new Map(
+      bundle.keys.map((key) => [
+        keyId(key.carrier, key.name),
+        {
+          carrier: key.carrier,
+          name: key.name,
+          purpose: key.purpose,
+          source: key.source,
+          lastVerified: key.last_verified,
+          value: key.value,
+        },
+      ]),
+    ),
   };
 }
 

@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# ACS Courier. `shipmentStatusId` is the parcel-level state; other values fall back to the
+# newest mappable event. `controlPid` is the history entry; a child entry inherits its
+# `controlParentPid`'s meaning (the consumer looks the parent up when the child is unknown).
+# controlPid 400 is left out on purpose: it covers both "with the courier" and "in a locker",
+# told apart only by text.
+carrier: acs_courier
+entries:
+  - { match: { code: "shipmentStatusId:4" }, status: delivered }
+  - { match: { code: "shipmentStatusId:7" }, status: returning }
+  - { match: { code: "controlPid:100" }, status: in_transit }
+  - { match: { code: "controlPid:200" }, status: in_transit }
+  - { match: { code: "controlPid:300" }, status: in_transit }
+  - { match: { code: "controlPid:600" }, status: delivered }
+  - { match: { code: "controlPid:620" }, status: returning }
+  - { match: { code: "controlPid:306" }, status: unknown, note: "Says nothing about the parcel." }
+  - { match: { code: "controlPid:404" }, status: unknown, note: "A notification." }
+tests:
+  - { input: { code: "shipmentStatusId:4" }, status: delivered }
+  - { input: { code: "controlPid:620" }, status: returning }
+  - { input: { code: "controlPid:404" }, status: unknown }
+  - { input: { code: "controlPid:400" }, status: null }

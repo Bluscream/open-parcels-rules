@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Geniki Taxydromiki scan codes. Retraction pairs (C_L2 withdraws C_L1, C_E2 C_E1, C_K9 C_K8) and
+# scans that undo a delivery (C_P4, C_S5, C_S8) have a meaning of their own and stay unmapped.
+carrier: geniki_taxydromiki
+entries:
+  - { match: { code: "C_NW" }, status: registered }
+  - { match: { code: "C_SC" }, status: registered }
+  - { match: { code: "C_W3" }, status: in_transit }
+  - { match: { code: "C_KK" }, status: in_transit }
+  - { match: { code: "C_K8" }, status: in_transit }
+  - { match: { code: "C_H1" }, status: in_transit }
+  - { match: { code: "C_H2" }, status: in_transit }
+  - { match: { code: "C_A1" }, status: in_transit }
+  - { match: { code: "C_L1" }, status: in_transit }
+  - { match: { code: "C_A3" }, status: out_for_delivery }
+  - { match: { code: "C_W2" }, status: delivered }
+  - { match: { code: "C_P1" }, status: delivered }
+  - { match: { code: "C_S2" }, status: delivered }
+  - { match: { code: "C_EA_DP" }, status: problem }
+  - { match: { code: "C_EA_KS" }, status: problem }
+tests:
+  - { input: { code: C_NW }, status: registered }
+  - { input: { code: C_A3 }, status: out_for_delivery }
+  - { input: { code: C_S2 }, status: delivered }
+  - { input: { code: C_L2 }, status: null }

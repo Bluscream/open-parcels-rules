@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# CTT (Portugal) and CTT Express (Spain).
+# - "state:<id>": the portal's `StateId`, keyed on the stable integer, never on the display
+#   literal. Six more states exist in the app's own code, but their ids were never seen and are
+#   not guessed.
+# - "express:<code>": CTT Express STATUS event codes; the label is display text.
+carrier: ctt
+entries:
+  - { match: { code: "state:1" }, status: registered }
+  - { match: { code: "state:2" }, status: in_transit }
+  - { match: { code: "state:5" }, status: returning }
+  - { match: { code: "state:7" }, status: out_for_delivery }
+  - { match: { code: "state:8" }, status: in_transit }
+  - { match: { code: "state:10" }, status: in_transit }
+  - { match: { code: "state:11" }, status: in_transit }
+  - { match: { code: "state:12" }, status: delivered }
+  - { match: { code: "state:13" }, status: problem }
+  - { match: { code: "state:14" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "express:0000" }, status: registered }
+  - { match: { code: "express:0500" }, status: in_transit }
+  - { match: { code: "express:1000" }, status: in_transit }
+  - { match: { code: "express:3900" }, status: in_transit }
+  - { match: { code: "express:1500" }, status: out_for_delivery }
+  - { match: { code: "express:2400" }, status: out_for_delivery }
+  - { match: { code: "express:1600" }, status: problem }
+  - { match: { code: "express:2100" }, status: delivered }
+  - { match: { code: "express:2310" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "express:2500" }, status: returning }
+tests:
+  - { input: { code: "state:1" }, status: registered }
+  - { input: { code: "state:14" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "express:2100" }, status: delivered }
+  - { input: { code: "express:2500" }, status: returning }
+  - { input: { code: "state:99" }, status: null }

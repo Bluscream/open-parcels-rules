@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# ORLEN Paczka event codes.
+carrier: orlen_paczka
+entries:
+  - { match: { code: "100" }, status: in_transit }
+  - { match: { code: "200" }, status: registered }
+  - { match: { code: "210" }, status: registered }
+  - { match: { code: "240" }, status: in_transit }
+  - { match: { code: "300" }, status: in_transit }
+  - { match: { code: "653" }, status: in_transit }
+  - { match: { code: "680" }, status: out_for_delivery }
+  - { match: { code: "1000" }, status: delivered }
+  # Code 690 covers both "ready for collection" and "handed to a carrier abroad"; only the
+  # label (lower-cased) tells them apart, and an unrecognised label stays unmapped.
+  - {
+      match: { text: "czeka na odbiór w punkcie", flags: [i], fields: { event: "690" } },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { text: "paczka w innym kraju", flags: [i], fields: { event: "690" } },
+      status: in_transit,
+    }
+  - {
+      match:
+        { text: "przekazana do przewoźnika w innym kraju", flags: [i], fields: { event: "690" } },
+      status: in_transit,
+    }
+tests:
+  - { input: { code: "200" }, status: registered }
+  - { input: { code: "1000" }, status: delivered }
+  - {
+      input: { code: "690", text: "paczka czeka na odbiór w punkcie", fields: { event: "690" } },
+      status: at_pickup_point,
+    }
+  - {
+      input:
+        { code: "690", text: "przekazana do przewoźnika w innym kraju", fields: { event: "690" } },
+      status: in_transit,
+    }
+  - { input: { code: "690", text: "coś innego", fields: { event: "690" } }, status: null }
+  - {
+      input: { code: "680", text: "czeka na odbiór w punkcie", fields: { event: "680" } },
+      status: out_for_delivery,
+    }

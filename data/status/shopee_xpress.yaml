@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Shopee Xpress: the coarse `milestone_code` of a tracking record ("milestone:<n>"). 10 covers both
+# legs of a return.
+carrier: shopee_xpress
+entries:
+  - { match: { code: "milestone:1" }, status: registered }
+  - { match: { code: "milestone:5" }, status: in_transit }
+  - { match: { code: "milestone:6" }, status: out_for_delivery }
+  - { match: { code: "milestone:8" }, status: delivered }
+  - { match: { code: "milestone:10" }, status: returning }
+tests:
+  - { input: { code: "milestone:1" }, status: registered }
+  - { input: { code: "milestone:8" }, status: delivered }
+  - { input: { code: "milestone:10" }, status: returning }
+  - { input: { code: "milestone:3" }, status: null }

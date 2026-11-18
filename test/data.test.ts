@@ -19,11 +19,12 @@ describe("generated files", () => {
 
 describe("data files match their JSON Schemas", () => {
   const ajv = new Ajv2020({ allErrors: true, strict: true });
-  // The one string format the schemas use; checked the same way zod checks it.
+  // The string formats the schemas use; checked the same way zod checks them.
   ajv.addFormat(
     "date-time",
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/u,
   );
+  ajv.addFormat("date", /^\d{4}-\d{2}-\d{2}$/u);
   const compiled = new Map<string, ReturnType<typeof ajv.compile>>();
   const schema = (name: string) => {
     let validate = compiled.get(name);
@@ -37,6 +38,7 @@ describe("data files match their JSON Schemas", () => {
   };
   const groups: [string, string[]][] = [
     ["carriers.schema.json", [join(DATA, "carriers.yaml")]],
+    ["keys.schema.json", [join(DATA, "keys.yaml")]],
     ["tracking-numbers.schema.json", listFiles(join(DATA, "tracking-numbers"), ".json")],
     ["status.schema.json", listFiles(join(DATA, "status"), ".yaml")],
     ["locale.schema.json", listFiles(join(DATA, "locales"), ".yaml")],
@@ -74,6 +76,10 @@ function dataRegexes(): { where: string; pattern: string; flags: readonly string
       const prepend = type.validation.serial_number_format?.prepend_if.matches_regex;
       if (prepend !== undefined) add(`${where} prepend_if`, prepend);
     }
+  }
+  for (const carrier of data.bundle.carriers) {
+    if (carrier.tracking_number_pattern !== undefined)
+      add(`carriers/${carrier.id}`, carrier.tracking_number_pattern);
   }
   for (const file of data.status) {
     for (const entry of file.entries) {

@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Canada Post. Three vocabularies, kept apart because their words collide ignoring case:
+# - "status:<value>": the parcel-level `status` string. Variants such as `InTransit-xyz` fall
+#   back to their family through the prefixes below.
+# - "cd:<code>": an event code. It outranks the event's type: one type covers several outcomes.
+# - "type:<TYPE>": the event type, upper-cased. A failed attempt counts as a problem.
+carrier: canadapost
+entries:
+  - { match: { code: "status:HalfAccepted" }, status: registered }
+  - { match: { code: "status:FullAccepted" }, status: in_transit }
+  - { match: { code: "status:InTransit" }, status: in_transit }
+  - { match: { code: "status:InTransitAlert" }, status: problem }
+  - { match: { code: "status:FullProgress" }, status: out_for_delivery }
+  - { match: { code: "status:FullProgressAlert" }, status: problem }
+  - { match: { code: "status:HalfDelivered" }, status: problem }
+  - { match: { code: "status:ReadyPickup" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "status:Available_for_pickup_by" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "status:Delivered" }, status: delivered }
+  - { match: { code_prefix: "status:HalfAccepted-" }, status: registered }
+  - { match: { code_prefix: "status:FullAccepted-" }, status: in_transit }
+  - { match: { code_prefix: "status:InTransit-" }, status: in_transit }
+  - { match: { code_prefix: "status:InTransitAlert-" }, status: problem }
+  - { match: { code_prefix: "status:FullProgress-" }, status: out_for_delivery }
+  - { match: { code_prefix: "status:FullProgressAlert-" }, status: problem }
+  - { match: { code_prefix: "status:HalfDelivered-" }, status: problem }
+  - { match: { code_prefix: "status:ReadyPickup-" }, status: at_pickup_point, pickup: true }
+  - {
+      match: { code_prefix: "status:Available_for_pickup_by-" },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { code_prefix: "status:Delivered-" }, status: delivered }
+  - { match: { code: "cd:3000" }, status: registered }
+  - { match: { code: "cd:1466" }, status: delivered }
+  - { match: { code: "cd:0174" }, status: out_for_delivery }
+  - { match: { code: "cd:0500" }, status: out_for_delivery }
+  - { match: { code: "cd:1701" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "cd:0156" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "cd:2407" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "cd:1419" }, status: returning }
+  - { match: { code: "cd:1481" }, status: returning }
+  - { match: { code: "cd:2600" }, status: returning }
+  - { match: { code: "cd:1303" }, status: returning }
+  - { match: { code: "cd:3001" }, status: returning }
+  - { match: { code: "cd:3002" }, status: returning }
+  - { match: { code: "cd:1100" }, status: problem }
+  - { match: { code: "type:ARRIVALINCANADA" }, status: in_transit }
+  - { match: { code: "type:CONTAINER" }, status: in_transit }
+  - { match: { code: "type:INCOMING" }, status: in_transit }
+  - { match: { code: "type:INDUCTION" }, status: in_transit }
+  - { match: { code: "type:INFOTID" }, status: in_transit }
+  - { match: { code: "type:REVIEWCOMPLETE" }, status: in_transit }
+  - { match: { code: "type:VEHICLEINFO" }, status: in_transit }
+  - { match: { code: "type:PRRECEIVED" }, status: in_transit }
+  - { match: { code: "type:INFOCONT" }, status: in_transit }
+  - { match: { code: "type:DISPATCH" }, status: in_transit }
+  - { match: { code: "type:TOCUST" }, status: in_transit }
+  - { match: { code: "type:FROMCUST" }, status: in_transit }
+  - { match: { code: "type:INFO" }, status: in_transit }
+  - { match: { code: "type:TORETAIL" }, status: in_transit }
+  - { match: { code: "type:OUT" }, status: out_for_delivery }
+  - { match: { code: "type:ATTEMPTED" }, status: problem }
+  - { match: { code: "type:DETENTION" }, status: problem }
+  - { match: { code: "type:FORREVIEW" }, status: problem }
+  - { match: { code: "type:RTSLABELPROC" }, status: returning }
+  - { match: { code: "type:DELIVERED" }, status: delivered }
+  - { match: { code: "type:SIGNATURE" }, status: delivered }
+tests:
+  - { input: { code: "status:InTransit" }, status: in_transit }
+  - { input: { code: "status:InTransit-Delayed" }, status: in_transit }
+  - { input: { code: "status:InTransitAlert-Weather" }, status: problem }
+  - { input: { code: "status:ReadyPickup" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "cd:1466" }, status: delivered }
+  - { input: { code: "type:ATTEMPTED" }, status: problem }
+  - { input: { code: "status:Unknown" }, status: null }

@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Spee-Dee Delivery scan wording (whitespace collapsed, lower case). Some carry a per-scan tail
+# (`OUT FOR DELIVERY (...)`, `UNLOAD SCAN: ...`) and match on their start.
+carrier: speedee
+entries:
+  - { match: { code: "delivered" }, status: delivered }
+  - { match: { code: "arrival scan" }, status: in_transit }
+  - { match: { code: "in transit" }, status: in_transit }
+  - { match: { code: "** missort scans **" }, status: problem }
+  - { match: { code_prefix: "out for delivery" }, status: out_for_delivery }
+  - { match: { code_prefix: "unload scan" }, status: in_transit }
+tests:
+  - { input: { code: arrival scan }, status: in_transit }
+  - { input: { code: "** missort scans **" }, status: problem }
+  - { input: { code: "out for delivery (truck 12)" }, status: out_for_delivery }
+  - { input: { code: "unload scan: denver" }, status: in_transit }
+  - { input: { code: "label printed" }, status: null }

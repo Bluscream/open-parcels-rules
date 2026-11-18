@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Mondial Relay tracking steps (`SuiviParEtapes` keys, "step:<n>"). Step 3 spans days of hub
+# sorting, so it is not "out for delivery".
+carrier: mondial_relay
+entries:
+  - { match: { code: "step:1" }, status: registered }
+  - { match: { code: "step:2" }, status: in_transit }
+  - { match: { code: "step:3" }, status: in_transit }
+  - { match: { code: "step:4" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "step:5" }, status: delivered }
+tests:
+  - { input: { code: "step:1" }, status: registered }
+  - { input: { code: "step:3" }, status: in_transit }
+  - { input: { code: "step:4" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "step:6" }, status: null }

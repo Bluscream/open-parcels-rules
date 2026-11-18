@@ -8,6 +8,7 @@ import { z } from "zod";
 import { portabilityProblems } from "../src/portability.ts";
 import { bundleSchema } from "../src/schema/bundle.ts";
 import { carriersFileSchema } from "../src/schema/carriers.ts";
+import { keysFileSchema } from "../src/schema/keys.ts";
 import { localeFileSchema } from "../src/schema/locale.ts";
 import { mailRuleSchema } from "../src/schema/mail.ts";
 import { statusFileSchema } from "../src/schema/status.ts";
@@ -18,6 +19,7 @@ const SCHEMAS: Readonly<Record<string, z.ZodType>> = {
   "carriers.schema.json": carriersFileSchema,
   "tracking-numbers.schema.json": courierFileSchema,
   "status.schema.json": statusFileSchema,
+  "keys.schema.json": keysFileSchema,
   "locale.schema.json": localeFileSchema,
   "mail-rule.schema.json": mailRuleSchema,
   "bundle.schema.json": bundleSchema,

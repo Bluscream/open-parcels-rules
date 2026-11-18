@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Nova Post `tracking[].code`, after the carrier's published status table. The carrier's own
+# "Delivered" wording (7, 8) means arrived at the branch or locker; "Received" (9, 10, 11, 106) is the
+# hand-over. 999 is the carrier's catch-all: known, but deliberately left without a status.
+carrier: nova_post
+entries:
+  - { match: { code: "1" }, status: registered }
+  - { match: { code: "2" }, status: problem }
+  - { match: { code: "4" }, status: in_transit }
+  - { match: { code: "5" }, status: in_transit }
+  - { match: { code: "6" }, status: in_transit }
+  - { match: { code: "7" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "8" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "9" }, status: delivered }
+  - { match: { code: "10" }, status: delivered }
+  - { match: { code: "11" }, status: delivered }
+  - { match: { code: "13" }, status: in_transit }
+  - { match: { code: "16" }, status: in_transit }
+  - { match: { code: "17" }, status: in_transit }
+  - { match: { code: "19" }, status: in_transit }
+  - { match: { code: "30" }, status: in_transit }
+  - { match: { code: "31" }, status: in_transit }
+  - { match: { code: "99" }, status: problem }
+  - { match: { code: "101" }, status: out_for_delivery }
+  - { match: { code: "102" }, status: returning }
+  - { match: { code: "103" }, status: returning }
+  - { match: { code: "104" }, status: in_transit }
+  - { match: { code: "105" }, status: problem }
+  - { match: { code: "106" }, status: delivered }
+  - { match: { code: "110" }, status: in_transit }
+  - { match: { code: "111" }, status: problem }
+  - { match: { code: "112" }, status: in_transit }
+  - { match: { code: "113" }, status: problem }
+  - { match: { code: "114" }, status: in_transit }
+  - { match: { code: "115" }, status: in_transit }
+  - { match: { code: "116" }, status: problem }
+  - { match: { code: "117" }, status: problem }
+  - { match: { code: "118" }, status: problem }
+  - { match: { code: "119" }, status: in_transit }
+  - { match: { code: "120" }, status: in_transit }
+  - { match: { code: "121" }, status: in_transit }
+  - { match: { code: "122" }, status: in_transit }
+  - { match: { code: "123" }, status: problem }
+  - { match: { code: "125" }, status: in_transit }
+  - { match: { code: "126" }, status: in_transit }
+  - { match: { code: "127" }, status: in_transit }
+  - { match: { code: "128" }, status: in_transit }
+  - { match: { code: "130" }, status: problem }
+  - { match: { code: "131" }, status: returning }
+  - { match: { code: "132" }, status: returning }
+  - { match: { code: "133" }, status: problem }
+  - { match: { code: "134" }, status: in_transit }
+  - { match: { code: "135" }, status: in_transit }
+  - { match: { code: "138" }, status: problem }
+  - { match: { code: "141" }, status: problem }
+  - { match: { code: "144" }, status: problem }
+  - { match: { code: "149" }, status: in_transit }
+  - { match: { code: "155" }, status: problem }
+  - { match: { code: "197" }, status: in_transit }
+  - { match: { code: "198" }, status: in_transit }
+  - { match: { code: "199" }, status: in_transit }
+  - { match: { code: "999" }, status: unknown }
+tests:
+  - { input: { code: "7" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "106" }, status: delivered }
+  - { input: { code: "102" }, status: returning }
+  - { input: { code: "999" }, status: unknown }
+  - { input: { code: "3" }, status: null }

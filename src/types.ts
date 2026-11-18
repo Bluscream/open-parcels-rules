@@ -12,6 +12,8 @@ export interface CarrierInfo {
   readonly domains: readonly string[];
   /** Locale key ('default', 'de', 'de-AT', ...) to URL template with {tracking_number}. */
   readonly trackingUrls: Readonly<Record<string, string>>;
+  /** What the carrier's tracker accepts, compiled; undefined when not listed. */
+  readonly trackingNumberPattern?: RegExp;
   /** Identifiers of the carrier in other systems, e.g. { "17track": "100001" }. */
   readonly crossref: Readonly<Record<string, string>>;
 }
@@ -41,12 +43,28 @@ export interface TrackingCandidate {
 export interface RawStatus {
   readonly code?: string | undefined;
   readonly text?: string | undefined;
+  /** Named raw fields (e.g. { statusType: "STATUS_OK", statusCode: "32" }) for `fields` entries. */
+  readonly fields?: Readonly<Record<string, string>> | undefined;
+}
+
+export interface CarrierKey {
+  readonly carrier: string;
+  readonly name: string;
+  readonly purpose: string;
+  readonly source: "website" | "app";
+  /** ISO date (YYYY-MM-DD) the value was last seen working. */
+  readonly lastVerified: string;
+  readonly value: string;
 }
 
 export interface MappedStatus {
   readonly status: ParcelStatus;
   readonly pickup?: boolean;
   readonly confirmed: boolean;
+  /** The entry's `stage` (order within the carrier's journey), when the table gives one. */
+  readonly stage?: number;
+  /** The entry's neutral display text, when the table gives one. */
+  readonly label?: string;
 }
 
 export interface ResolvedStatus {

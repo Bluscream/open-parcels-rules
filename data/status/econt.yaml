@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Econt (Bulgaria).
+# - "status:<headline>": the headline status, in English where Econt translates it.
+# - "destination:<type>": history entries name where the parcel went.
+carrier: econt
+entries:
+  - { match: { code: "status:Delivered" }, status: delivered }
+  - { match: { code: "status:Arrival-Departure from HUB" }, status: in_transit }
+  - { match: { code: "status:Анулирана преди изпращане" }, status: problem }
+  - { match: { code: "status:Awaiting delivery to Econt" }, status: registered }
+  - { match: { code: "status:In delivery office" }, status: in_transit }
+  - { match: { code: "destination:client" }, status: delivered }
+  - { match: { code: "destination:prepared" }, status: registered }
+  - { match: { code: "destination:canceled" }, status: problem }
+  - { match: { code: "destination:office" }, status: in_transit }
+  - { match: { code: "destination:courier_direction" }, status: in_transit }
+  - { match: { code: "destination:courier" }, status: in_transit }
+  - { match: { code: "destination:in_delivery_office" }, status: in_transit }
+  - { match: { code: "destination:arrival_departure_from_hub" }, status: in_transit }
+  - { match: { code: "destination:in_delivery_courier" }, status: out_for_delivery }
+  - { match: { code: "destination:return" }, status: returning }
+  - { match: { code: "destination:is_returning_to_sender" }, status: returning }
+  - { match: { code: "destination:returned_to_sender" }, status: returning }
+  - { match: { code: "destination:destroy" }, status: problem }
+  - { match: { code: "destination:failed_delivery" }, status: problem }
+tests:
+  - { input: { code: "status:In delivery office" }, status: in_transit }
+  - { input: { code: "status:Анулирана преди изпращане" }, status: problem }
+  - { input: { code: "destination:in_delivery_courier" }, status: out_for_delivery }
+  - { input: { code: "destination:returned_to_sender" }, status: returning }
+  - { input: { code: "destination:moon" }, status: null }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { identifierSchema } from "./common.ts";
+import { identifierSchema, regexSpecSchema } from "./common.ts";
 
 const countrySchema = z
   .string()
@@ -35,6 +35,11 @@ export const carrierSchema = z.strictObject({
         "Tracking page templates keyed by locale ('default', a language such as 'de', or a " +
         "full tag such as 'de-AT'). {tracking_number} is replaced by the URL-encoded number.",
     }),
+  tracking_number_pattern: regexSpecSchema.optional().meta({
+    description:
+      "Shape of a number the carrier's own tracker accepts, anchored with ^ and $: a " +
+      "plausibility check before a lookup is sent, not detection (see tracking-numbers).",
+  }),
   crossref: z
     .record(z.string(), z.string())
     .default({})

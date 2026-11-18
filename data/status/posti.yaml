@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Posti. "main:<value>": `status.main`. "event:<text>": the English event texts.
+carrier: posti
+entries:
+  - { match: { code: "main:DELIVERED" }, status: delivered }
+  - { match: { code: "main:RETURN_DELIVERED" }, status: returning }
+  # English event texts (trimmed, lower case, without a final full stop); notices that say nothing
+  # about where the parcel is map to unknown.
+  - {
+      match:
+        { code: "event:we have received information about an upcoming delivery from the sender" },
+      status: registered,
+    }
+  - { match: { code: "event:item has been registered" }, status: registered }
+  - { match: { code: "event:the item is in sorting" }, status: in_transit }
+  - { match: { code: "event:the item is in transport" }, status: in_transit }
+  - { match: { code: "event:item accepted from transport" }, status: in_transit }
+  - { match: { code: "event:item is in delivery transportation" }, status: out_for_delivery }
+  - { match: { code: "event:item has been released for delivery" }, status: out_for_delivery }
+  - { match: { code: "event:item is ready for a pick up" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "event:the item has been delivered" }, status: delivered }
+  - { match: { code: "event:item has not been collected.returned to sender" }, status: returning }
+  - { match: { code: "event:the item has been returned to the sender" }, status: returning }
+  - { match: { code: "event:we sent the recipient an email about the item" }, status: unknown }
+  - {
+      match: { code: "event:we sent the recipient an omaposti notification about the item" },
+      status: unknown,
+    }
+  - {
+      match: { code: "event:we have tried to reach the recipient again by email" },
+      status: unknown,
+    }
+  - { match: { code: "event:we have tried to reach the recipient again by sms" }, status: unknown }
+  - { match: { code: "event:no digital signature was received" }, status: unknown }
+tests:
+  - { input: { code: "main:RETURN_DELIVERED" }, status: returning }
+  - { input: { code: "event:item is ready for a pick up" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "event:no digital signature was received" }, status: unknown }
+  - { input: { code: "event:item vanished" }, status: null }

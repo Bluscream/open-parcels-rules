@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# UniUni numeric `state` codes.
+carrier: uniuni
+entries:
+  - { match: { code: "190" }, status: registered }
+  - { match: { code: "192" }, status: problem }
+  - { match: { code: "195" }, status: in_transit }
+  - { match: { code: "198" }, status: problem }
+  - { match: { code: "199" }, status: in_transit }
+  - { match: { code: "200" }, status: in_transit }
+  - { match: { code: "202" }, status: out_for_delivery }
+  - { match: { code: "203" }, status: delivered }
+  - { match: { code: "204" }, status: in_transit }
+  - { match: { code: "206" }, status: problem }
+  - { match: { code: "207" }, status: problem }
+  - { match: { code: "209" }, status: problem }
+  - { match: { code: "211" }, status: returning }
+  - { match: { code: "212" }, status: problem }
+  - { match: { code: "213" }, status: problem }
+  - { match: { code: "214" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "215" }, status: returning }
+  - { match: { code: "216" }, status: delivered }
+  - { match: { code: "217" }, status: in_transit }
+  - { match: { code: "218" }, status: in_transit }
+  - { match: { code: "219" }, status: problem }
+  - { match: { code: "220" }, status: out_for_delivery }
+  - { match: { code: "221" }, status: in_transit }
+  - { match: { code: "222" }, status: problem }
+  - { match: { code: "223" }, status: registered }
+  - { match: { code: "224" }, status: problem }
+  - { match: { code: "225" }, status: in_transit }
+  - { match: { code: "226" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "228" }, status: delivered }
+  - { match: { code: "229" }, status: in_transit }
+  - { match: { code: "230" }, status: returning }
+  - { match: { code: "231" }, status: problem }
+  - { match: { code: "232" }, status: problem }
+  - { match: { code: "233" }, status: returning }
+  - { match: { code: "234" }, status: returning }
+  - { match: { code: "235" }, status: problem }
+  - { match: { code: "255" }, status: in_transit }
+  - { match: { code: "1870" }, status: problem }
+  - { match: { code: "1910" }, status: in_transit }
+  - { match: { code: "4010" }, status: in_transit }
+tests:
+  - { input: { code: "190" }, status: registered }
+  - { input: { code: "214" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "1870" }, status: problem }
+  - { input: { code: "100" }, status: null }

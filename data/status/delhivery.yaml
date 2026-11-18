@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Delhivery: `hqStatus` (the finer field) and the `trackingStates` ladder labels that fill in
+# when it is missing. The carrier mixes title case with upper-case codes.
+carrier: delhivery
+entries:
+  - { match: { code: "Manifested" }, status: registered }
+  - { match: { code: "Pending" }, status: registered }
+  - { match: { code: "Scheduled" }, status: registered }
+  - { match: { code: "Picked Up" }, status: in_transit }
+  - { match: { code: "Collected" }, status: in_transit }
+  - { match: { code: "In Transit" }, status: in_transit }
+  - { match: { code: "Dispatched" }, status: out_for_delivery }
+  - { match: { code: "Delivered" }, status: delivered }
+  - { match: { code: "RTO" }, status: returning }
+  - { match: { code: "DTO" }, status: returning }
+  - { match: { code: "LOST" }, status: problem }
+  - { match: { code: "Closed" }, status: problem }
+  - { match: { code: "On the Way" }, status: in_transit }
+  - { match: { code: "Out for Delivery" }, status: out_for_delivery }
+  - { match: { code: "Returned" }, status: returning }
+  - { match: { code: "Cancelled" }, status: problem }
+  - { match: { code: "Lost" }, status: problem }
+  - { match: { code: "PICKUP" }, status: in_transit }
+  - { match: { code: "IN TRANSIT" }, status: in_transit }
+  - { match: { code: "OUT FOR DELIVERY" }, status: out_for_delivery }
+  - { match: { code: "DELIVERED" }, status: delivered }
+  - { match: { code: "CANCELLED" }, status: problem }
+tests:
+  - { input: { code: Manifested }, status: registered }
+  - { input: { code: Out for Delivery }, status: out_for_delivery }
+  - { input: { code: RTO }, status: returning }
+  - { input: { code: Misrouted }, status: null }

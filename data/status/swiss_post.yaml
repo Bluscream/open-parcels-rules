@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Swiss Post: the shipment's `globalStatus`. The event codes run to thousands and stay unmapped.
+carrier: swiss_post
+entries:
+  - { match: { code: "REGISTERED" }, status: registered }
+  - { match: { code: "CUSTOMS" }, status: in_transit }
+  - { match: { code: "TO_BE_DELIVERED" }, status: in_transit }
+  - { match: { code: "IN_DELIVERY" }, status: out_for_delivery }
+  - { match: { code: "DELIVERED" }, status: delivered }
+  - { match: { code: "MISSED_DELIVERY" }, status: problem }
+  - { match: { code: "NOT_DELIVERED" }, status: problem }
+  - { match: { code: "RETURNED" }, status: returning }
+tests:
+  - { input: { code: CUSTOMS }, status: in_transit }
+  - { input: { code: IN_DELIVERY }, status: out_for_delivery }
+  - { input: { code: RETURNED }, status: returning }
+  - { input: { code: LOST }, status: null }

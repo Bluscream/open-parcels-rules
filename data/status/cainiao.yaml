@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Cainiao action codes.
+carrier: cainiao
+entries:
+  - { match: { code: GWMS_ACCEPT }, status: registered }
+  - { match: { code: GWMS_PACKAGE }, status: registered }
+  - { match: { code: PRE_READY_TO_SHIP }, status: registered }
+  - { match: { code: CONSIGN }, status: registered }
+  - { match: { code: CW_INBOUND }, status: in_transit }
+  - { match: { code: CW_OUTBOUND }, status: in_transit }
+  - { match: { code: CW_COMMON_PROCESSING1 }, status: in_transit }
+  - { match: { code: PU_PICKUP_SUCCESS }, status: in_transit }
+  - { match: { code: GWMS_OUTBOUND }, status: in_transit }
+  - { match: { code: SC_INBOUND_SUCCESS }, status: in_transit }
+  - { match: { code: SC_OUTBOUND_SUCCESS }, status: in_transit }
+  - { match: { code: SC_TRANS_INBOUND_SUCCESS }, status: in_transit }
+  - { match: { code: SC_TRANS_OUTBOUND_SUCCESS }, status: in_transit }
+  - { match: { code: CC_EX_START }, status: in_transit }
+  - { match: { code: CC_EX_SUCCESS }, status: in_transit }
+  - { match: { code: LH_HO_IN_SUCCESS }, status: in_transit }
+  - { match: { code: LH_HO_AIRLINE }, status: in_transit }
+  - { match: { code: LH_DEPART }, status: in_transit }
+  - { match: { code: LH_ARRIVE }, status: in_transit }
+  - { match: { code: LH_POST_COLLECTION }, status: in_transit }
+  - { match: { code: COMMON_INTRANSIT }, status: in_transit }
+  - { match: { code: TD_TRANS_DEPART }, status: in_transit }
+  - { match: { code: TD_TRANS_ARRIVE }, status: in_transit }
+  - { match: { code: TD_TRANS_ARRIVE_C }, status: in_transit }
+  - { match: { code: CC_HO_IN_SUCCESS }, status: in_transit }
+  - { match: { code: CC_IM_START }, status: in_transit }
+  - { match: { code: CC_IM_SUCCESS }, status: in_transit }
+  - { match: { code: CC_HO_OUT_SUCCESS }, status: in_transit }
+  - { match: { code: CC_IM_FAILURE }, status: problem }
+  - { match: { code: CC_IM_EXCEPTION }, status: problem }
+  - { match: { code: GTMS_ACCEPT }, status: in_transit }
+  - { match: { code: GTMS_SC_ARRIVE }, status: in_transit }
+  - { match: { code: GTMS_SC_DEPART }, status: in_transit }
+  - { match: { code: GTMS_OE_DEPART }, status: in_transit }
+  - { match: { code: GTMS_DO_DEPART }, status: out_for_delivery }
+  - { match: { code: LAST_MILE_ASN_NOTIFY }, status: in_transit }
+  - { match: { code: GSTA_INFORM_BUYER }, status: at_pickup_point, pickup: true }
+  - { match: { code: GTMS_WAIT_SELF_PICK }, status: at_pickup_point, pickup: true }
+  - { match: { code: GTMS_STA_SIGNED }, status: at_pickup_point, pickup: true }
+  - { match: { code: GTMS_SIGNED }, status: delivered }
+  - { match: { code: GTMS_STA_SIGN_FAILURE }, status: problem }
+  - { match: { code: EXCEPTION }, status: problem }
+tests:
+  - { input: { code: GWMS_ACCEPT }, status: registered }
+  - { input: { code: LH_DEPART }, status: in_transit }
+  - { input: { code: GTMS_WAIT_SELF_PICK }, status: at_pickup_point, pickup: true }
+  - { input: { code: GTMS_SIGNED }, status: delivered }
+  - { input: { code: GTMS_UNKNOWN }, status: null }
