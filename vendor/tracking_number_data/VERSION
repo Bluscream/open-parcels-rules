@@ -1,0 +1,5 @@
+source: https://github.com/jkeen/tracking_number_data
+tag: v2.0.0
+commit: fec2d02d2d2d410fdccc077edf155885649a9b6c
+commit_date: 2026-08-15T23:41:07Z
+copied: couriers/*.json, LICENSE (unmodified)
