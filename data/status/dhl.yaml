@@ -383,6 +383,62 @@ entries:
   - { match: { fields: { swedenStatus: "1" } }, status: in_transit }
   - { match: { fields: { swedenStatus: "20" } }, status: in_transit }
   - { match: { fields: { swedenStatus: "24" } }, status: in_transit }
+  # Mój DHL (Poland): the raw TT_*/SP_* code (pl_status), else the timeline step (pl_step).
+  - { match: { fields: { pl_status: TT_EDWP } }, status: registered }
+  - { match: { fields: { pl_status: SP_DSP } }, status: in_transit }
+  - { match: { fields: { pl_status: TT_MAG } }, status: in_transit }
+  - { match: { fields: { pl_status: TT_MAG_INT } }, status: in_transit }
+  - { match: { fields: { pl_status: TT_PRZEKIERUJ } }, status: in_transit }
+  - { match: { fields: { pl_status: TT_DWP } }, status: out_for_delivery }
+  - { match: { fields: { pl_status: TT_DWP_INT } }, status: out_for_delivery }
+  - { match: { fields: { pl_status: TT_DWP_PUNKT } }, status: out_for_delivery }
+  - { match: { fields: { pl_status: TT_LK } }, status: at_pickup_point, pickup: true }
+  - { match: { fields: { pl_status: TT_AWI } }, status: at_pickup_point, pickup: true }
+  - { match: { fields: { pl_status: TT_OP } }, status: delivered }
+  - { match: { fields: { pl_status: TT_DOR } }, status: delivered }
+  - { match: { fields: { pl_status: TT_ZWN } }, status: returning }
+  - { match: { fields: { pl_status: TT_DOR_ZWN } }, status: returning }
+  - { match: { fields: { pl_status: TT_DELAY_KUR } }, status: problem }
+  - { match: { fields: { pl_status: TT_DELAY_MAG } }, status: problem }
+  - { match: { fields: { pl_status: TT_OWL } }, status: problem }
+  - { match: { fields: { pl_status: TT_CS } }, status: problem }
+  - { match: { fields: { pl_status: TT_ZGN } }, status: problem }
+  - { match: { fields: { pl_status: TT_LIK } }, status: problem }
+  - { match: { fields: { pl_status: SP_CN } }, status: problem }
+  - { match: { fields: { pl_status: ERR } }, status: problem }
+  - { match: { fields: { pl_step: "None" } }, status: registered }
+  - { match: { fields: { pl_step: Resigned } }, status: problem }
+  - { match: { fields: { pl_step: Sent } }, status: in_transit }
+  - { match: { fields: { pl_step: Route } }, status: in_transit }
+  - { match: { fields: { pl_step: Delivery } }, status: out_for_delivery }
+  - { match: { fields: { pl_step: ReturnToSender } }, status: returning }
+  - { match: { fields: { pl_step: Delivered } }, status: delivered }
+  - { match: { fields: { pl_step: DeliveredToSender } }, status: returning }
+  - { match: { fields: { pl_step: "Error" } }, status: problem }
+  - { match: { fields: { pl_step: ShipmentInPreparation } }, status: registered }
+  - { match: { fields: { pl_step: WaitingForCourierPickup } }, status: registered }
+  - { match: { fields: { pl_step: PostedAtPoint } }, status: in_transit }
+  - { match: { fields: { pl_step: PickedUpByCourier } }, status: in_transit }
+  - { match: { fields: { pl_step: Redirected } }, status: in_transit }
+  - { match: { fields: { pl_step: RedirectedToPoint } }, status: in_transit }
+  - { match: { fields: { pl_step: DeliveryToPoint } }, status: out_for_delivery }
+  - { match: { fields: { pl_step: DeliveryToLocker } }, status: out_for_delivery }
+  - { match: { fields: { pl_step: DeliveredToPoint } }, status: at_pickup_point, pickup: true }
+  - { match: { fields: { pl_step: DeliveredToLocker } }, status: at_pickup_point, pickup: true }
+  - { match: { fields: { pl_step: RetrievedFromPoint } }, status: delivered }
+  - { match: { fields: { pl_step: RetrievedFromLocker } }, status: delivered }
+  - { match: { fields: { pl_step: Refusal } }, status: returning }
+  - { match: { fields: { pl_step: ParcelReturnsToSender } }, status: returning }
+  - { match: { fields: { pl_step: ParcelReturnedToSender } }, status: returning }
+  - { match: { fields: { pl_step: Resignated } }, status: problem }
+  - { match: { fields: { pl_step: Disposed } }, status: problem }
+  - { match: { fields: { pl_step: Lost } }, status: problem }
+  - { match: { fields: { pl_step: UnsuccessfulAttemptAtDelivery } }, status: problem }
+  - { match: { fields: { pl_step: SecondUnsuccessfulAttemptAtDelivery } }, status: problem }
+  - { match: { fields: { pl_step: DeliveryDelay } }, status: problem }
+  - { match: { fields: { pl_step: DeliveryProblem } }, status: problem }
+  - { match: { fields: { pl_step: WaitingForShipperDecision } }, status: problem }
+  - { match: { fields: { pl_step: ContactDHL } }, status: problem }
 tests:
   - { input: { code: "iberia:IS" }, status: at_pickup_point, pickup: true }
   - { input: { code: "iberia:Arrived at" }, status: in_transit }
@@ -451,3 +507,5 @@ tests:
   - { input: { text: "Delivered - Signed for by: receiver" }, status: delivered }
   - { input: { text: "Arrived at DHL Sort Facility LEIPZIG - GERMANY" }, status: in_transit }
   - { input: { text: "Sendung wurde gewogen" }, status: null }
+  - { input: { fields: { pl_status: TT_OP } }, status: delivered }
+  - { input: { fields: { pl_step: DeliveredToLocker } }, status: at_pickup_point, pickup: true }

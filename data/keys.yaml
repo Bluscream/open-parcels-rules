@@ -193,3 +193,213 @@ keys:
     source: website
     last_verified: 2026-11-18
     value: SMq45nJhQuNR3WHsJA6N
+  - carrier: gls
+    name: group_caller
+    purpose: "`caller` query value GLS's group tracking website sends with every lookup."
+    source: website
+    last_verified: 2026-11-18
+    value: witt002
+  - carrier: gls
+    name: es_signing_key
+    purpose: HMAC-SHA256 key the GLS Spain and Portugal consumer page signs every request with (`X-Signature`).
+    source: website
+    last_verified: 2026-11-18
+    value: gls
+  - carrier: gls
+    name: es_agent
+    purpose: "`MyGls-Agent` header the GLS Spain and Portugal consumer page identifies itself with."
+    source: website
+    last_verified: 2026-11-18
+    value: pwa
+  - carrier: posti
+    name: app_user_agent
+    purpose: User-Agent of the OmaPosti Android app's API calls; the login and device service expect it.
+    source: app
+    last_verified: 2026-11-18
+    value: okhttp/4.12.0
+  - carrier: posti
+    name: web_view_user_agent
+    purpose: User-Agent of the OmaPosti app's sign-in web view, sent on the bank-ID login pages.
+    source: app
+    last_verified: 2026-11-18
+    value: "Mozilla/5.0 (Linux; Android 16; sdk_gphone64_x86_64 Build/BE2A.250530.026.F3; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/133.0.6943.137 Mobile Safari/537.36 OmaPostiAndroid/6.5.1+7713/WebView(133.0.6943.137)"
+  - carrier: posti
+    name: app_package
+    purpose: "`X-Requested-With` package name the OmaPosti app's web view sends."
+    source: app
+    last_verified: 2026-11-18
+    value: fi.itella.posti.android
+  - carrier: ups
+    name: browser_user_agent
+    purpose: Chrome User-Agent the public tracking's bot guard scores; must agree with `browser_client_hint`.
+    source: website
+    last_verified: 2026-11-18
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+  - carrier: ups
+    name: browser_client_hint
+    purpose: "`sec-ch-ua` client hint matching `browser_user_agent`; change both together."
+    source: website
+    last_verified: 2026-11-18
+    value: '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"'
+  - carrier: usps
+    name: informed_client_id
+    purpose: Public OAuth client of USPS's Informed Delivery web portal (no secret).
+    source: website
+    last_verified: 2026-11-18
+    value: nh0yDbmZncxiWXiGs630
+  - carrier: purolator
+    name: website_key
+    purpose: "`x-api-key` header Purolator's public tracking website sends with every lookup."
+    source: website
+    last_verified: 2026-11-18
+    value: NneqHVQEJO5CkHcsiPXqJ8cTAngvBR1D3Rcu3baQ
+  - carrier: purolator
+    name: browser_user_agent
+    purpose: The CDN answers a generic client User-Agent with an HTML 403 before the API sees it.
+    source: website
+    last_verified: 2026-11-18
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+  - carrier: posta_srbije
+    name: app_client_id
+    purpose: "`Username` the Pošta Srbije app names itself with in every tracking request's client envelope."
+    source: app
+    last_verified: 2026-11-18
+    value: MAPeN
+  - carrier: posta_srbije
+    name: app_client_key
+    purpose: Fixed app key sent next to `app_client_id` in the client envelope; identifies the app, not a user.
+    source: app
+    last_verified: 2026-11-18
+    value: "<09;znCF_£..%B{93K##"
+  - carrier: cargus
+    name: header_key
+    purpose: AES key (hex) the Cargus app encrypts its `k` request header with (`seed` carries the IV).
+    source: app
+    last_verified: 2026-11-18
+    value: 5F66C878478EBCB2F3967DF94BE57959
+  - carrier: cargus
+    name: client_id
+    purpose: Public OAuth client of the MyCargus website's sign-in (Azure AD B2C, PKCE, no secret).
+    source: website
+    last_verified: 2026-11-18
+    value: 0cbd5f1a-3ab9-40d6-b8ac-3c0ae62d23af
+  - carrier: cargus
+    name: api_scope
+    purpose: API scope the MyCargus website asks its sign-in for, next to the OpenID scopes.
+    source: website
+    last_verified: 2026-11-18
+    value: https://myCargus.onmicrosoft.com/d12878e2-9602-447e-bd09-6e32e1d1d4bb/API.Access
+  - carrier: cargus
+    name: browser_user_agent
+    purpose: The sign-in pages and the portal's own API calls are made as the MyCargus website in a browser.
+    source: website
+    last_verified: 2026-11-18
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+  - carrier: dpd
+    name: group_login_client_id
+    purpose: Public client of the dpdgroup consumer app at its group login (password grant, no secret).
+    source: app
+    last_verified: 2026-11-18
+    value: MOBILE-APP-PROD
+  - carrier: dpd
+    name: group_app_credentials
+    purpose: Base64 `client:secret` pair the dpdgroup consumer app ships to fetch its own client token; identifies the app, not a user.
+    source: app
+    last_verified: 2026-11-18
+    value: bXlEUEQgTW9iaWxlIEFwcDpaMVdzeTQ4RGpseWcweDdVWjhvWTlYdmZIT2xIbW4yTmpJdnYycmpVVjY3N1hDOGhiTGlkNHY2OWpCQzlvZnpU
+  - carrier: dpd
+    name: group_app_user_agent
+    purpose: User-Agent of the dpdgroup consumer app on its login and parcel backend.
+    source: app
+    last_verified: 2026-11-18
+    value: okhttp/4.12.0
+  - carrier: posten_bring
+    name: posten_client_id
+    purpose: OAuth client of the Posten app at id.posten.no; sent with `posten_client_secret` as Basic auth on token requests.
+    source: app
+    last_verified: 2026-11-18
+    value: f0ad2360e9f64a0986faafe66a9731e5
+  - carrier: posten_bring
+    name: posten_client_secret
+    purpose: Client secret embedded in the Posten app; identifies the app, not a user.
+    source: app
+    last_verified: 2026-11-18
+    value: b814595805d5859ebe1d69abd2e65b0d8f4b786478bb31b5bfeefb5dc5dc1b1be8dae22d83d4195f
+  - carrier: posten_bring
+    name: bring_client_id
+    purpose: OAuth client of the Bring app at login.bring.com; sent with `bring_client_secret` as Basic auth on token requests.
+    source: app
+    last_verified: 2026-11-18
+    value: ffb3cd07a5a043a5977b7e272a06bb8f
+  - carrier: posten_bring
+    name: bring_client_secret
+    purpose: Client secret embedded in the Bring app; identifies the app, not a user.
+    source: app
+    last_verified: 2026-11-18
+    value: 0b00ac6b4c474c0ea087552341f10a1446592b94dada40cbbdba97aa84cfe5bb41cba49339582
+  - carrier: ppl_cz
+    name: website_key
+    purpose: "`dhl-api-key` header PPL's public tracking website sends to its tracking backend."
+    source: website
+    last_verified: 2026-11-18
+    value: 7HH634Q79Zpge4xEGeFAHXAnUMRxv0XQ
+  - carrier: ppl_cz
+    name: app_key
+    purpose: "`dhl-api-key` header the mojePPL app sends with every account call."
+    source: app
+    last_verified: 2026-11-18
+    value: G83gXcEfTws2hTUbWEreWFor5SdOj5QR
+  - carrier: ppl_cz
+    name: client_id
+    purpose: Public client of the mojePPL app at its Azure AD B2C sign-in (password grant, no secret).
+    source: app
+    last_verified: 2026-11-18
+    value: e8286178-1efe-4e0a-8cb8-98f126391a3c
+  - carrier: mondial_relay
+    name: account_client_id
+    purpose: Public OAuth client of the Mondial Relay app at the InPost Group sign-in (PKCE, no secret).
+    source: app
+    last_verified: 2026-11-18
+    value: mondialrelay-mobile
+  - carrier: mondial_relay
+    name: account_signing_value
+    purpose: Fixed value the Mondial Relay app hashes with a nonce and timestamp into its `X-MR-API-KEY` request signature.
+    source: app
+    last_verified: 2026-11-18
+    value: VCzt4PzS8ynJE2yy7zNBiQbTE3pkncqEyvrUsCDbXupGn8yqRrPDov2FYiAVfuUx
+  - carrier: mondial_relay
+    name: account_user_agent
+    purpose: User-Agent of the Mondial Relay app; its backend refuses other clients before checking the token.
+    source: app
+    last_verified: 2026-11-18
+    value: okhttp/4.12.0
+  - carrier: bpost
+    name: app_key
+    purpose: "`x-api-key` header the My bpost app sends with every account call; identifies the app, not a user."
+    source: app
+    last_verified: 2026-11-18
+    value: iBLz8oTy8K1KAnPZJLltU527bWmLt6XQ6y8RF5hT
+  - carrier: bpost
+    name: app_version
+    purpose: "`appVersion` header of the My bpost app; the account backend refuses versions it no longer supports."
+    source: app
+    last_verified: 2026-11-18
+    value: "3.45.1"
+  - carrier: postnord
+    name: receiver_app_client_id
+    purpose: Public OAuth client of the PostNord receiver app (PKCE, no secret).
+    source: app
+    last_verified: 2026-11-18
+    value: receiverappprod3gvTgY5ATtYWZZy
+  - carrier: postnord
+    name: receiver_app_key
+    purpose: "`apikey` gateway subscription key the PostNord receiver app sends with its account calls; identifies the app, not a user."
+    source: app
+    last_verified: 2026-11-18
+    value: 1ecf161be47543b19fce03f953a6e8d2
+  - carrier: swiss_post
+    name: app_client_id
+    purpose: Public OAuth client of the Swiss Post app at SwissID (PKCE, no secret).
+    source: app
+    last_verified: 2026-11-18
+    value: swisspost_main_prod

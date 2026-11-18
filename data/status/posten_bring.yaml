@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Posten / Bring account inbox: the parcel's lowercase `status`. Archived parcels have no
+# delivered state of their own; the plug-in reads their newest delivered or returned event.
+carrier: posten_bring
+entries:
+  - { match: { code: notified }, status: registered }
+  - { match: { code: underway }, status: in_transit }
+  - { match: { code: collectable }, status: at_pickup_point, pickup: true }
+  - { match: { code: return_underway }, status: returning }
+  - { match: { code: return_collectable }, status: returning }
+  - { match: { code: unknown }, status: unknown }
+tests:
+  - { input: { code: underway }, status: in_transit }
+  - { input: { code: collectable }, status: at_pickup_point, pickup: true }
+  - { input: { code: archived }, status: null }

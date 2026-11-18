@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# PPL CZ. The website's tracking reports granular codes (`phase`, `events[].code`); a dotted
+# qualifier only narrows where or how, so the plug-in falls back to the base code. The mojePPL
+# account reports a coarse upper-case enum (`lastShipmentEvent`, `events[].event`).
+carrier: ppl_cz
+entries:
+  - { match: { code: WaitingForShipment }, status: registered }
+  - { match: { code: Active }, status: registered }
+  - { match: { code: PickedUpFromSender }, status: in_transit }
+  - { match: { code: ShipmentInTransport }, status: in_transit }
+  - { match: { code: PreparingForDelivery }, status: in_transit }
+  - { match: { code: LoadingForDelivery }, status: out_for_delivery }
+  - { match: { code: OutForDelivery }, status: out_for_delivery }
+  - { match: { code: DeliveredToPickupPoint }, status: at_pickup_point, pickup: true }
+  - { match: { code: Delivered.Parcelshop }, status: at_pickup_point, pickup: true }
+  - {
+      match: { code: Delivered.BackToSender },
+      status: delivered,
+      note: "Delivered back at the sender.",
+    }
+  - { match: { code: Delivered }, status: delivered }
+  - { match: { code: BackToSender }, status: returning }
+  - { match: { code: Canceled }, status: problem }
+  - { match: { code: Rejected }, status: problem }
+  - { match: { code: NotDelivered }, status: problem }
+  - { match: { code: ORDER }, status: registered }
+  - { match: { code: IN_TRANSPORT }, status: in_transit }
+  - { match: { code: DELIVERING }, status: out_for_delivery }
+  - { match: { code: PICKUP_POINT }, status: at_pickup_point, pickup: true }
+  - { match: { code: RETURNING }, status: returning }
+  - { match: { code: BACK_TO_SENDER }, status: returning }
+  - { match: { code: DELETED }, status: problem }
+  - { match: { code: UNKNOWN }, status: unknown }
+tests:
+  - { input: { code: Delivered.Parcelshop }, status: at_pickup_point, pickup: true }
+  - { input: { code: Delivered.BackToSender }, status: delivered }
+  - { input: { code: DELIVERING }, status: out_for_delivery }
+  - { input: { code: Somewhere }, status: null }

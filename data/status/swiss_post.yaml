@@ -11,8 +11,17 @@ entries:
   - { match: { code: "MISSED_DELIVERY" }, status: problem }
   - { match: { code: "NOT_DELIVERED" }, status: problem }
   - { match: { code: "RETURNED" }, status: returning }
+  # Account (Post app inbox): `mailpieceStatusType`, as account:<value>.
+  - { match: { code: "account:NOT_YET_SENT" }, status: registered }
+  - { match: { code: "account:ON_GOING_DELIVERY" }, status: in_transit }
+  - { match: { code: "account:WAITING_FOR_PICKUP" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "account:DELIVERED" }, status: delivered }
+  - { match: { code: "account:NOT_DELIVERED" }, status: problem }
+  - { match: { code: "account:RETURNED" }, status: returning }
+  - { match: { code: "account:UNKNOWN" }, status: unknown }
 tests:
   - { input: { code: CUSTOMS }, status: in_transit }
   - { input: { code: IN_DELIVERY }, status: out_for_delivery }
   - { input: { code: RETURNED }, status: returning }
   - { input: { code: LOST }, status: null }
+  - { input: { code: "account:WAITING_FOR_PICKUP" }, status: at_pickup_point, pickup: true }

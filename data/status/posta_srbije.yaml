@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Pošta Srbije scan codes (`ApiStatusSifra`, or `StatusSifra`). A delivery on a return leg
+# (`Retur` = D) is sent as UO by the plug-in. No out-for-delivery code is known.
+carrier: posta_srbije
+entries:
+  - { match: { code: PR }, status: registered }
+  - { match: { code: OT }, status: in_transit }
+  - { match: { code: PS }, status: in_transit }
+  - { match: { code: IZ }, status: at_pickup_point, pickup: true, confirmed: false }
+  - { match: { code: ZI }, status: at_pickup_point, pickup: true, confirmed: false }
+  - { match: { code: VR }, status: problem, confirmed: false }
+  - { match: { code: UR }, status: delivered }
+  - { match: { code: UO }, status: returning, confirmed: false }
+tests:
+  - { input: { code: PR }, status: registered }
+  - { input: { code: UR }, status: delivered }
+  - { input: { code: XX }, status: null }

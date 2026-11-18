@@ -229,7 +229,8 @@ carriers:
     countries: [CA]
     domains: [purolator.com]
     tracking_urls:
-      default: "https://www.purolator.com/en/shipping/tracker?searchValue={tracking_number}"
+      default: "https://www.purolator.com/en/shipping/tracker?pin={tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{9,20}$", flags: [i] }
     crossref: { 17track: "100042" }
 
   - id: ontrac
@@ -577,6 +578,51 @@ carriers:
     countries: [SI]
     upu_countries: [SI]
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
+
+  - id: brt
+    name: BRT
+    aliases: [Bartolini, BRT Corriere Espresso, MyBRT]
+    countries: [IT]
+    domains: [brt.it, mybrt.it]
+    tracking_urls:
+      default: "https://www.mybrt.it/it/mybrt/my-parcels/incoming?parcelNumber={tracking_number}"
+    tracking_number_pattern: { pattern: "^[0-9]{12,19}$" }
+
+  - id: cargus
+    name: Cargus
+    aliases: [MyCargus]
+    countries: [RO]
+    domains: [cargus.ro]
+    tracking_urls:
+      default: "https://www.cargus.ro/personal/urmareste-coletul/?tracking_number={tracking_number}"
+    tracking_number_pattern: { pattern: "^[0-9]{8,14}$" }
+
+  - id: posten_bring
+    name: Posten / Bring
+    aliases: [Posten, Bring, Posten Norge, Posten Bring]
+    countries: [NO]
+    upu_countries: [NO]
+    domains: [posten.no, bring.com, bring.no]
+    tracking_urls:
+      default: "https://sporing.posten.no/sporing/{tracking_number}"
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,35}$", flags: [i] }
+
+  - id: ppl_cz
+    name: PPL CZ
+    aliases: [PPL, mojePPL, PPL Czech]
+    countries: [CZ]
+    domains: [ppl.cz]
+    tracking_urls:
+      default: "https://www.ppl.cz/vyhledat-zasilku?shipmentId={tracking_number}"
+    tracking_number_pattern: { pattern: "^[0-9]{8,14}$" }
+
+  - id: posta_srbije
+    name: Pošta Srbije
+    aliases: [Posta Srbije, Serbian Post, PostExpress]
+    countries: [RS]
+    upu_countries: [RS]
+    domains: [posta.rs]
+    tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
 
   - id: poste_italiane
     name: Poste Italiane

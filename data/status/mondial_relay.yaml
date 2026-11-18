@@ -9,8 +9,13 @@ entries:
   - { match: { code: "step:3" }, status: in_transit }
   - { match: { code: "step:4" }, status: at_pickup_point, pickup: true }
   - { match: { code: "step:5" }, status: delivered }
+  # Account (mobile app): `expedition.stepSection`, as section:<n>. 0 and 4 have no consumer meaning.
+  - { match: { code: "section:1" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "section:2" }, status: in_transit }
+  - { match: { code: "section:3" }, status: delivered }
 tests:
   - { input: { code: "step:1" }, status: registered }
   - { input: { code: "step:3" }, status: in_transit }
   - { input: { code: "step:4" }, status: at_pickup_point, pickup: true }
   - { input: { code: "step:6" }, status: null }
+  - { input: { code: "section:1" }, status: at_pickup_point, pickup: true }

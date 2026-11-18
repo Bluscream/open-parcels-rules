@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# BRT on DPD's shared consumer backend: the parcel's `status.description`, and the history's
+# `eventType` codes (DPD's geo event codes).
+carrier: brt
+entries:
+  - { match: { code: ORDER_CREATED }, status: registered }
+  - { match: { code: PARCEL_HANDED }, status: in_transit }
+  - { match: { code: IN_TRANSIT }, status: in_transit }
+  - { match: { code: AT_DELIVERY_CENTER }, status: in_transit }
+  - { match: { code: UNSUCCESSFUL_DELIVERY_ATTEMPT }, status: in_transit, note: "Retried." }
+  - { match: { code: PARCEL_OUT_FOR_DELIVERY }, status: out_for_delivery }
+  - { match: { code: AVAILABLE_FOR_COLLECTION }, status: at_pickup_point, pickup: true }
+  - { match: { code: RETURN_TO_SENDER }, status: returning }
+  - { match: { code: DELIVERED }, status: delivered }
+  - { match: { code: ENA }, status: registered }
+  - { match: { code: ORI }, status: in_transit }
+  - { match: { code: ORW }, status: in_transit }
+  - { match: { code: HUI }, status: in_transit }
+  - { match: { code: HUS }, status: in_transit }
+  - { match: { code: HUW }, status: in_transit }
+  - { match: { code: HUZ }, status: in_transit }
+  - { match: { code: SPE }, status: in_transit }
+  - { match: { code: SPL }, status: in_transit }
+  - { match: { code: SPS }, status: in_transit }
+  - { match: { code: SPV }, status: in_transit }
+  - { match: { code: SPW }, status: in_transit }
+  - { match: { code: SPZ }, status: in_transit }
+  - { match: { code: DLI }, status: in_transit }
+  - { match: { code: DLS }, status: in_transit }
+  - { match: { code: DLW }, status: in_transit }
+  - { match: { code: DLZ }, status: in_transit }
+  - { match: { code: DLR }, status: in_transit, note: "Driver's return after a failed attempt." }
+  - { match: { code: MSDLO }, status: in_transit, note: "A heads-up message, not the van scan." }
+  - { match: { code: DEHD }, status: in_transit }
+  - { match: { code: DEHDY }, status: in_transit }
+  - { match: { code: DOMSDLO }, status: in_transit }
+  - { match: { code: DOPKY }, status: in_transit }
+  - { match: { code: DLO }, status: out_for_delivery }
+  - { match: { code: DODEI }, status: at_pickup_point, pickup: true }
+  - { match: { code: DEY }, status: delivered }
+  - { match: { code: DEYY }, status: delivered }
+  - { match: { code: DODEY }, status: delivered }
+  - { match: { code: DODEYY }, status: delivered }
+  - { match: { code: SPR }, status: returning }
+  - { match: { code: DEN }, status: returning }
+  - { match: { code: DODEN }, status: returning }
+  - { match: { code: DODEH }, status: returning }
+  - { match: { code: ENX }, status: problem }
+  - { match: { code: ORX }, status: problem }
+  - { match: { code: HUX }, status: problem }
+  - { match: { code: SPX }, status: problem }
+  - { match: { code: DLX }, status: problem }
+  - { match: { code: DEX }, status: problem }
+  - { match: { code: DODEX }, status: problem }
+tests:
+  - { input: { code: PARCEL_OUT_FOR_DELIVERY }, status: out_for_delivery }
+  - { input: { code: DODEI }, status: at_pickup_point, pickup: true }
+  - { input: { code: QRX }, status: null }

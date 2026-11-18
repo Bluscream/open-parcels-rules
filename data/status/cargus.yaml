@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Cargus sends no codes, only English wordings (the requests ask for lang=EN). Event wordings
+# and the trace's summary (`statusMessage`) share this table.
+carrier: cargus
+entries:
+  - { match: { text: "^drop off at delivery location by sender$", flags: [i] }, status: in_transit }
+  - { match: { text: "^pickup shipment$", flags: [i] }, status: in_transit }
+  - { match: { text: "^consolidation scan", flags: [i] }, status: in_transit }
+  - { match: { text: "^automatic parcel sorting$", flags: [i] }, status: in_transit }
+  - { match: { text: "^received in warehouse ", flags: [i] }, status: in_transit }
+  - { match: { text: "^with courier$", flags: [i] }, status: out_for_delivery }
+  - {
+      match: { text: "^consignee not home$", flags: [i] },
+      status: problem,
+      note: "A failed attempt: the courier comes back, but someone has to act.",
+    }
+  - { match: { text: "^bad address$", flags: [i] }, status: problem }
+  - { match: { text: "^delivered$", flags: [i] }, status: delivered }
+  - { match: { text: "^new$", flags: [i] }, status: registered, note: "Summary wording." }
+  - { match: { text: "^in warehouse$", flags: [i] }, status: in_transit, note: "Summary wording." }
+tests:
+  - { input: { text: "Received in warehouse Testville [Depozit]" }, status: in_transit }
+  - { input: { text: "With courier" }, status: out_for_delivery }
+  - { input: { text: "Delivered" }, status: delivered }
+  - { input: { text: "Something new" }, status: null }
