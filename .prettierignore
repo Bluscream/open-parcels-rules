@@ -2,7 +2,6 @@ node_modules
 dist
 coverage
 package-lock.json
-legacy
 # Upstream data, copied byte for byte.
 vendor
 # Generated from the zod schemas; a test compares them to fresh output.

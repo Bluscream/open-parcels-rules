@@ -8,8 +8,6 @@ export default tseslint.config(
       "**/dist/**",
       "**/node_modules/**",
       "**/coverage/**",
-      // Kept only until every old rule has a converted equivalent; not part of the gate.
-      "legacy/**",
       "vendor/**",
       "python/**",
       // Type-checked against dist/ by the smoke test, after the build.
