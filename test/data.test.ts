@@ -1,0 +1,158 @@
+import { readFileSync } from "node:fs";
+import { basename, join } from "node:path";
+import { Ajv2020 } from "ajv/dist/2020.js";
+import { describe, expect, it } from "vitest";
+import { DATA, listFiles, readData, ROOT } from "../scripts/collect.ts";
+import { absolute, generatedFiles } from "../scripts/generated.ts";
+import { compileDataRegex, portabilityProblems } from "../src/portability.ts";
+import { toRegexSpec } from "../src/schema/common.ts";
+import type { RegexLike } from "../src/schema/common.ts";
+import { testData } from "./helpers/rules.ts";
+
+describe("generated files", () => {
+  for (const [relative, expected] of generatedFiles()) {
+    it(`${relative} is up to date (run npm run generate)`, () => {
+      expect(readFileSync(absolute(relative), "utf8")).toBe(expected);
+    });
+  }
+});
+
+describe("data files match their JSON Schemas", () => {
+  const ajv = new Ajv2020({ allErrors: true, strict: true });
+  // The one string format the schemas use; checked the same way zod checks it.
+  ajv.addFormat(
+    "date-time",
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/u,
+  );
+  const compiled = new Map<string, ReturnType<typeof ajv.compile>>();
+  const schema = (name: string) => {
+    let validate = compiled.get(name);
+    if (validate === undefined) {
+      validate = ajv.compile(
+        JSON.parse(readFileSync(join(ROOT, "schema", name), "utf8")) as object,
+      );
+      compiled.set(name, validate);
+    }
+    return validate;
+  };
+  const groups: [string, string[]][] = [
+    ["carriers.schema.json", [join(DATA, "carriers.yaml")]],
+    ["tracking-numbers.schema.json", listFiles(join(DATA, "tracking-numbers"), ".json")],
+    ["status.schema.json", listFiles(join(DATA, "status"), ".yaml")],
+    ["locale.schema.json", listFiles(join(DATA, "locales"), ".yaml")],
+    ["mail-rule.schema.json", listFiles(join(DATA, "mail"), ".yaml")],
+  ];
+  for (const [schemaName, files] of groups) {
+    const validate = schema(schemaName);
+    for (const file of files) {
+      it(`${basename(file)} matches ${schemaName}`, () => {
+        expect(validate(readData(file)), JSON.stringify(validate.errors)).toBe(true);
+      });
+    }
+  }
+
+  it("the vendored files match the tracking-numbers schema too", () => {
+    const validate = schema("tracking-numbers.schema.json");
+    const vendor = listFiles(join(ROOT, "vendor", "tracking_number_data", "couriers"), ".json");
+    const failing = vendor.filter((file) => !validate(readData(file)));
+    expect(failing).toEqual([]);
+  });
+});
+
+/** Every regex written in our own data files, with where it came from. */
+function dataRegexes(): { where: string; pattern: string; flags: readonly string[] }[] {
+  const data = testData();
+  const found: { where: string; pattern: string; flags: readonly string[] }[] = [];
+  const add = (where: string, value: RegexLike, flags: readonly string[] = []) => {
+    const spec = toRegexSpec(value);
+    found.push({ where, pattern: spec.pattern, flags: spec.flags ?? flags });
+  };
+  for (const source of data.bundle.tracking.filter((s) => s.origin === "overlay")) {
+    for (const type of source.courier.tracking_numbers) {
+      const where = `${source.file} ${type.id ?? type.name}`;
+      add(where, Array.isArray(type.regex) ? type.regex.join("") : type.regex);
+      const prepend = type.validation.serial_number_format?.prepend_if.matches_regex;
+      if (prepend !== undefined) add(`${where} prepend_if`, prepend);
+    }
+  }
+  for (const file of data.status) {
+    for (const entry of file.entries) {
+      if ("text" in entry.match)
+        add(`status/${file.carrier}`, {
+          pattern: entry.match.text,
+          ...(entry.match.flags === undefined ? {} : { flags: entry.match.flags }),
+        });
+    }
+  }
+  for (const locale of data.locales) {
+    for (const value of [...locale.negatives, ...locale.cut_markers])
+      add(`locales/${locale.lang}`, value);
+  }
+  for (const rule of data.mail) {
+    const where = `mail/${rule.id}`;
+    for (const value of [...(rule.subject ?? []), ...(rule.exclude ?? [])])
+      add(where, value, rule.flags);
+    for (const specs of Object.values(rule.extract)) {
+      for (const spec of specs)
+        add(where, { pattern: spec.pattern, flags: spec.flags ?? rule.flags });
+    }
+    for (const group of [...rule.status_keywords, ...rule.event_keywords]) {
+      for (const value of group.patterns) add(where, value, rule.flags);
+    }
+  }
+  return found;
+}
+
+describe("regex portability", () => {
+  const regexes = dataRegexes();
+
+  it("finds the regexes it is meant to check", () => {
+    expect(regexes.length).toBeGreaterThan(80);
+  });
+
+  it("keeps every data regex inside the portable subset", () => {
+    const problems = regexes.flatMap(({ where, pattern }) =>
+      portabilityProblems(pattern).map((problem) => `${where}: ${problem} in ${pattern}`),
+    );
+    expect(problems).toEqual([]);
+  });
+
+  it("compiles every data regex with the u flag and its own flags", () => {
+    const failing = regexes.filter(({ pattern, flags }) => {
+      try {
+        compileDataRegex(pattern, flags);
+        return false;
+      } catch {
+        return true;
+      }
+    });
+    expect(failing).toEqual([]);
+  });
+
+  it("rejects each construct outside the subset", () => {
+    expect(portabilityProblems("a(?=b)")).toContain("lookaround");
+    expect(portabilityProblems("(?<!a)b")).toContain("lookaround");
+    expect(portabilityProblems("(a)\\1")).toContain("backreference");
+    expect(portabilityProblems("(?>ab)")).toContain("atomic group");
+    expect(portabilityProblems("a++")).toContain("possessive quantifier");
+    expect(portabilityProblems("abc\\Z")).toContain("\\Z anchor");
+    expect(portabilityProblems("\\Aabc")).toContain("\\A anchor");
+    expect(portabilityProblems("(?i)abc")).toContain("inline flags or unknown group syntax");
+    expect(portabilityProblems("(?P<n>a)")).toContain("(?P...) group syntax; write (?<name>...)");
+    expect(portabilityProblems("a{,3}")).toContain("{,n} quantifier");
+    expect(portabilityProblems("\\u00e4")).toContain("unsupported escape \\u");
+  });
+
+  it("accepts the constructs inside the subset", () => {
+    for (const ok of [
+      "(?<serial>[0-9]{3,4})",
+      "a+?b*?",
+      "[\\-a-z]",
+      "^\\d+\\.\\s*$",
+      "(?:x|y)",
+      "\\x41",
+    ]) {
+      expect(portabilityProblems(ok)).toEqual([]);
+    }
+  });
+});

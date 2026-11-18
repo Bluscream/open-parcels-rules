@@ -1,0 +1,362 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# DHL status codes and texts. Several DHL back ends report status; their code sets do not
+# collide, so they share one table. Numeric progress values are written as "<field>:<value>"
+# (e.g. "fortschritt:4") so the caller passes them as a code without ambiguity.
+carrier: dhl
+entries:
+  # German account: progress ladder (sendungsverlauf.fortschritt, 0..5).
+  - { match: { code: "fortschritt:0" }, status: registered }
+  - { match: { code: "fortschritt:1" }, status: registered }
+  - { match: { code: "fortschritt:2" }, status: in_transit }
+  - { match: { code: "fortschritt:3" }, status: in_transit }
+  - {
+      match: { code: "fortschritt:4" },
+      status: out_for_delivery,
+      note: "Also shown while heading to a Packstation or Filiale; prefer the event text when it says so.",
+    }
+  - { match: { code: "fortschritt:5" }, status: delivered }
+  # Unified shipment tracking API: status.statusCode.
+  - { match: { code: pre-transit }, status: registered }
+  - { match: { code: transit }, status: in_transit }
+  - { match: { code: delivered }, status: delivered }
+  - { match: { code: failure }, status: problem }
+  - { match: { code: unknown }, status: unknown }
+  # DHL Parcel Benelux: event category (coarse).
+  - { match: { code: DATA_RECEIVED }, status: registered }
+  - { match: { code: LEG }, status: registered }
+  - { match: { code: UNDERWAY }, status: in_transit }
+  - { match: { code: CUSTOMS }, status: in_transit }
+  - { match: { code: IN_DELIVERY }, status: out_for_delivery }
+  - { match: { code: PROBLEM }, status: problem }
+  - { match: { code: INTERVENTION }, status: problem }
+  - { match: { code: EXCEPTION }, status: problem }
+  - { match: { code: DELIVERED }, status: delivered }
+  # DHL Parcel Benelux: event status (fine, wins over the category).
+  - { match: { code: PRENOTIFICATION_RECEIVED }, status: registered }
+  - { match: { code: DATA_RECEIVED_WITH_PREFIX_LABEL }, status: registered }
+  - { match: { code: OUT_FOR_DELIVERY }, status: out_for_delivery }
+  - { match: { code: LOAD_VEHICLE }, status: out_for_delivery }
+  - { match: { code: PARCEL_INTO_FALLBACK }, status: out_for_delivery }
+  - { match: { code: PARCEL_WILL_BE_DELIVERED_SOON }, status: out_for_delivery }
+  - {
+      match: { code: NOTIFICATION_FOR_PARCELSHOP_COLLECTION_HAS_BEEN_SENT },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      match: { code: NOTIFICATION_FOR_PARCELSTATION_COLLECTION_HAS_BEEN_SENT },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { code: AWAITING_RECEIVER_COLLECTION }, status: at_pickup_point, pickup: true }
+  - { match: { code: CLOSED_AWAITING_COLLECTION }, status: at_pickup_point, pickup: true }
+  - {
+      match: { code: DELIVERED_AT_ACCESSPOINT },
+      status: at_pickup_point,
+      pickup: true,
+      note: "Delivered to the access point, not to the recipient.",
+    }
+  - {
+      match: { code: DELIVERED_AT_PARCELSTATION },
+      status: at_pickup_point,
+      pickup: true,
+      note: "Delivered into the locker, not to the recipient.",
+    }
+  - { match: { code: DELIVERY_CODE_MISSING_PICK_UP }, status: at_pickup_point, pickup: true }
+  - { match: { code: ON_HOLD_FOR_COLLECTION }, status: at_pickup_point, pickup: true }
+  - { match: { code: PARCEL_FOUND_AT_PARCELSHOP }, status: at_pickup_point, pickup: true }
+  - {
+      match: { code: PARCEL_HELD_FOR_COLLECTION_AT_LOCAL_DEPOT },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { code: REMINDER_FOR_COLLECTION_SENT_EMAIL }, status: at_pickup_point, pickup: true }
+  - { match: { code: REMINDER_FOR_COLLECTION_SENT_LETTER }, status: at_pickup_point, pickup: true }
+  - { match: { code: REMINDER_FOR_COLLECTION_SENT_SMS }, status: at_pickup_point, pickup: true }
+  - {
+      match: { code: "INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_ANOTHER_TIME/DATE" },
+      status: in_transit,
+    }
+  - {
+      match: { code: INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_ACCESSPOINT },
+      status: in_transit,
+      pickup: true,
+    }
+  - { match: { code: INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_NEIGHBOURS }, status: in_transit }
+  - {
+      match: { code: INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_PARCELSHOP },
+      status: in_transit,
+      pickup: true,
+    }
+  - {
+      match: { code: INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_PARCELSTATION },
+      status: in_transit,
+      pickup: true,
+    }
+  - {
+      match: { code: INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_PREFERRED_NEIGHBOURS },
+      status: in_transit,
+    }
+  - { match: { code: PARCEL_ARRIVED_AT_LOCAL_DEPOT }, status: in_transit }
+  - { match: { code: PARCEL_SORTED_AT_HUB }, status: in_transit }
+  - { match: { code: FACILITY_CHECK_IN }, status: in_transit, confirmed: false }
+  - {
+      match: { code: PARCEL_PICKED_UP_AT_PARCELSHOP },
+      status: in_transit,
+      note: "The driver collected the sender's drop-off; not a recipient pickup.",
+    }
+  - { match: { code: NOT_HOME_NEW_DELIVERY }, status: problem, confirmed: false }
+  - { match: { code: COLLECTED_AT_PARCELSHOP }, status: delivered, pickup: true }
+  - { match: { code: COLLECTED_AT_ACCESSPOINT }, status: delivered, pickup: true }
+  - { match: { code: COLLECTED_AT_PARCELSTATION }, status: delivered, pickup: true }
+  - { match: { code: SHIPMENT_COLLECTED }, status: delivered, pickup: true }
+  - { match: { code: DELIVERED_AT_NEIGHBOURS }, status: delivered }
+  - {
+      match: { code: DELIVERED_AT_PREFERED_NEIGHBOURS },
+      status: delivered,
+      note: "Spelled this way by DHL.",
+    }
+  - { match: { code: DELIVERED_AT_SAFEPLACE }, status: delivered }
+  - { match: { code: DELIVERED_IN_MAILBOX }, status: delivered }
+  - { match: { code: DELIVERED_DAMAGED }, status: delivered }
+  - { match: { code: DELIVERED_NOT_IN_TIME }, status: delivered }
+  - { match: { code: DELIVERED_NO_CODE_VALIDATION }, status: delivered }
+  - { match: { code: ADDRESS_UNKNOWN }, status: returning }
+  - { match: { code: CUSTOMS_DATA_INCORRECT_RETURN_TO_SHIPPER }, status: returning }
+  - { match: { code: DAMAGE_RETURN }, status: returning }
+  - {
+      match: { code: DELIVERED_AT_SHIPPER },
+      status: returning,
+      note: "The return reached the sender.",
+    }
+  - { match: { code: DELIVERY_CODE_MISSING_RETURN }, status: returning }
+  - { match: { code: DELIVERY_DATA_INCORRECT_RETURN }, status: returning }
+  - { match: { code: EXPECTED_RETURN_DELIVERED_AT_SHIPPER_CALCULATED }, status: returning }
+  - { match: { code: INTERVENTION_RECEIVER_REQUEST_DELIVERY_CANCELLED }, status: returning }
+  - { match: { code: INTERVENTION_SHIPPER_REQUEST_DELIVERY_CANCELLED }, status: returning }
+  - { match: { code: INVALID_SHIPMENT_SPECIFICATION_RETURN }, status: returning }
+  - { match: { code: MISROUTED_RETURN_TO_SHIPPER }, status: returning }
+  - { match: { code: NOT_HOME_RETURN_TO_SHIPPER }, status: returning }
+  - { match: { code: NO_MONEY_RETURN }, status: returning }
+  - { match: { code: ON_ROUTE_TO_SHIPPER }, status: returning }
+  - {
+      match: { code: PARCELSTATION_DELIVERY_UNSUCCESFULL_RETURN },
+      status: returning,
+      note: "Spelled this way by DHL.",
+    }
+  - { match: { code: PARCEL_ALREADY_RETURNED }, status: returning }
+  - { match: { code: PARCEL_RELABELED_FOR_RETURN_TO_SHIPPER }, status: returning }
+  - { match: { code: PARCEL_SCANNED_AT_RETURN_HUB }, status: returning }
+  - { match: { code: PARCEL_SCANNED_FOR_RETURN_TO_HUB }, status: returning }
+  - { match: { code: PARCEL_TOO_HEAVY_RETURN }, status: returning }
+  - { match: { code: PARCEL_TOO_LARGE_RETURN }, status: returning }
+  - { match: { code: POSTAL_CODE_INCORRECT }, status: returning }
+  - { match: { code: PO_BOX }, status: returning }
+  - { match: { code: RECEIVER_RETURN }, status: returning }
+  - { match: { code: RECEIVER_UNKNOWN_RETURN }, status: returning }
+  - { match: { code: REFUSED_AT_PARCELSHOP }, status: returning }
+  - { match: { code: REFUSED_BY_RECEIVER }, status: returning }
+  - { match: { code: REFUSED_NOT_COLLECTED }, status: returning }
+  - { match: { code: RETURNED_NOT_COLLECTED }, status: returning }
+  - { match: { code: RETURNED_TO_SHIPPER }, status: returning }
+  - { match: { code: SPONTANEOUS_RETURN }, status: returning }
+  - { match: { code: STORAGE_PERIOD_ENDED_AT_ACCESSPOINT }, status: returning }
+  - { match: { code: STORAGE_PERIOD_ENDED_AT_PARCELSHOP }, status: returning }
+  - { match: { code: STORAGE_PERIOD_ENDED_AT_PARCELSTATION }, status: returning }
+  # DHL Poland: raw status codes.
+  - { match: { code: TT_EDWP }, status: registered }
+  - { match: { code: SP_DSP }, status: in_transit }
+  - { match: { code: TT_MAG }, status: in_transit }
+  - { match: { code: TT_MAG_INT }, status: in_transit }
+  - { match: { code: TT_PRZEKIERUJ }, status: in_transit }
+  - { match: { code: TT_DWP }, status: out_for_delivery }
+  - { match: { code: TT_DWP_INT }, status: out_for_delivery }
+  - {
+      match: { code: TT_DWP_PUNKT },
+      status: in_transit,
+      pickup: true,
+      note: "On the way to a pickup point.",
+    }
+  - { match: { code: TT_LK }, status: at_pickup_point, pickup: true }
+  - { match: { code: TT_AWI }, status: at_pickup_point, pickup: true }
+  - { match: { code: TT_OP }, status: delivered }
+  - { match: { code: TT_DOR }, status: delivered }
+  - { match: { code: TT_ZWN }, status: returning }
+  - { match: { code: TT_DOR_ZWN }, status: returning }
+  - { match: { code: TT_DELAY_KUR }, status: problem }
+  - { match: { code: TT_DELAY_MAG }, status: problem }
+  - { match: { code: TT_OWL }, status: problem }
+  - { match: { code: TT_CS }, status: problem }
+  - { match: { code: TT_ZGN }, status: problem }
+  - { match: { code: TT_LIK }, status: problem }
+  - { match: { code: SP_CN }, status: problem }
+  # DHL Poland: timeline names.
+  - { match: { code: ShipmentInPreparation }, status: registered }
+  - { match: { code: WaitingForCourierPickup }, status: registered }
+  - {
+      match: { code: PostedAtPoint },
+      status: in_transit,
+      note: "The sender dropped it at a point.",
+    }
+  - { match: { code: PickedUpByCourier }, status: in_transit }
+  - { match: { code: Redirected }, status: in_transit }
+  - { match: { code: RedirectedToPoint }, status: in_transit, pickup: true }
+  - { match: { code: DeliveryToPoint }, status: in_transit, pickup: true }
+  - { match: { code: DeliveryToLocker }, status: in_transit, pickup: true }
+  - {
+      match: { code: DeliveredToPoint },
+      status: at_pickup_point,
+      pickup: true,
+      note: "Delivered to the point, waiting for the recipient.",
+    }
+  - { match: { code: DeliveredToLocker }, status: at_pickup_point, pickup: true }
+  - { match: { code: RetrievedFromPoint }, status: delivered, pickup: true }
+  - { match: { code: RetrievedFromLocker }, status: delivered, pickup: true }
+  - { match: { code: Refusal }, status: returning }
+  - { match: { code: ParcelReturnsToSender }, status: returning }
+  - { match: { code: ParcelReturnedToSender }, status: returning }
+  - { match: { code: DeliveredToSender }, status: returning }
+  - { match: { code: Disposed }, status: problem }
+  - { match: { code: Lost }, status: problem }
+  - { match: { code: UnsuccessfulAttemptAtDelivery }, status: problem }
+  - { match: { code: SecondUnsuccessfulAttemptAtDelivery }, status: problem }
+  - { match: { code: DeliveryDelay }, status: problem }
+  - { match: { code: DeliveryProblem }, status: problem }
+  - { match: { code: WaitingForShipperDecision }, status: problem }
+  # German event texts (tracking page and account). Order matters: returns and collection first.
+  - {
+      match:
+        {
+          text: "zurück(?:gesendet|geschickt|sendung)|an den absender|rücksendung|retoure",
+          flags: [i],
+        },
+      status: returning,
+      confirmed: false,
+    }
+  - {
+      match:
+        { text: "empfänger hat die sendung .{0,60}abgeholt|wurde .{0,40}abgeholt", flags: [i] },
+      status: delivered,
+      pickup: true,
+      confirmed: false,
+    }
+  - {
+      match: { text: "zur abholung bereit|liegt .{0,80}zur abholung|abholbereit", flags: [i] },
+      status: at_pickup_point,
+      pickup: true,
+      confirmed: false,
+    }
+  - {
+      match:
+        {
+          text: "auf dem weg zur (?:packstation|filiale|postfiliale)|wird zur abholung in",
+          flags: [i],
+        },
+      status: in_transit,
+      pickup: true,
+      confirmed: false,
+    }
+  - {
+      match:
+        {
+          text: "nicht zugestellt|zustellversuch|konnte nicht|adresse (?:ist )?(?:unvollständig|fehlerhaft)",
+          flags: [i],
+        },
+      status: problem,
+      confirmed: false,
+    }
+  - {
+      match:
+        { text: "zustellfahrzeug geladen|in zustellung|wird (?:heute )?zugestellt", flags: [i] },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - {
+      match: { text: "zugestellt|an den empfänger übergeben", flags: [i] },
+      status: delivered,
+      confirmed: false,
+    }
+  - {
+      match: { text: "auftragsdaten .{0,60}übermittelt|elektronisch angekündigt", flags: [i] },
+      status: registered,
+      confirmed: false,
+    }
+  - {
+      match:
+        {
+          text: "paketzentrum|zustellbasis|eingeliefert|im zustellzentrum|unterwegs|abgeholt",
+          flags: [i],
+        },
+      status: in_transit,
+      confirmed: false,
+    }
+  # DHL Express checkpoint texts (English).
+  - {
+      match: { text: "^shipment is out with courier for delivery", flags: [i] },
+      status: out_for_delivery,
+    }
+  - {
+      match:
+        {
+          text: "^delivery attempt could not be completed|^further consignee information needed|^delivery not accepted|^on hold awaiting for payment",
+          flags: [i],
+        },
+      status: problem,
+    }
+  - { match: { text: "^shipment information received", flags: [i] }, status: registered }
+  - { match: { text: "^delivered", flags: [i] }, status: delivered }
+  - {
+      match:
+        {
+          text: "^(?:shipment is scheduled for delivery|arrived at dhl|shipment accepted|shipment picked up|processed at|shipment has departed|shipment is in transit|customs clearance status updated|clearance processing complete|payment is received)",
+          flags: [i],
+        },
+      status: in_transit,
+    }
+tests:
+  - { input: { code: "fortschritt:4" }, status: out_for_delivery }
+  - { input: { code: "fortschritt:5" }, status: delivered }
+  - { input: { code: pre-transit }, status: registered }
+  - { input: { code: DELIVERED_AT_PARCELSTATION }, status: at_pickup_point, pickup: true }
+  - { input: { code: DELIVERED_AT_SHIPPER }, status: returning }
+  - { input: { code: PARCEL_PICKED_UP_AT_PARCELSHOP }, status: in_transit }
+  - { input: { code: COLLECTED_AT_PARCELSHOP }, status: delivered, pickup: true }
+  - { input: { code: TT_DWP_PUNKT }, status: in_transit, pickup: true }
+  - { input: { code: DeliveredToLocker }, status: at_pickup_point, pickup: true }
+  - { input: { code: " TT_OP " }, status: delivered }
+  - { input: { code: PARCEL_RETURNED_FROM_ROUTE }, status: null }
+  - { input: { text: "Die Sendung wurde erfolgreich zugestellt." }, status: delivered }
+  - {
+      input: { text: "Die Sendung wurde in das Zustellfahrzeug geladen." },
+      status: out_for_delivery,
+    }
+  - {
+      input: { text: "Die Sendung ist auf dem Weg zur Packstation 123." },
+      status: in_transit,
+      pickup: true,
+    }
+  - {
+      input: { text: "Die Sendung liegt in der PACKSTATION 123 zur Abholung bereit." },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      input: { text: "Der Empfänger hat die Sendung aus der PACKSTATION abgeholt." },
+      status: delivered,
+      pickup: true,
+    }
+  - { input: { text: "Die Sendung konnte nicht zugestellt werden." }, status: problem }
+  - { input: { text: "Die Sendung wird an den Absender zurückgesendet." }, status: returning }
+  - {
+      input:
+        {
+          text: "Die Auftragsdaten zu dieser Sendung wurden vom Absender elektronisch an DHL übermittelt.",
+        },
+      status: registered,
+    }
+  - { input: { text: "Die Sendung wurde im Start-Paketzentrum bearbeitet." }, status: in_transit }
+  - { input: { text: "Shipment is out with courier for delivery" }, status: out_for_delivery }
+  - { input: { text: "Delivered - Signed for by: receiver" }, status: delivered }
+  - { input: { text: "Arrived at DHL Sort Facility LEIPZIG - GERMANY" }, status: in_transit }
+  - { input: { text: "Sendung wurde gewogen" }, status: null }

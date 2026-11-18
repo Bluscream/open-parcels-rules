@@ -1,0 +1,1220 @@
+{
+  "$id": "https://raw.githubusercontent.com/Bluscream/open-parcels-rules/main/schema/bundle.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "number",
+      "const": 1
+    },
+    "version": {
+      "type": "string"
+    },
+    "carriers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]*$",
+            "description": "Lower-case identifier: letters, digits, '_' and '-'."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "aliases": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "countries": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$",
+              "description": "ISO 3166-1 alpha-2 country code."
+            }
+          },
+          "domains": {
+            "default": [],
+            "description": "Domains the carrier sends mail from or hosts tracking pages on.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)+$",
+              "description": "A mail or web domain; subdomains match too."
+            }
+          },
+          "courier_codes": {
+            "default": [],
+            "description": "courier_code values of tracking-number files whose formats belong to this carrier (the carrier's own id is implied).",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "upu_countries": {
+            "default": [],
+            "description": "Countries whose UPU S10 numbers (e.g. RR123456785DE) this carrier delivers.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$",
+              "description": "ISO 3166-1 alpha-2 country code."
+            }
+          },
+          "tracking_urls": {
+            "default": {},
+            "description": "Tracking page templates keyed by locale ('default', a language such as 'de', or a full tag such as 'de-AT'). {tracking_number} is replaced by the URL-encoded number.",
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^https:\\/\\/\\S*\\{tracking_number\\}\\S*$"
+            }
+          },
+          "crossref": {
+            "default": {},
+            "description": "Identifiers of this carrier in other systems, e.g. 17track: '100001'.",
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tracking": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "enum": [
+              "vendor",
+              "overlay"
+            ]
+          },
+          "file": {
+            "type": "string"
+          },
+          "courier": {
+            "type": "object",
+            "properties": {
+              "$schema": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "courier_code": {
+                "type": "string"
+              },
+              "tracking_numbers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "regex": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      ],
+                      "description": "Whitespace-tolerant pattern; an array is joined into one pattern. Named groups SerialNumber and CheckDigit feed the checksum."
+                    },
+                    "validation": {
+                      "type": "object",
+                      "properties": {
+                        "checksum": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "const": "mod10"
+                                },
+                                "modulo": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "evens_multiplier": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "odds_multiplier": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "reverse": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "const": "mod7"
+                                },
+                                "modulo": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "const": "s10"
+                                },
+                                "weightings": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "modulo": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "const": "luhn"
+                                },
+                                "modulo": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "const": "mod_37_36"
+                                },
+                                "modulo": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "alphabet": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "const": "sum_product_with_weightings_and_modulo"
+                                },
+                                "weightings": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "modulo1": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "modulo2": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "weightings",
+                                "modulo1",
+                                "modulo2"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "serial_number_format": {
+                          "type": "object",
+                          "properties": {
+                            "prepend_if": {
+                              "type": "object",
+                              "properties": {
+                                "matches_regex": {
+                                  "type": "string"
+                                },
+                                "content": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "matches_regex",
+                                "content"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "prepend_if"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "additional": {
+                          "type": "object",
+                          "properties": {
+                            "exists": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "description": "Names of `additional` lookups that must find a row for the number to be valid."
+                            }
+                          },
+                          "required": [
+                            "exists"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "tracking_url": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "glossary": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "description"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "test_numbers": {
+                      "type": "object",
+                      "properties": {
+                        "valid": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "invalid": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "valid",
+                        "invalid"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "additional": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "regex_group_name": {
+                            "type": "string"
+                          },
+                          "lookup": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string"
+                              },
+                              "additionalProperties": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "description": "One row of an additional lookup: `matches` (exact) or `matches_regex` (whole value), plus descriptive string fields such as name, description, country or courier."
+                            }
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "regex_group_name",
+                          "lookup"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "regex",
+                    "validation",
+                    "test_numbers"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "name",
+              "courier_code",
+              "tracking_numbers"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "origin",
+          "file",
+          "courier"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "status": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "carrier": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]*$",
+            "description": "Lower-case identifier: letters, digits, '_' and '-'."
+          },
+          "entries": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "match": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Exact machine status code (compared trimmed)."
+                        }
+                      },
+                      "required": [
+                        "code"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Regex searched in the status text."
+                        },
+                        "flags": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "i",
+                              "m",
+                              "s"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "text"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "registered",
+                    "in_transit",
+                    "out_for_delivery",
+                    "at_pickup_point",
+                    "delivered",
+                    "returning",
+                    "problem",
+                    "unknown"
+                  ],
+                  "description": "Canonical parcel status. at_pickup_point means arrived and waiting for collection; a parcel still on its way to a pickup point is in_transit with pickup: true."
+                },
+                "pickup": {
+                  "description": "The parcel is going to, or waiting at, a pickup point or locker.",
+                  "type": "boolean",
+                  "const": true
+                },
+                "confirmed": {
+                  "description": "false marks a plausible guess not yet seen in real data. Defaults to true.",
+                  "type": "boolean"
+                },
+                "note": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "match",
+                "status"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Checked in order; code entries are tried before text entries, first hit wins."
+          }
+        },
+        "required": [
+          "carrier",
+          "entries"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "locales": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "lang": {
+            "type": "string",
+            "pattern": "^[a-z]{2,3}$"
+          },
+          "months": {
+            "minItems": 12,
+            "maxItems": 12,
+            "type": "array",
+            "items": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "description": "Twelve lists (January first) of month names and abbreviations."
+          },
+          "weekdays": {
+            "minItems": 7,
+            "maxItems": 7,
+            "type": "array",
+            "items": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "description": "Seven lists (Monday first) of weekday names. Keep risky short forms out (German 'so', 'do')."
+          },
+          "relative_days": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "minLength": 1
+            },
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": -7,
+              "maximum": 7
+            },
+            "description": "Words for a day relative to today, e.g. tomorrow: 1."
+          },
+          "lead_ins": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Words that announce an arrival. A bare relative day or weekday only counts after one."
+          },
+          "range_separators": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Words that join the two ends of a range (dashes are always accepted)."
+          },
+          "window_openers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Words that may open a time window, e.g. between, zwischen."
+          },
+          "deadline_words": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Words before a single time meaning 'at the latest', e.g. by, bis."
+          },
+          "point_words": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Words before a single time meaning 'at', e.g. um, at."
+          },
+          "hour_words": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Words after a time that mark it as a clock time, e.g. uhr, o'clock."
+          },
+          "am_markers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "pm_markers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "negatives": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "A regex in the portable subset."
+                    },
+                    "flags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "i",
+                          "m",
+                          "s"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ],
+                  "additionalProperties": false,
+                  "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+                }
+              ]
+            },
+            "description": "If any matches (case-insensitively), the text announces no arrival at all."
+          },
+          "cut_markers": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "A regex in the portable subset."
+                    },
+                    "flags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "i",
+                          "m",
+                          "s"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ],
+                  "additionalProperties": false,
+                  "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+                }
+              ]
+            },
+            "description": "Text from the first match onwards is ignored (e.g. 'previously expected ...')."
+          },
+          "tracking_keywords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Words that introduce a tracking number in prose; used by the mail fallback detector."
+          }
+        },
+        "required": [
+          "lang",
+          "months",
+          "weekdays",
+          "relative_days",
+          "lead_ins",
+          "range_separators",
+          "window_openers",
+          "deadline_words",
+          "point_words",
+          "hour_words",
+          "am_markers",
+          "pm_markers",
+          "negatives",
+          "cut_markers",
+          "tracking_keywords"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "mail": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]*$",
+            "description": "Lower-case identifier: letters, digits, '_' and '-'."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "parcel",
+              "order",
+              "return",
+              "dunning"
+            ]
+          },
+          "senders": {
+            "type": "object",
+            "properties": {
+              "addresses": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[^@\\s]+@[a-z0-9.-]+$"
+                }
+              },
+              "domains": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)+$"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "flags": {
+            "default": [
+              "i"
+            ],
+            "description": "Flags for every bare-string pattern in this rule.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "i",
+                "m",
+                "s"
+              ]
+            }
+          },
+          "subject": {
+            "description": "If set, at least one must match the subject.",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "A regex in the portable subset."
+                    },
+                    "flags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "i",
+                          "m",
+                          "s"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ],
+                  "additionalProperties": false,
+                  "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+                }
+              ]
+            }
+          },
+          "exclude": {
+            "description": "If any matches the subject, the rule does not apply.",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "A regex in the portable subset."
+                    },
+                    "flags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "i",
+                          "m",
+                          "s"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ],
+                  "additionalProperties": false,
+                  "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+                }
+              ]
+            }
+          },
+          "extract": {
+            "default": {},
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "enum": [
+                "tracking_number",
+                "order_number",
+                "tracking_url",
+                "pickup_code",
+                "item",
+                "arrival",
+                "carrier"
+              ]
+            },
+            "additionalProperties": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "pattern": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Must contain a named group called like the field, e.g. (?<tracking_number>...)."
+                  },
+                  "flags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "i",
+                        "m",
+                        "s"
+                      ]
+                    }
+                  },
+                  "in": {
+                    "default": [
+                      "subject",
+                      "text"
+                    ],
+                    "description": "Where to search; html means the HTML part converted to plain text.",
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "subject",
+                        "text",
+                        "html"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "pattern"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "status_keywords": {
+            "default": [],
+            "description": "Checked in order; the first group with a matching pattern sets the status.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "patterns": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "pattern": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "A regex in the portable subset."
+                          },
+                          "flags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "i",
+                                "m",
+                                "s"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "pattern"
+                        ],
+                        "additionalProperties": false,
+                        "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+                      }
+                    ]
+                  }
+                },
+                "in": {
+                  "default": [
+                    "subject",
+                    "text"
+                  ],
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "subject",
+                      "text",
+                      "html"
+                    ]
+                  }
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "registered",
+                    "in_transit",
+                    "out_for_delivery",
+                    "at_pickup_point",
+                    "delivered",
+                    "returning",
+                    "problem",
+                    "unknown"
+                  ],
+                  "description": "Canonical parcel status. at_pickup_point means arrived and waiting for collection; a parcel still on its way to a pickup point is in_transit with pickup: true."
+                }
+              },
+              "required": [
+                "patterns",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "event_keywords": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "patterns": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "pattern": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "A regex in the portable subset."
+                          },
+                          "flags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "i",
+                                "m",
+                                "s"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "pattern"
+                        ],
+                        "additionalProperties": false,
+                        "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+                      }
+                    ]
+                  }
+                },
+                "in": {
+                  "default": [
+                    "subject",
+                    "text"
+                  ],
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "subject",
+                      "text",
+                      "html"
+                    ]
+                  }
+                },
+                "event": {
+                  "type": "string",
+                  "enum": [
+                    "order_placed",
+                    "order_confirmed",
+                    "order_shipped",
+                    "order_cancelled",
+                    "return_started",
+                    "return_received",
+                    "refund_issued",
+                    "return_rejected",
+                    "payment_reminder",
+                    "payment_warning",
+                    "debt_collection"
+                  ]
+                }
+              },
+              "required": [
+                "patterns",
+                "event"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "default_status": {
+            "type": "string",
+            "enum": [
+              "registered",
+              "in_transit",
+              "out_for_delivery",
+              "at_pickup_point",
+              "delivered",
+              "returning",
+              "problem",
+              "unknown"
+            ],
+            "description": "Canonical parcel status. at_pickup_point means arrived and waiting for collection; a parcel still on its way to a pickup point is in_transit with pickup: true."
+          },
+          "carrier": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]*$",
+            "description": "Lower-case identifier: letters, digits, '_' and '-'."
+          },
+          "carrier_from": {
+            "description": "Take the carrier from the extracted carrier field, normalised via aliases.",
+            "type": "string",
+            "const": "carrier"
+          },
+          "extractors": {
+            "default": [],
+            "description": "Named code extractors (src/mail/extractors) for what a regex cannot express.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "require": {
+            "default": [],
+            "description": "Fields that must be found for the rule to produce a result.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "tracking_number",
+                "order_number",
+                "tracking_url",
+                "pickup_code",
+                "item",
+                "arrival",
+                "carrier"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "senders"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "format",
+    "version",
+    "carriers",
+    "tracking",
+    "status",
+    "locales",
+    "mail"
+  ],
+  "additionalProperties": false
+}

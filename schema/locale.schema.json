@@ -1,0 +1,272 @@
+{
+  "$id": "https://raw.githubusercontent.com/Bluscream/open-parcels-rules/main/schema/locale.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "lang": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}$"
+    },
+    "months": {
+      "minItems": 12,
+      "maxItems": 12,
+      "type": "array",
+      "items": {
+        "minItems": 1,
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "Twelve lists (January first) of month names and abbreviations."
+    },
+    "weekdays": {
+      "minItems": 7,
+      "maxItems": 7,
+      "type": "array",
+      "items": {
+        "minItems": 1,
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "Seven lists (Monday first) of weekday names. Keep risky short forms out (German 'so', 'do')."
+    },
+    "relative_days": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": -7,
+        "maximum": 7
+      },
+      "description": "Words for a day relative to today, e.g. tomorrow: 1."
+    },
+    "lead_ins": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words that announce an arrival. A bare relative day or weekday only counts after one."
+    },
+    "range_separators": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words that join the two ends of a range (dashes are always accepted)."
+    },
+    "window_openers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words that may open a time window, e.g. between, zwischen."
+    },
+    "deadline_words": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words before a single time meaning 'at the latest', e.g. by, bis."
+    },
+    "point_words": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words before a single time meaning 'at', e.g. um, at."
+    },
+    "hour_words": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words after a time that mark it as a clock time, e.g. uhr, o'clock."
+    },
+    "am_markers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "pm_markers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "negatives": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "minLength": 1,
+                "description": "A regex in the portable subset."
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "i",
+                    "m",
+                    "s"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "pattern"
+            ],
+            "additionalProperties": false,
+            "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+          }
+        ]
+      },
+      "description": "If any matches (case-insensitively), the text announces no arrival at all."
+    },
+    "cut_markers": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "minLength": 1,
+                "description": "A regex in the portable subset."
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "i",
+                    "m",
+                    "s"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "pattern"
+            ],
+            "additionalProperties": false,
+            "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+          }
+        ]
+      },
+      "description": "Text from the first match onwards is ignored (e.g. 'previously expected ...')."
+    },
+    "tracking_keywords": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words that introduce a tracking number in prose; used by the mail fallback detector."
+    },
+    "tests": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "now": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "time_zone": {
+            "type": "string"
+          },
+          "expect": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  },
+                  "all_day": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "from",
+                  "to",
+                  "all_day"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null: the text must not parse."
+          }
+        },
+        "required": [
+          "text",
+          "now",
+          "time_zone",
+          "expect"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "lang",
+    "months",
+    "weekdays",
+    "relative_days",
+    "lead_ins",
+    "range_separators",
+    "window_openers",
+    "deadline_words",
+    "point_words",
+    "hour_words",
+    "am_markers",
+    "pm_markers",
+    "negatives",
+    "cut_markers",
+    "tracking_keywords",
+    "tests"
+  ],
+  "additionalProperties": false
+}

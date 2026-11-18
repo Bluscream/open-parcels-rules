@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schema/tracking-numbers.schema.json",
+  "name": "GLS",
+  "courier_code": "gls",
+  "tracking_numbers": [
+    {
+      "name": "GLS (12)",
+      "id": "gls_12",
+      "description": "12-digit parcel number: 11 digits and a check digit computed as GS1 mod 10 (weights 3 and 1 from the right) with 1 added to the sum. The +1 is expressed by always prepending a 1 at weight 1. Source of the algorithm: a single third-party description whose worked example agrees; medium confidence.",
+      "regex": ["\\s*(?<SerialNumber>([0-9]\\s*){11})", "(?<CheckDigit>[0-9]\\s*)"],
+      "validation": {
+        "checksum": {
+          "name": "mod10",
+          "modulo": 10,
+          "evens_multiplier": 1,
+          "odds_multiplier": 3,
+          "reverse": false
+        },
+        "serial_number_format": {
+          "prepend_if": {
+            "matches_regex": "^[0-9]",
+            "content": "1"
+          }
+        }
+      },
+      "tracking_url": "https://gls-group.com/DE/de/paketverfolgung?match=%s",
+      "test_numbers": {
+        "valid": ["123456789011", "6789 0123 4566", "987654321011"],
+        "invalid": ["123456789012", "12345678901", "1234567890111"]
+      }
+    },
+    {
+      "name": "GLS (11)",
+      "id": "gls_11",
+      "description": "11-digit parcel number as GLS prints it in customer communication, without a check digit. Format only, so it needs context to be told apart from other 11-digit numbers.",
+      "regex": "\\s*(?<SerialNumber>([0-9]\\s*){11})",
+      "validation": {},
+      "tracking_url": "https://gls-group.com/DE/de/paketverfolgung?match=%s",
+      "test_numbers": {
+        "valid": ["12345678901", "6789 0123 456"],
+        "invalid": ["1234567890", "123456789012", "1234567890A"]
+      }
+    }
+  ]
+}

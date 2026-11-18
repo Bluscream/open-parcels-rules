@@ -1,14 +1,52 @@
 {
-  "name": "email-parser-rules",
-  "version": "1.1.2",
-  "description": "Modular email parsing rules compiled and minified.",
-  "main": "dist/parcel.js",
+  "name": "open-parcels-rules",
+  "version": "2.0.0-dev.0",
+  "description": "Collectively maintained parcel-tracking knowledge (tracking-number formats, carrier status tables, delivery-date phrases, shipping-mail rules) and a TypeScript engine that reads it.",
+  "type": "module",
+  "engines": {
+    "node": ">=26"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./bundle.json": "./dist/bundle.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "data",
+    "schema"
+  ],
+  "sideEffects": false,
   "scripts": {
-    "build": "tsx build.ts"
+    "clean": "node scripts/clean.ts",
+    "build": "node scripts/clean.ts && tsc -p tsconfig.build.json && node scripts/bundle.ts",
+    "generate": "node scripts/generate.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint --max-warnings 0 .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "python": "node scripts/python-vectors.ts",
+    "gate": "npm run format:check && npm run lint && npm run typecheck && npm run build && npm run test && npm run python"
+  },
+  "allowScripts": {},
+  "dependencies": {
+    "zod": "4.6.7"
   },
   "devDependencies": {
-    "esbuild": "^0.20.1",
-    "tsx": "^4.7.1",
-    "typescript": "^5.4.2"
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.6",
+    "ajv": "8.20.0",
+    "eslint": "10.15.0",
+    "prettier": "3.10.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.73.0",
+    "vitest": "5.1.1",
+    "yaml": "2.9.1"
   }
 }

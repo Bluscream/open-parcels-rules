@@ -1,0 +1,138 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# GLS status codes and texts (group tracking, Germany, Netherlands, Spain/Portugal, Poland,
+# North America). Codes are matched exactly: DELIVEREDPS contains DELIVERED but means the
+# parcel waits in a ParcelShop. Netherlands numeric states are written as "state:<n>".
+carrier: gls
+entries:
+  # Group tracking: progressBar.statusInfo.
+  - { match: { code: PREADVICE }, status: registered }
+  - { match: { code: PROCESSING }, status: registered }
+  - { match: { code: INTRANSIT }, status: in_transit }
+  - { match: { code: INWAREHOUSE }, status: in_transit }
+  - { match: { code: INPICKUP }, status: in_transit, note: "Being collected from the sender." }
+  - { match: { code: MULTIPACK }, status: in_transit }
+  - { match: { code: INDELIVERY }, status: out_for_delivery }
+  - {
+      match: { code: DELIVEREDPS },
+      status: at_pickup_point,
+      pickup: true,
+      note: "Delivered to the ParcelShop, waiting for collection.",
+    }
+  - { match: { code: DELIVERED }, status: delivered }
+  - { match: { code: NOTPICKEDUP }, status: returning }
+  - { match: { code: RETURNED }, status: returning }
+  - { match: { code: NOTDELIVERED }, status: problem }
+  - { match: { code: CANCELLED }, status: problem }
+  - { match: { code: CANCELED }, status: problem }
+  - { match: { code: UNAVAILABLE }, status: problem }
+  # Group tracking: history event numbers.
+  - { match: { code: "0.100" }, status: registered }
+  - { match: { code: "0.0" }, status: in_transit }
+  - { match: { code: "2.0" }, status: in_transit }
+  - { match: { code: "17.0" }, status: in_transit }
+  - { match: { code: "11.0" }, status: out_for_delivery }
+  - { match: { code: "3.0" }, status: delivered }
+  - {
+      match: { code: "3.896" },
+      status: at_pickup_point,
+      pickup: true,
+      note: "Deposited in a ParcelLocker.",
+    }
+  # Germany.
+  - { match: { code: OUT_FOR_DELIVERY }, status: out_for_delivery, confirmed: false }
+  - { match: { code: NOT_DELIVERED }, status: problem, confirmed: false }
+  - { match: { code: BLOCKED }, status: problem, confirmed: false }
+  - { match: { code: UNKNOWN }, status: unknown }
+  # Netherlands.
+  - { match: { code: "state:0" }, status: registered }
+  - { match: { code: "state:1" }, status: in_transit }
+  - { match: { code: "state:2" }, status: in_transit }
+  - { match: { code: "state:3" }, status: out_for_delivery }
+  - { match: { code: "state:4" }, status: delivered }
+  # Spain and Portugal.
+  - { match: { code: dataReceived }, status: registered }
+  - { match: { code: pickupPending }, status: registered }
+  - { match: { code: picked }, status: in_transit }
+  - { match: { code: onTransit }, status: in_transit }
+  - { match: { code: partiallyDelivered }, status: in_transit }
+  - { match: { code: rechannelized }, status: in_transit }
+  - { match: { code: onDelivery }, status: out_for_delivery }
+  - { match: { code: deliveredOnParcel }, status: at_pickup_point, pickup: true }
+  - { match: { code: receivedOnParcel }, status: at_pickup_point, pickup: true }
+  - { match: { code: onReturn }, status: returning }
+  - { match: { code: returned }, status: returning }
+  - { match: { code: retained }, status: problem }
+  - { match: { code: broken }, status: problem }
+  - { match: { code: destroyed }, status: problem }
+  - { match: { code: pickupIncidence }, status: problem }
+  - { match: { code: incidence }, status: problem }
+  # Texts. Polish "niedoręczona" contains "doręczona", so it comes first.
+  - { match: { text: "niedoręczona", flags: [i] }, status: problem }
+  - { match: { text: "gotowa do odbioru", flags: [i] }, status: at_pickup_point, pickup: true }
+  - { match: { text: "w doręczeniu", flags: [i] }, status: out_for_delivery }
+  - { match: { text: "doręczona", flags: [i] }, status: delivered }
+  - { match: { text: "utworzenie paczki", flags: [i] }, status: registered }
+  - { match: { text: "w drodze", flags: [i] }, status: in_transit }
+  - {
+      match: { text: "delivered into the parcellocker|at gls point|parcelshop", flags: [i] },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { text: "redirected to gls point", flags: [i] }, status: in_transit, pickup: true }
+  - {
+      match:
+        {
+          text: "^absent$|refused by the consignee|missing data|delivery point non available|nicht zugestellt|zustellversuch",
+          flags: [i],
+        },
+      status: problem,
+    }
+  - {
+      match:
+        {
+          text: "im laufe des tages zugestellt|out for delivery|on delivery|in zustellung",
+          flags: [i],
+        },
+      status: out_for_delivery,
+    }
+  - { match: { text: "delivered|zugestellt", flags: [i] }, status: delivered }
+  - {
+      match:
+        {
+          text: "label created|shipment created|information received|^created$|paketdaten .{0,40}übermittelt",
+          flags: [i],
+        },
+      status: registered,
+    }
+  - {
+      match:
+        {
+          text: "durch gls übernommen|paketzentrum|handed over to gls|parcel cent(?:er|re)|arrival scan|in transit|picked up|^pickup$",
+          flags: [i],
+        },
+      status: in_transit,
+    }
+tests:
+  - { input: { code: DELIVEREDPS }, status: at_pickup_point, pickup: true }
+  - { input: { code: DELIVERED }, status: delivered }
+  - { input: { code: INPICKUP }, status: in_transit }
+  - { input: { code: "3.896" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "3.0" }, status: delivered }
+  - { input: { code: "state:3" }, status: out_for_delivery }
+  - { input: { code: deliveredOnParcel }, status: at_pickup_point, pickup: true }
+  - { input: { text: "Paczka niedoręczona" }, status: problem }
+  - { input: { text: "Paczka doręczona" }, status: delivered }
+  - {
+      input: { text: "Das Paket wird voraussichtlich im Laufe des Tages zugestellt." },
+      status: out_for_delivery,
+    }
+  - { input: { text: "Das Paket wurde durch GLS übernommen." }, status: in_transit }
+  - {
+      input: { text: "The parcel has been delivered into the ParcelLocker." },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { input: { text: "The parcel has been delivered / dropped off." }, status: delivered }
+  - { input: { text: "Pickup" }, status: in_transit }
+  - { input: { code: stored }, status: null }

@@ -1,0 +1,297 @@
+# yaml-language-server: $schema=../../schema/locale.schema.json
+#
+# German delivery-date phrases, as seen on shop order pages, carrier pages and shipping mails.
+lang: de
+months:
+  - [januar, jänner, jan, jän]
+  - [februar, feber, feb]
+  - [märz, maerz, mär, mrz]
+  - [april, apr]
+  - [mai]
+  - [juni, jun]
+  - [juli, jul]
+  - [august, aug]
+  - [september, sept, sep]
+  - [oktober, okt]
+  - [november, nov]
+  - [dezember, dez]
+weekdays:
+  # Two-letter forms (mo, di, mi, do, fr, sa, so) are left out: "so" and "do" are ordinary
+  # words. They still work in front of a date ("Fr., 20.11."), where only the date counts.
+  - [montag]
+  - [dienstag]
+  - [mittwoch]
+  - [donnerstag]
+  - [freitag]
+  - [samstag, sonnabend]
+  - [sonntag]
+relative_days:
+  heute: 0
+  morgen: 1
+  übermorgen: 2
+  gestern: -1
+lead_ins:
+  - zustellung
+  - zustellung am
+  - ankunft
+  - lieferung
+  - lieferdatum
+  - liefertermin
+  - zustelltermin
+  - voraussichtlich
+  - voraussichtliche zustellung
+  - erwartet
+  - wird
+  - kommt
+  - kommen
+  - erhalten
+  - zugestellt
+range_separators: [bis, und]
+window_openers: [zwischen, von]
+deadline_words: [bis, spätestens bis, spätestens, vor]
+point_words: [um, gegen, ab]
+hour_words: [uhr]
+am_markers: []
+pm_markers: []
+negatives:
+  - "nicht möglich"
+  - "konnte nicht zugestellt"
+  - "nicht zugestellt werden"
+  - "zustellversuch"
+  - "wurde zugestellt"
+  - "wurde .{0,40}zugestellt"
+  - "^zugestellt"
+  - "zugestellt am"
+  - "^storniert"
+  - "verzögert sich auf unbestimmte zeit"
+cut_markers:
+  - "ursprünglich"
+  - "zuvor erwartet"
+  - "bisher erwartet"
+tracking_keywords:
+  - sendungsnummer
+  - sendungsverfolgung
+  - paketnummer
+  - trackingnummer
+  - tracking-nummer
+  - paketverfolgung
+  - sendungs-id
+  - sendungsnr
+tests:
+  # Whole days.
+  - {
+      text: "Zustellung heute",
+      now: "2026-10-25T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-10-25T00:00:00+02:00", to: "2026-10-26T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Ankunft morgen",
+      now: "2026-10-25T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-10-26T00:00:00+01:00", to: "2026-10-27T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Ihr Paket kommt übermorgen",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-11-20T00:00:00+01:00", to: "2026-11-21T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Zustellung: 27. Oktober",
+      now: "2026-10-25T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-10-27T00:00:00+01:00", to: "2026-10-28T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Zustellung: 30. Oktober - 2. November",
+      now: "2026-10-25T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-10-30T00:00:00+01:00", to: "2026-11-03T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Zustellung: 3. Januar",
+      now: "2026-10-25T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2027-01-03T00:00:00+01:00", to: "2027-01-04T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Zustellung am 20. Dez.",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-12-20T00:00:00+01:00", to: "2026-12-21T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Zustellung: Freitag",
+      now: "2026-11-14T10:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-11-20T00:00:00+01:00", to: "2026-11-21T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "zustellung montag",
+      now: "2026-10-25T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-10-26T00:00:00+01:00", to: "2026-10-27T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Voraussichtliche Zustellung: Fr., 20.11.2026",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-11-20T00:00:00+01:00", to: "2026-11-21T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Lieferung am 20.11.",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-11-20T00:00:00+01:00", to: "2026-11-21T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Lieferung zwischen 20.11. und 24.11.",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-11-20T00:00:00+01:00", to: "2026-11-25T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Voraussichtlich 28.12.26 - 02.01.27",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-12-28T00:00:00+01:00", to: "2027-01-03T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Zustellung 28. März",
+      now: "2026-03-20T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-03-28T00:00:00+01:00", to: "2026-03-29T00:00:00+01:00", all_day: true },
+    }
+  - {
+      text: "Zustellung 29. Maerz",
+      now: "2026-03-20T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: { from: "2026-03-29T00:00:00+01:00", to: "2026-03-30T00:00:00+02:00", all_day: true },
+    }
+  # Time windows.
+  - {
+      text: "Zustellung heute 17h - 19h",
+      now: "2026-10-24T09:30:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-10-24T17:00:00+02:00", to: "2026-10-24T19:00:00+02:00", all_day: false },
+    }
+  - {
+      text: "Zustellung morgen 14h - 16h30",
+      now: "2026-10-24T11:30:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-10-25T14:00:00+01:00", to: "2026-10-25T16:30:00+01:00", all_day: false },
+    }
+  - {
+      text: "Ankunft heute 7h – 13h",
+      now: "2026-10-24T05:00:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-10-24T07:00:00+02:00", to: "2026-10-24T13:00:00+02:00", all_day: false },
+    }
+  - {
+      text: "Ihr Paket kommt heute zwischen 14:00 und 18:00 Uhr",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-11-18T14:00:00+01:00", to: "2026-11-18T18:00:00+01:00", all_day: false },
+    }
+  - {
+      text: "zwischen 14 und 18 Uhr",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-11-18T14:00:00+01:00", to: "2026-11-18T18:00:00+01:00", all_day: false },
+    }
+  - {
+      text: "Wir kommen heute um 15:30 Uhr",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-11-18T15:30:00+01:00", to: "2026-11-18T15:30:00+01:00", all_day: false },
+    }
+  - {
+      text: "Zustellung heute bis 21 Uhr",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-11-18T00:00:00+01:00", to: "2026-11-18T21:00:00+01:00", all_day: false },
+    }
+  - {
+      text: "Zustellung am 20.11. zwischen 10:00 und 12:00 Uhr",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-11-20T10:00:00+01:00", to: "2026-11-20T12:00:00+01:00", all_day: false },
+    }
+  - {
+      text: "Zustellung Freitag 17h - 19h",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-11-20T17:00:00+01:00", to: "2026-11-20T19:00:00+01:00", all_day: false },
+    }
+  - {
+      text: "Heute, 9:00 — 11:30 Uhr",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-11-18T09:00:00+01:00", to: "2026-11-18T11:30:00+01:00", all_day: false },
+    }
+  - {
+      text: "Zustellung am 29.03. zwischen 1:30 und 3:30 Uhr",
+      now: "2026-03-20T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-03-29T01:30:00+01:00", to: "2026-03-29T03:30:00+02:00", all_day: false },
+    }
+  - {
+      text: "Zustellung am 25.10. zwischen 1:00 und 4:00 Uhr",
+      now: "2026-10-20T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect:
+        { from: "2026-10-25T01:00:00+02:00", to: "2026-10-25T04:00:00+01:00", all_day: false },
+    }
+  # Not an arrival.
+  - {
+      text: "Lieferung heute nicht möglich",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: null,
+    }
+  - {
+      text: "Zustellung heute nicht möglich",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: null,
+    }
+  - {
+      text: "Zugestellt am 3. Oktober",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: null,
+    }
+  - {
+      text: "Ihre Sendung wurde heute zugestellt",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: null,
+    }
+  - { text: "Morgen", now: "2026-11-18T08:00:00Z", time_zone: Europe/Berlin, expect: null }
+  - { text: "Guten Morgen!", now: "2026-11-18T08:00:00Z", time_zone: Europe/Berlin, expect: null }
+  - {
+      text: "Zustellung: 31. Februar",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: null,
+    }
+  - { text: "Zustellung: Foo", now: "2026-11-18T08:00:00Z", time_zone: Europe/Berlin, expect: null }
+  - {
+      text: "Ankunft heute 13h - 7h",
+      now: "2026-11-18T08:00:00Z",
+      time_zone: Europe/Berlin,
+      expect: null,
+    }
+  - { text: "Paket 3 von 5", now: "2026-11-18T08:00:00Z", time_zone: Europe/Berlin, expect: null }

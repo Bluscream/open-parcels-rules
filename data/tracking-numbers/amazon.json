@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schema/tracking-numbers.schema.json",
+  "name": "Amazon",
+  "courier_code": "amazon",
+  "tracking_numbers": [
+    {
+      "name": "Amazon Logistics (DE)",
+      "id": "amazon_de",
+      "description": "Amazon's own delivery network in Germany: DE and 10 digits. No check digit is known.",
+      "regex": "\\s*D\\s*E\\s*(?<SerialNumber>([0-9]\\s*){10})",
+      "validation": {},
+      "test_numbers": {
+        "valid": ["DE2001234567", "DE 200 123 4567"],
+        "invalid": ["DE200123456", "DE20012345678", "DF2001234567"]
+      }
+    }
+  ]
+}

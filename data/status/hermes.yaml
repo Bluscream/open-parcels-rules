@@ -1,0 +1,196 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Hermes Germany. The public tracking (English codes) and the customer account (German codes)
+# use separate vocabularies; they do not collide, so they share this table.
+#
+# Deliberately absent: EDL_BOOKED_DROPOFF ("Wunschablageort gebucht") and the other EDL_*,
+# HBX_*, TAN_* app states. They are preference bookings, not movements, and fire before Hermes
+# even has the parcel; leaving them unmapped lets the status fall back to the newest real event.
+carrier: hermes
+entries:
+  # Public tracking codes.
+  - { match: { code: ANNOUNCED }, status: registered }
+  - { match: { code: ORDER_INFO_RECEIVED }, status: registered }
+  - { match: { code: PREANNOUNCED }, status: registered }
+  - {
+      match: { code: PARCELSHOP_DROP_OFF },
+      status: registered,
+      note: "The sender handed it in at a PaketShop.",
+    }
+  - { match: { code: ATG_OUT_OF_WAREHOUSE }, status: registered }
+  - { match: { code: SHIPMENT_PICKED_UP }, status: in_transit }
+  - { match: { code: TAKEN_OVER_BY_HERMES }, status: in_transit }
+  - { match: { code: HANDED_OVER_TO_HERMES }, status: in_transit }
+  - { match: { code: HANDED_OVER }, status: in_transit }
+  - {
+      match: { code: PICKED_UP },
+      status: in_transit,
+      note: "Collected from the sender, not by the recipient.",
+    }
+  - { match: { code: PARCELSHOP_COLLECTED_BY_DRIVER }, status: in_transit }
+  - { match: { code: IN_TRANSIT }, status: in_transit }
+  - { match: { code: SORTED }, status: in_transit }
+  - { match: { code: ARRIVED_AT_DEPOT }, status: in_transit }
+  - { match: { code: ARRIVED_AT_DELIVERY_DEPOT }, status: in_transit }
+  - { match: { code: ARRIVED_IN_DESTINATION_REGION }, status: in_transit }
+  - { match: { code: DELIVERY_TOUR_STARTED }, status: out_for_delivery }
+  - { match: { code: OUT_FOR_DELIVERY }, status: out_for_delivery }
+  - { match: { code: NEXT_STOP }, status: out_for_delivery }
+  - { match: { code: DELIVERED_HOMEDELIVERY }, status: delivered }
+  - { match: { code: DELIVERED_INHOUSE }, status: delivered }
+  - { match: { code: DELIVERED_NEIGHBOUR }, status: delivered }
+  - {
+      match: { code: DELIVERED_PARCELSHOP },
+      status: at_pickup_point,
+      pickup: true,
+      confirmed: false,
+      note: "Delivered to the PaketShop, i.e. waiting there; the account calls the same step ZUGESTELLT_PAKETSHOP.",
+    }
+  - { match: { code: DELIVERED_PARCELBOX }, status: delivered }
+  - { match: { code: DELIVERED_MAILBOX }, status: delivered }
+  - { match: { code: DELIVERED_DROPOFF }, status: delivered }
+  - { match: { code: DELIVERED }, status: delivered }
+  - { match: { code: PICKED_UP_BY_RECIPIENT }, status: delivered, pickup: true }
+  - { match: { code: COLLECTED }, status: delivered, pickup: true }
+  - { match: { code: PARCELSHOP_ITEMS_FOR_COLLECTION }, status: at_pickup_point, pickup: true }
+  - { match: { code: READY_FOR_COLLECTION }, status: at_pickup_point, pickup: true }
+  - { match: { code: READY_FOR_PICKUP }, status: at_pickup_point, pickup: true }
+  - { match: { code: RETURN_DELIVERED_TO_SENDER }, status: returning }
+  - { match: { code: RETURN_TO_SENDER }, status: returning }
+  - { match: { code: RETURN }, status: returning }
+  - { match: { code: RETOURE_DELIVERED }, status: returning }
+  - { match: { code: NOT_DELIVERABLE }, status: problem }
+  - { match: { code: DELIVERY_FAILED }, status: problem }
+  - { match: { code: UNKNOWN_WHEREABOUTS }, status: problem }
+  # Customer account codes.
+  - { match: { code: AVISE }, status: registered }
+  - { match: { code: SENDUNG_VON_HERMES_UEBERNOMMEN }, status: in_transit }
+  - { match: { code: UNTERWEGS }, status: in_transit }
+  - { match: { code: UNTERWEGS_ZU_HERMES }, status: in_transit }
+  - { match: { code: UMSCHLAG_INLAND }, status: in_transit }
+  - { match: { code: UMSCHLAG_AUSLAND }, status: in_transit }
+  - { match: { code: SENDUNG_IN_ZIELREGION_ANGEKOMMEN }, status: in_transit }
+  - { match: { code: AN_INSELSPEDITEUR_UEBERGEBEN }, status: in_transit }
+  - {
+      match: { code: AM_PKS_ABGEGEBEN },
+      status: in_transit,
+      note: "The sender handed it in at a PaketShop.",
+    }
+  - { match: { code: ABGEHOLT_AN_FAHRER_UEBERGEBEN }, status: in_transit }
+  - { match: { code: PAKETSHOP_AN_FAHRER_UEBERGEBEN }, status: in_transit }
+  - { match: { code: ZUSTELLTOUR }, status: out_for_delivery }
+  - { match: { code: ZUSTELLTOUR_VERSPAETET }, status: out_for_delivery }
+  - { match: { code: ZUSTELLTOUR_STARK_VERSPAETET }, status: out_for_delivery }
+  - { match: { code: PAKETSHOP }, status: at_pickup_point, pickup: true }
+  - { match: { code: WUNSCHPAKETSHOP }, status: at_pickup_point, pickup: true }
+  - { match: { code: READY_FOR_COLLECTION_SINCE }, status: at_pickup_point, pickup: true }
+  - { match: { code: LAGERND }, status: at_pickup_point, pickup: true }
+  - { match: { code: LAGERND_TERMIN }, status: at_pickup_point, pickup: true }
+  - { match: { code: LAGERND_MEHRCOLLIG }, status: at_pickup_point, pickup: true }
+  - { match: { code: ZUGESTELLT }, status: delivered }
+  - { match: { code: ZUGESTELLT_BRIEFKASTEN }, status: delivered }
+  - {
+      match: { code: ZUGESTELLT_PAKETSHOP },
+      status: at_pickup_point,
+      pickup: true,
+      note: "Reads as delivered, but the parcel waits in the PaketShop.",
+    }
+  - { match: { code: INT_ZUGESTELLT_ABLAGEORT }, status: delivered }
+  - { match: { code: VOM_PAKETSHOP_ABGEHOLT }, status: delivered, pickup: true }
+  - { match: { code: RETOURE_AUSLIEFERUNG_ZUM_ATG }, status: returning }
+  - { match: { code: RETOURE_AUSLIEFERUNG_ZUM_ATG_NACH_SCHADEN }, status: returning }
+  - { match: { code: RETOURE_AUSGELIEFERT_BEIM_ATG }, status: returning }
+  - { match: { code: RETOURE_AUSGELIEFERT_BEIM_ATG_NACH_SCHADEN }, status: returning }
+  - { match: { code: RUECKVERSAND_RETOURE }, status: returning }
+  - { match: { code: RUECKVERSAND_DURCH_ATG }, status: returning }
+  - { match: { code: RUECKVERSAND_SCHADENFALL }, status: returning }
+  - { match: { code: RUECKVERSAND_NICHT_AM_PKS_ABGEHOLT }, status: returning }
+  - { match: { code: NICHT_ZUSTELLBAR_RUECKVERSAND }, status: returning }
+  - { match: { code: NICHT_ZUSTELLBAR_ADRESSFEHLER }, status: problem }
+  - { match: { code: NICHT_ZUSTELLBAR_ERNEUTER_VERSUCH }, status: problem }
+  - { match: { code: NICHT_ANGETROFFEN_1 }, status: problem }
+  - { match: { code: NICHT_ANGETROFFEN_2 }, status: problem }
+  - { match: { code: NICHT_ANGETROFFEN_3 }, status: problem }
+  - { match: { code: NICHT_ANGETROFFEN_4 }, status: problem }
+  - { match: { code: UNKLARER_SENDUNGSVERBLEIB }, status: problem }
+  - { match: { code: PRUEFUNG_AUF_BESCHAEDIGUNG }, status: problem }
+  - { match: { code: ABHOLUNG_STORNIERT }, status: problem }
+  - { match: { code: STORNIERTE_ONLINEBEZAHLUNG }, status: problem }
+  - { match: { code: HBX_STORAGETIME_EXPIRED }, status: problem }
+  - { match: { code: NICHT_ANGEZEIGT }, status: unknown }
+  # German event texts. "Von Hermes im PaketShop abgeholt" is the driver collecting a drop-off,
+  # so "abgeholt" alone never means the recipient has it.
+  - {
+      match: { text: "rücksendung|rückversand|retoure|an den absender", flags: [i] },
+      status: returning,
+      confirmed: false,
+    }
+  - {
+      match: { text: "abholbereit|zur abholung bereit", flags: [i] },
+      status: at_pickup_point,
+      pickup: true,
+      confirmed: false,
+    }
+  - {
+      match: { text: "vom empfänger .{0,40}abgeholt|im paketshop abgeholt durch", flags: [i] },
+      status: delivered,
+      pickup: true,
+      confirmed: false,
+    }
+  - {
+      match: { text: "nicht angetroffen|nicht zustellbar|zustellversuch|beschädigung", flags: [i] },
+      status: problem,
+      confirmed: false,
+    }
+  - {
+      match:
+        {
+          text: "ins zustellfahrzeug geladen|befindet sich in zustellung|^in zustellung",
+          flags: [i],
+        },
+      status: out_for_delivery,
+      confirmed: false,
+    }
+  - {
+      match:
+        {
+          text: "an einem ablageort hinterlegt|an der empfangsadresse zugestellt|wurde zugestellt|^zugestellt",
+          flags: [i],
+        },
+      status: delivered,
+      confirmed: false,
+    }
+  - {
+      match:
+        {
+          text: "elektronisch angekündigt|sendung wurde angekündigt|^sendung angekündigt|vom absender im paketshop abgegeben",
+          flags: [i],
+        },
+      status: registered,
+      confirmed: false,
+    }
+  - {
+      match:
+        {
+          text: "von hermes .{0,60}(?:übernommen|abgeholt)|weiterversand vorbereitet|sortiert|zielregion",
+          flags: [i],
+        },
+      status: in_transit,
+      confirmed: false,
+    }
+tests:
+  - { input: { code: DELIVERY_TOUR_STARTED }, status: out_for_delivery }
+  - { input: { code: PICKED_UP }, status: in_transit }
+  - { input: { code: DELIVERED_PARCELSHOP }, status: at_pickup_point, pickup: true }
+  - { input: { code: ZUGESTELLT_PAKETSHOP }, status: at_pickup_point, pickup: true }
+  - { input: { code: VOM_PAKETSHOP_ABGEHOLT }, status: delivered, pickup: true }
+  - { input: { code: RETOURE_DELIVERED }, status: returning }
+  - { input: { code: NICHT_ANGETROFFEN_2 }, status: problem }
+  - { input: { code: EDL_BOOKED_DROPOFF }, status: null }
+  - { input: { text: "Die Sendung wurde von Hermes im PaketShop abgeholt." }, status: in_transit }
+  - { input: { text: "Die Sendung wurde ins Zustellfahrzeug geladen." }, status: out_for_delivery }
+  - { input: { text: "Die Sendung wurde zugestellt." }, status: delivered }
+  - { input: { text: "Die Sendung ist abholbereit." }, status: at_pickup_point, pickup: true }
+  - { input: { text: "Die Sendung wurde Hermes elektronisch angekündigt." }, status: registered }
+  - { input: { text: "Die Sendung wurde sortiert und weiterversandt." }, status: in_transit }
+  - { input: { text: "Wunschablageort gebucht" }, status: null }

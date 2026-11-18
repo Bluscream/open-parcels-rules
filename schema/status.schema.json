@@ -1,0 +1,153 @@
+{
+  "$id": "https://raw.githubusercontent.com/Bluscream/open-parcels-rules/main/schema/status.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "carrier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$",
+      "description": "Lower-case identifier: letters, digits, '_' and '-'."
+    },
+    "entries": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "match": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Exact machine status code (compared trimmed)."
+                  }
+                },
+                "required": [
+                  "code"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Regex searched in the status text."
+                  },
+                  "flags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "i",
+                        "m",
+                        "s"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "registered",
+              "in_transit",
+              "out_for_delivery",
+              "at_pickup_point",
+              "delivered",
+              "returning",
+              "problem",
+              "unknown"
+            ],
+            "description": "Canonical parcel status. at_pickup_point means arrived and waiting for collection; a parcel still on its way to a pickup point is in_transit with pickup: true."
+          },
+          "pickup": {
+            "description": "The parcel is going to, or waiting at, a pickup point or locker.",
+            "type": "boolean",
+            "const": true
+          },
+          "confirmed": {
+            "description": "false marks a plausible guess not yet seen in real data. Defaults to true.",
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "match",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Checked in order; code entries are tried before text entries, first hit wins."
+    },
+    "tests": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "registered",
+                  "in_transit",
+                  "out_for_delivery",
+                  "at_pickup_point",
+                  "delivered",
+                  "returning",
+                  "problem",
+                  "unknown"
+                ],
+                "description": "Canonical parcel status. at_pickup_point means arrived and waiting for collection; a parcel still on its way to a pickup point is in_transit with pickup: true."
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null: the input must stay unmapped."
+          },
+          "pickup": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "input",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "carrier",
+    "entries",
+    "tests"
+  ],
+  "additionalProperties": false
+}

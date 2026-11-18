@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schema/tracking-numbers.schema.json",
+  "name": "DPD",
+  "courier_code": "dpd",
+  "tracking_numbers": [
+    {
+      "name": "DPD (14, without check character)",
+      "id": "dpd_14_bare",
+      "description": "The 14-digit parcel number as shops and DPD's own pages show it, without the separate check character. Format only; shares its shape with Hermes.",
+      "regex": "\\s*(?<SerialNumber>([0-9]\\s*){14})",
+      "validation": {},
+      "tracking_url": "https://tracking.dpd.de/status/de_DE/parcel/%s",
+      "test_numbers": {
+        "valid": ["01505012345678", "0150 5012 3456 78"],
+        "invalid": ["0150501234567", "015050123456789", "0150501234567A"]
+      }
+    }
+  ]
+}

@@ -1,197 +1,107 @@
-export interface EmailData {
-  from: string;
-  subject: string;
-  bodyPlain: string;
-  bodyHtml?: string;
+import type { PARCEL_STATUSES } from "./schema/common.ts";
+import type { MailEvent, MailKind } from "./schema/mail.ts";
+
+export type ParcelStatus = (typeof PARCEL_STATUSES)[number];
+export type { MailEvent, MailKind };
+
+export interface CarrierInfo {
+  readonly id: string;
+  readonly name: string;
+  readonly aliases: readonly string[];
+  readonly countries: readonly string[];
+  readonly domains: readonly string[];
+  /** Locale key ('default', 'de', 'de-AT', ...) to URL template with {tracking_number}. */
+  readonly trackingUrls: Readonly<Record<string, string>>;
+  /** Identifiers of the carrier in other systems, e.g. { "17track": "100001" }. */
+  readonly crossref: Readonly<Record<string, string>>;
 }
 
-export interface DeliveryWindow {
-  raw: string;
-  /** Start time in 24h format (HH:MM) */
-  startTime?: string;
-  /** End time in 24h format (HH:MM) */
-  endTime?: string;
+export interface DetectHints {
+  /** Domain of the mail sender or page the text came from, e.g. "dhl.de". */
+  readonly senderDomain?: string;
+  /** A carrier name or alias mentioned near the number. */
+  readonly carrier?: string;
+  /** ISO 3166-1 alpha-2 country the parcel is shipped to or from. */
+  readonly country?: string;
 }
 
-export interface OrderItem {
-  name: string;
-  quantity?: number;
-  price?: number;
+export interface TrackingCandidate {
+  /** Carrier id from carriers.yaml, or "upu" for an S10 number of an unknown postal operator. */
+  readonly carrier: string;
+  /** The number without whitespace, upper-cased. */
+  readonly trackingNumber: string;
+  /** 0..1, comparable between candidates of one call. */
+  readonly confidence: number;
+  /** null when the format has no check digit. */
+  readonly checksumValid: boolean | null;
+  /** Ids of the matching formats, e.g. ["dhl_paket_nve"]. */
+  readonly types: readonly string[];
 }
 
-export interface ParserHelpers {
-  testRegex: (text: string, pattern: string) => boolean;
-  extractRegex: (text: string, pattern: string, groupIndexOrName?: number | string) => string | undefined;
-  extractAllRegex: (text: string, pattern: string, groupName?: string) => string[];
-  getParcelStatusFromKeywords: (subject: string, body: string) => ParcelStatus;
-  getOrderStatusFromKeywords: (subject: string, body: string) => OrderStatus;
-  getReturnStatusFromKeywords: (subject: string, body: string) => ReturnStatus;
-  getDunningStatusFromKeywords: (subject: string, body: string) => DunningStatus;
-  parseDeliveryWindow: (text: string) => DeliveryWindow | undefined;
-  monthsMap: Record<string, number>;
+export interface RawStatus {
+  readonly code?: string | undefined;
+  readonly text?: string | undefined;
 }
 
-export interface RuleMetadata {
-  id: string;
-  name: string;
-  description: string;
-  icon_url: string;
-  /** Domain list — may contain regex: prefixed patterns */
-  domains: string[];
-  /** Object of regex patterns defined by each rule */
-  patterns: Record<string, string>;
+export interface MappedStatus {
+  readonly status: ParcelStatus;
+  readonly pickup?: boolean;
+  readonly confirmed: boolean;
 }
 
-// ─── Parcel ──────────────────────────────────────────────────────────────────
-
-export type ParcelStatus =
-  | "ordered"
-  | "sent"
-  | "arriving"
-  | "delivered"
-  | "exception"
-  | "unknown";
-
-export type SecretType = "locker" | "courier" | "pickup";
-
-export interface ParcelParseResult {
-  status: ParcelStatus;
-  /** Carrier-assigned tracking numbers */
-  trackingNumbers?: string[];
-  /** Associated order numbers */
-  orderNumbers?: string[];
-  /** Actual or estimated delivery date */
-  deliveryDate?: Date;
-  /** Item names / descriptions parsed from the email */
-  itemNames?: string[];
-  /** One-time password or pickup code */
-  secretCode?: string;
-  /** The type of the secret code (e.g. locker, courier, pickup) */
-  secretType?: SecretType;
-  /** Actual carrier when shipped via a third party (e.g. UPS via Amazon) */
-  carrier?: string;
-  /** Depot, locker, or location string from the email */
-  deliveryLocation?: string;
-  /** Direct tracking URL */
-  trackingUrl?: string;
-  /** Specific timeframe for delivery */
-  deliveryWindow?: DeliveryWindow;
-  /** Weight of the package */
-  weight?: string;
+export interface ResolvedStatus {
+  readonly status: ParcelStatus;
+  readonly source: "latest" | "history" | "unknown";
+  /** The raw code or text of `latest` when it did not map; warn about it once. */
+  readonly unmapped: string | null;
 }
 
-export interface ParcelRule extends RuleMetadata {
-  parse: (email: EmailData, helpers: ParserHelpers, meta: RuleMetadata) => ParcelParseResult | null;
+export interface ArrivalWindow {
+  /** ISO 8601 with the offset of the requested time zone. */
+  readonly from: string;
+  /** ISO 8601 with offset; exclusive end for whole days (next day 00:00). */
+  readonly to: string;
+  readonly allDay: boolean;
+  /** The part of the text the window was read from. */
+  readonly matched: string;
 }
 
-// ─── Order ───────────────────────────────────────────────────────────────────
-
-export type OrderStatus =
-  | "placed"
-  | "confirmed"
-  | "processing"
-  | "shipped"
-  | "cancelled"
-  | "unknown";
-
-export interface OrderParseResult {
-  status: OrderStatus;
-  /** Order reference number(s) */
-  orderNumbers?: string[];
-  /** Item names / descriptions from the confirmation */
-  itemNames?: string[];
-  /** Parsed order total */
-  totalAmount?: number;
-  /** ISO 4217 currency code (USD, EUR, GBP, PLN…) */
-  currency?: string;
-  /** Estimated delivery date from order email */
-  estimatedDelivery?: Date;
-  /** Tracking numbers if already assigned at order time */
-  trackingNumbers?: string[];
-  /** Seller / merchant name */
-  seller?: string;
-  /** Structured items list with name, quantity, price */
-  items?: OrderItem[];
-  /** Payment method used (e.g. PayPal, Credit Card) */
-  paymentMethod?: string;
-  /** Shipping address destination */
-  shippingAddress?: string;
-  /** Parsed shipping cost */
-  shippingCost?: number;
+export interface ArrivalOptions {
+  readonly now: Date;
+  /** IANA time zone the text's dates and times are in, e.g. "Europe/Berlin". */
+  readonly timeZone: string;
+  /** Locale tables to use (e.g. ["de"]); all loaded ones by default. */
+  readonly locales?: readonly string[];
 }
 
-export interface OrderRule extends RuleMetadata {
-  parse: (email: EmailData, helpers: ParserHelpers, meta: RuleMetadata) => OrderParseResult | null;
+export interface MailInput {
+  /** The From header, either "addr@example.com" or "Name <addr@example.com>". */
+  readonly from: string;
+  readonly subject: string;
+  readonly text?: string;
+  readonly html?: string;
+  /** When the mail was sent; the reference for relative dates such as "tomorrow". */
+  readonly date?: Date;
+  /** Time zone for arrival dates in the mail; defaults to UTC. */
+  readonly timeZone?: string;
 }
 
-// ─── Return / Refund ─────────────────────────────────────────────────────────
-
-export type ReturnStatus =
-  | "initiated"
-  | "in_transit"
-  | "received"
-  | "processed"
-  | "refunded"
-  | "rejected"
-  | "unknown";
-
-export interface ReturnParseResult {
-  status: ReturnStatus;
-  /** Original order number(s) */
-  orderNumbers?: string[];
-  /** Return or case reference ID */
-  returnId?: string;
-  /** Return reason if stated in the email */
-  reason?: string;
-  /** Parsed refund amount */
-  refundAmount?: number;
-  /** ISO 4217 currency code */
-  currency?: string;
-  /** Refund method (e.g. "original payment", "store credit", "bank transfer") */
-  refundMethod?: string;
-  /** Return-by deadline */
-  deadline?: Date;
-  /** Items being returned */
-  itemNames?: string[];
-  /** Return shipment tracking number */
-  trackingNumbers?: string[];
-  /** Return label URL */
-  labelUrl?: string;
-  /** Carrier handling the return */
-  returnCarrier?: string;
-  /** Return destination address */
-  returnAddress?: string;
-  /** Deadline to drop off the return parcel */
-  dropOffDeadline?: Date;
+export interface MailParseResult {
+  /** Mail rule id, "schema.org" for embedded ParcelDelivery data, or "fallback". */
+  readonly ruleId: string;
+  readonly kind: MailKind;
+  readonly carrier?: string;
+  readonly trackingNumbers: readonly string[];
+  readonly orderNumbers: readonly string[];
+  readonly status?: ParcelStatus;
+  /** For order, return and dunning mails: what happened. */
+  readonly event?: MailEvent;
+  readonly arrival?: ArrivalWindow;
+  readonly items?: readonly string[];
+  readonly trackingUrl?: string;
+  /**
+   * A code that unlocks a locker or proves identity at a pickup point. Sensitive: show it to
+   * the recipient, but never write it to logs.
+   */
+  readonly pickupCode?: string;
 }
-
-export interface ReturnRule extends RuleMetadata {
-  parse: (email: EmailData, helpers: ParserHelpers, meta: RuleMetadata) => ReturnParseResult | null;
-}
-
-// ─── Dunning ─────────────────────────────────────────────────────────────────
-
-export type DunningStatus = "reminder" | "warning" | "collection" | "unknown";
-
-export interface DunningParseResult {
-  status: DunningStatus;
-  /** Associated order number(s) */
-  orderNumbers?: string[];
-  /** Reference ID of the warning or dunning case */
-  dunningId?: string;
-  /** Outstanding amount due */
-  amountDue?: number;
-  /** ISO 4217 currency code */
-  currency?: string;
-  /** Due date for payment */
-  dueDate?: Date;
-  /** Original invoice due date if stated */
-  originalDueDate?: Date;
-  /** Merchant name */
-  merchant?: string;
-}
-
-export interface DunningRule extends RuleMetadata {
-  parse: (email: EmailData, helpers: ParserHelpers, meta: RuleMetadata) => DunningParseResult | null;
-}
-

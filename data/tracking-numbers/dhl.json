@@ -1,0 +1,82 @@
+{
+  "$schema": "../../schema/tracking-numbers.schema.json",
+  "name": "DHL",
+  "courier_code": "dhl",
+  "tracking_numbers": [
+    {
+      "name": "DHL Paket (NVE)",
+      "id": "dhl_paket_nve",
+      "description": "20-digit shipment number of DHL Paket Germany: the GS1 application identifier 00 and an SSCC from DHL's own range 340434, with a GS1 mod 10 check digit.",
+      "regex": [
+        "\\s*(?<SerialNumber>0\\s*0\\s*3\\s*4\\s*0\\s*4\\s*3\\s*4\\s*([0-9]\\s*){11})",
+        "(?<CheckDigit>[0-9]\\s*)"
+      ],
+      "validation": {
+        "checksum": {
+          "name": "mod10",
+          "modulo": 10,
+          "evens_multiplier": 3,
+          "odds_multiplier": 1,
+          "reverse": false
+        }
+      },
+      "tracking_url": "https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=%s",
+      "test_numbers": {
+        "valid": ["00340434123456789012", "0034 0434 0000 0000 0420", "00340434987654321012"],
+        "invalid": ["00340434123456789013", "0034043412345678901", "003404341234567890123"]
+      }
+    },
+    {
+      "name": "DHL Paket (customer SSCC)",
+      "id": "dhl_paket_sscc",
+      "description": "20-digit SSCC numbers from a business customer's own GS1 range, accepted by DHL Paket. The same shape is used by other carriers, so the carrier is a guess without context.",
+      "regex": ["\\s*(?<SerialNumber>0\\s*0\\s*([0-9]\\s*){17})", "(?<CheckDigit>[0-9]\\s*)"],
+      "validation": {
+        "checksum": {
+          "name": "mod10",
+          "modulo": 10,
+          "evens_multiplier": 3,
+          "odds_multiplier": 1,
+          "reverse": false
+        }
+      },
+      "tracking_url": "https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=%s",
+      "test_numbers": {
+        "valid": ["00123456789012345675", "00340434123456789012"],
+        "invalid": ["00123456789012345676", "10123456789012345675"]
+      }
+    },
+    {
+      "name": "DHL Paket (12)",
+      "id": "dhl_paket_12",
+      "description": "12-digit DHL Paket number: 11 digits and a mod 10 check digit with weights 4 and 9.",
+      "regex": ["\\s*(?<SerialNumber>([0-9]\\s*){11})", "(?<CheckDigit>[0-9]\\s*)"],
+      "validation": {
+        "checksum": {
+          "name": "mod10",
+          "modulo": 10,
+          "evens_multiplier": 4,
+          "odds_multiplier": 9,
+          "reverse": false
+        }
+      },
+      "tracking_url": "https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=%s",
+      "test_numbers": {
+        "valid": ["123456789016", "3400 1122 3348", "567890123450"],
+        "invalid": ["123456789017", "12345678901", "1234567890166"]
+      }
+    },
+    {
+      "name": "DHL Paket (JJD piece ID)",
+      "id": "dhl_jjd",
+      "description": "Licence-plate piece IDs (JJD and 10 to 18 digits). No check digit is known; format only.",
+      "regex": "\\s*J\\s*J\\s*D\\s*(?<SerialNumber>([0-9]\\s*){10,18})",
+      "validation": {},
+      "tracking_url": "https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=%s",
+      "test_numbers": {
+        "valid": ["JJD0012345678901", "JJD000390007123456789", "JJD 0012 3456 7890"],
+        "invalid": ["JJD123456789", "JJD0001234567890123456", "XJD0012345678901"]
+      }
+    }
+  ]
+}

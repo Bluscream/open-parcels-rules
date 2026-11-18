@@ -1,0 +1,183 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# DPD status codes and texts across the national back ends (consumer API, Germany, Austria,
+# Poland, UK). Numeric UK values are written as "parcelStatusType:<n>".
+carrier: dpd
+entries:
+  # Consumer API: shipment status.description.
+  - { match: { code: ORDER_CREATED }, status: registered }
+  - { match: { code: PARCEL_HANDED }, status: in_transit }
+  - { match: { code: IN_TRANSIT }, status: in_transit }
+  - { match: { code: AT_DELIVERY_CENTER }, status: in_transit }
+  - { match: { code: PARCEL_OUT_FOR_DELIVERY }, status: out_for_delivery }
+  - { match: { code: DELIVERED }, status: delivered }
+  - { match: { code: AVAILABLE_FOR_COLLECTION }, status: at_pickup_point, pickup: true }
+  - { match: { code: RETURN_TO_SENDER }, status: returning }
+  - {
+      match: { code: UNSUCCESSFUL_DELIVERY_ATTEMPT },
+      status: problem,
+      note: "A failed attempt; DPD retries, but until then it needs attention.",
+    }
+  # Event types (scan codes).
+  - { match: { code: ENA }, status: registered }
+  - { match: { code: ORI }, status: in_transit }
+  - { match: { code: ORW }, status: in_transit }
+  - { match: { code: HUI }, status: in_transit }
+  - { match: { code: HUS }, status: in_transit }
+  - { match: { code: HUW }, status: in_transit }
+  - { match: { code: HUZ }, status: in_transit }
+  - { match: { code: SPE }, status: in_transit }
+  - { match: { code: SPL }, status: in_transit }
+  - { match: { code: SPS }, status: in_transit }
+  - { match: { code: SPV }, status: in_transit }
+  - { match: { code: SPW }, status: in_transit }
+  - { match: { code: SPZ }, status: in_transit }
+  - { match: { code: DLI }, status: in_transit }
+  - { match: { code: DLS }, status: in_transit }
+  - { match: { code: DLW }, status: in_transit }
+  - { match: { code: DLZ }, status: in_transit }
+  - { match: { code: DLR }, status: problem, note: "Back from the tour after a failed attempt." }
+  - {
+      match: { code: MSDLO },
+      status: in_transit,
+      note: "The 'delivery coming' notice, not the loading scan.",
+    }
+  - { match: { code: DLO }, status: out_for_delivery }
+  - { match: { code: DEHD }, status: in_transit, pickup: true }
+  - { match: { code: DEHDY }, status: in_transit, pickup: true }
+  - {
+      match: { code: DOMSDLO },
+      status: in_transit,
+      pickup: true,
+      confirmed: false,
+      note: "Notice that the parcel is available at a pickup point; the arrival scan is DODEI.",
+    }
+  - { match: { code: DOPKY }, status: in_transit, note: "The sender's drop-off at a pickup point." }
+  - { match: { code: DODEI }, status: at_pickup_point, pickup: true }
+  - { match: { code: DEY }, status: delivered }
+  - { match: { code: DEYY }, status: delivered }
+  - { match: { code: DODEY }, status: delivered, pickup: true }
+  - { match: { code: DODEYY }, status: delivered, pickup: true }
+  - { match: { code: SPR }, status: returning }
+  - { match: { code: DEN }, status: returning }
+  - { match: { code: DODEN }, status: returning }
+  - { match: { code: DODEH }, status: returning }
+  - { match: { code: ENX }, status: problem }
+  - { match: { code: ORX }, status: problem }
+  - { match: { code: HUX }, status: problem }
+  - { match: { code: SPX }, status: problem }
+  - { match: { code: DLX }, status: problem }
+  - { match: { code: DEX }, status: problem }
+  - { match: { code: DODEX }, status: problem }
+  # Germany: tracking page progress slots.
+  - { match: { code: Start }, status: registered }
+  - { match: { code: OnTheRoad }, status: in_transit }
+  - { match: { code: DeliveryDepot }, status: in_transit }
+  - { match: { code: CarLoad }, status: out_for_delivery }
+  - { match: { code: Delivered }, status: delivered }
+  # Austria.
+  - { match: { code: ORDER_DATA }, status: registered }
+  - { match: { code: ON_THE_WAY }, status: in_transit }
+  - { match: { code: IN_DEPOT }, status: in_transit }
+  - { match: { code: IN_DELIVERY }, status: out_for_delivery }
+  # Poland.
+  - { match: { code: READY_TO_SEND }, status: registered }
+  - { match: { code: RECEIVED_FROM_SENDER }, status: in_transit }
+  - { match: { code: SENT }, status: in_transit }
+  - { match: { code: IN_TRANSPORT }, status: in_transit }
+  - { match: { code: RECEIVED_IN_DEPOT }, status: in_transit }
+  - { match: { code: REDIRECTED }, status: in_transit }
+  - { match: { code: RESCHEDULED }, status: in_transit }
+  - { match: { code: HANDED_OVER_FOR_DELIVERY }, status: out_for_delivery }
+  - {
+      match: { code: HANDED_OVER_FOR_DELIVERY_SP },
+      status: in_transit,
+      pickup: true,
+      note: "On the way to a pickup point.",
+    }
+  - { match: { code: READY_TO_PICK_UP }, status: at_pickup_point, pickup: true }
+  - { match: { code: READY_TO_PICK_UP_SP }, status: at_pickup_point, pickup: true }
+  - { match: { code: SELF_PICKUP }, status: at_pickup_point, pickup: true }
+  - { match: { code: HARD_RESERVED }, status: at_pickup_point, pickup: true }
+  - {
+      match: { code: PICKED_UP },
+      status: delivered,
+      pickup: true,
+      note: "The recipient collected it.",
+    }
+  - { match: { code: RETURNED_TO_SENDER }, status: returning }
+  - { match: { code: EXPIRED_PICKUP }, status: returning }
+  - { match: { code: UNSUCCESSFUL_DELIVERY }, status: problem }
+  # United Kingdom.
+  - { match: { code: "parcelStatusType:0" }, status: in_transit }
+  - { match: { code: "parcelStatusType:2" }, status: delivered }
+  - { match: { code: "parcelStatusType:3" }, status: at_pickup_point, pickup: true }
+  - { match: { code: "parcelStatusType:4" }, status: in_transit, pickup: true }
+  - {
+      match: { code: "parcelStatusType:5" },
+      status: at_pickup_point,
+      pickup: true,
+      note: "Pickup pass; wins even when DPD flags the parcel delivered to the shop.",
+    }
+  - { match: { code: "parcelStatusType:6" }, status: out_for_delivery }
+  - { match: { code: "parcelStatusType:7" }, status: problem }
+  - { match: { code: "parcelStatusType:8" }, status: in_transit }
+  # German texts. A return delivered back to the sender says "Geliefert", so returns go first;
+  # pickup words only after the delivered texts ("Geliefert, Abholung im Paketshop").
+  - { match: { text: retour, flags: [i] }, status: returning }
+  - {
+      match: { text: "nicht zugestellt|zustellversuch|verzögert|problem|adresse", flags: [i] },
+      status: problem,
+    }
+  - {
+      match: { text: "paket zugestellt|erfolgreich zugestellt|^geliefert", flags: [i] },
+      status: delivered,
+    }
+  - {
+      match: { text: "paketshop|packstation|abhol|pickup", flags: [i] },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { match: { text: "in zustellung", flags: [i] }, status: out_for_delivery }
+  - { match: { text: "paketinfo an dpd übergeben", flags: [i] }, status: registered }
+  - { match: { text: "unterwegs|paketzustellzentrum", flags: [i] }, status: in_transit }
+  # English texts (UK).
+  - { match: { text: "has been cancelled", flags: [i] }, status: problem }
+  - { match: { text: "has been delivered|waiting for you at home", flags: [i] }, status: delivered }
+  - {
+      match: { text: "will be with you today|on the vehicle for delivery", flags: [i] },
+      status: out_for_delivery,
+    }
+  - { match: { text: "not yet received your parcel", flags: [i] }, status: registered }
+  - {
+      match:
+        {
+          text: "customs|duties and taxes|on its way|our depot|delivery depot|sortation facility|in transit",
+          flags: [i],
+        },
+      status: in_transit,
+    }
+tests:
+  - { input: { code: PARCEL_OUT_FOR_DELIVERY }, status: out_for_delivery }
+  - { input: { code: UNSUCCESSFUL_DELIVERY_ATTEMPT }, status: problem }
+  - { input: { code: DODEI }, status: at_pickup_point, pickup: true }
+  - { input: { code: DODEY }, status: delivered, pickup: true }
+  - { input: { code: DOPKY }, status: in_transit }
+  - { input: { code: "parcelStatusType:5" }, status: at_pickup_point, pickup: true }
+  - { input: { code: HANDED_OVER_FOR_DELIVERY_SP }, status: in_transit, pickup: true }
+  - { input: { code: CarLoad }, status: out_for_delivery }
+  - { input: { text: "Retoure an Versender - Geliefert" }, status: returning }
+  - { input: { text: "Paket zugestellt - Geliefert am: 18.11." }, status: delivered }
+  - { input: { text: "Geliefert, Abholung im Paketshop" }, status: delivered }
+  - {
+      input: { text: "Paket liegt im Paketshop zur Abholung bereit" },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { input: { text: "Zustellversuch nicht erfolgreich" }, status: problem }
+  - { input: { text: "Paket in Zustellung" }, status: out_for_delivery }
+  - { input: { text: "Paketinfo an DPD übergeben" }, status: registered }
+  - { input: { text: "Paket ist unterwegs" }, status: in_transit }
+  - { input: { text: "Your parcel is on the vehicle for delivery" }, status: out_for_delivery }
+  - { input: { text: "Your parcel has been delivered" }, status: delivered }
+  - { input: { code: XYZ }, status: null }

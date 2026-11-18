@@ -1,0 +1,26 @@
+{
+  "$schema": "../../schema/tracking-numbers.schema.json",
+  "name": "PostNL",
+  "courier_code": "postnl",
+  "tracking_numbers": [
+    {
+      "name": "PostNL (3S)",
+      "id": "postnl_3s",
+      "description": "3S barcode: 3S, a customer code of 1 to 4 letters and a serial, 13 or 15 characters in total. No check digit. DHL Parcel Benelux also issues 3S codes.",
+      "regex": [
+        "\\s*3\\s*S\\s*(?<SerialNumber>",
+        "[A-Z]\\s*([0-9]\\s*){10}|[A-Z]\\s*([0-9]\\s*){12}",
+        "|([A-Z]\\s*){2}([0-9]\\s*){9}|([A-Z]\\s*){2}([0-9]\\s*){11}",
+        "|([A-Z]\\s*){3}([0-9]\\s*){8}|([A-Z]\\s*){3}([0-9]\\s*){10}",
+        "|([A-Z]\\s*){4}([0-9]\\s*){7}|([A-Z]\\s*){4}([0-9]\\s*){9}",
+        ")"
+      ],
+      "validation": {},
+      "tracking_url": "https://postnl.nl/tracktrace/?B=%s&D=NL&T=C",
+      "test_numbers": {
+        "valid": ["3SABCD1234567", "3SAB12345678901", "3S XYZ 12345678", "3SQ0123456789"],
+        "invalid": ["3SABCD123456", "3SABCDE1234567", "3S1234567890123", "4SABCD1234567"]
+      }
+    }
+  ]
+}

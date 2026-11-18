@@ -1,0 +1,462 @@
+{
+  "$id": "https://raw.githubusercontent.com/Bluscream/open-parcels-rules/main/schema/mail-rule.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$",
+      "description": "Lower-case identifier: letters, digits, '_' and '-'."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "parcel",
+        "order",
+        "return",
+        "dunning"
+      ]
+    },
+    "senders": {
+      "type": "object",
+      "properties": {
+        "addresses": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[^@\\s]+@[a-z0-9.-]+$"
+          }
+        },
+        "domains": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)+$"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "flags": {
+      "default": [
+        "i"
+      ],
+      "description": "Flags for every bare-string pattern in this rule.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "i",
+          "m",
+          "s"
+        ]
+      }
+    },
+    "subject": {
+      "description": "If set, at least one must match the subject.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "minLength": 1,
+                "description": "A regex in the portable subset."
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "i",
+                    "m",
+                    "s"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "pattern"
+            ],
+            "additionalProperties": false,
+            "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+          }
+        ]
+      }
+    },
+    "exclude": {
+      "description": "If any matches the subject, the rule does not apply.",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "minLength": 1,
+                "description": "A regex in the portable subset."
+              },
+              "flags": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "i",
+                    "m",
+                    "s"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "pattern"
+            ],
+            "additionalProperties": false,
+            "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+          }
+        ]
+      }
+    },
+    "extract": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "enum": [
+          "tracking_number",
+          "order_number",
+          "tracking_url",
+          "pickup_code",
+          "item",
+          "arrival",
+          "carrier"
+        ]
+      },
+      "additionalProperties": {
+        "minItems": 1,
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Must contain a named group called like the field, e.g. (?<tracking_number>...)."
+            },
+            "flags": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "i",
+                  "m",
+                  "s"
+                ]
+              }
+            },
+            "in": {
+              "default": [
+                "subject",
+                "text"
+              ],
+              "description": "Where to search; html means the HTML part converted to plain text.",
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "subject",
+                  "text",
+                  "html"
+                ]
+              }
+            }
+          },
+          "required": [
+            "pattern"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "status_keywords": {
+      "default": [],
+      "description": "Checked in order; the first group with a matching pattern sets the status.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "patterns": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "A regex in the portable subset."
+                    },
+                    "flags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "i",
+                          "m",
+                          "s"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ],
+                  "additionalProperties": false,
+                  "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+                }
+              ]
+            }
+          },
+          "in": {
+            "default": [
+              "subject",
+              "text"
+            ],
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "subject",
+                "text",
+                "html"
+              ]
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "registered",
+              "in_transit",
+              "out_for_delivery",
+              "at_pickup_point",
+              "delivered",
+              "returning",
+              "problem",
+              "unknown"
+            ],
+            "description": "Canonical parcel status. at_pickup_point means arrived and waiting for collection; a parcel still on its way to a pickup point is in_transit with pickup: true."
+          }
+        },
+        "required": [
+          "patterns",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "event_keywords": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "patterns": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "A regex in the portable subset."
+                    },
+                    "flags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "i",
+                          "m",
+                          "s"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ],
+                  "additionalProperties": false,
+                  "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+                }
+              ]
+            }
+          },
+          "in": {
+            "default": [
+              "subject",
+              "text"
+            ],
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "subject",
+                "text",
+                "html"
+              ]
+            }
+          },
+          "event": {
+            "type": "string",
+            "enum": [
+              "order_placed",
+              "order_confirmed",
+              "order_shipped",
+              "order_cancelled",
+              "return_started",
+              "return_received",
+              "refund_issued",
+              "return_rejected",
+              "payment_reminder",
+              "payment_warning",
+              "debt_collection"
+            ]
+          }
+        },
+        "required": [
+          "patterns",
+          "event"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "default_status": {
+      "type": "string",
+      "enum": [
+        "registered",
+        "in_transit",
+        "out_for_delivery",
+        "at_pickup_point",
+        "delivered",
+        "returning",
+        "problem",
+        "unknown"
+      ],
+      "description": "Canonical parcel status. at_pickup_point means arrived and waiting for collection; a parcel still on its way to a pickup point is in_transit with pickup: true."
+    },
+    "carrier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$",
+      "description": "Lower-case identifier: letters, digits, '_' and '-'."
+    },
+    "carrier_from": {
+      "description": "Take the carrier from the extracted carrier field, normalised via aliases.",
+      "type": "string",
+      "const": "carrier"
+    },
+    "extractors": {
+      "default": [],
+      "description": "Named code extractors (src/mail/extractors) for what a regex cannot express.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "require": {
+      "default": [],
+      "description": "Fields that must be found for the rule to produce a result.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "tracking_number",
+          "order_number",
+          "tracking_url",
+          "pickup_code",
+          "item",
+          "arrival",
+          "carrier"
+        ]
+      }
+    },
+    "tests": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fixture": {
+            "type": "string",
+            "pattern": "^[a-z0-9_-]+\\.eml$",
+            "description": "File name under test/fixtures/mail/."
+          },
+          "now": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "time_zone": {
+            "type": "string"
+          },
+          "expect": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            },
+            "description": "Expected results (subset match, in order) of parseMail for the fixture; [] means no result."
+          }
+        },
+        "required": [
+          "fixture",
+          "expect"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "kind",
+    "senders",
+    "tests"
+  ],
+  "additionalProperties": false
+}

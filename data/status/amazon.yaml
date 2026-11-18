@@ -1,0 +1,116 @@
+# yaml-language-server: $schema=../../schema/status.schema.json
+#
+# Amazon Logistics: tracking-page codes (progress milestone, shortStatus, live map state),
+# order-list status lines and timeline events in English and German.
+#
+# PICKED_UP is ambiguous: as a shortStatus it means the recipient collected the parcel, as a
+# live-map state it means the courier has it. The shortStatus meaning is kept here; callers
+# reading the live map should pass its states with a "live:" prefix.
+carrier: amazon
+entries:
+  - { match: { code: ORDERED }, status: registered }
+  - { match: { code: ORDER_PLACED }, status: registered }
+  - { match: { code: SHIPPED }, status: in_transit }
+  - { match: { code: IN_TRANSIT }, status: in_transit }
+  - { match: { code: OUT_FOR_DELIVERY }, status: out_for_delivery }
+  - { match: { code: DELIVERED }, status: delivered }
+  - {
+      match: { code: PICKED_UP },
+      status: delivered,
+      pickup: true,
+      note: "shortStatus: the recipient collected it.",
+    }
+  - { match: { code: PICKUP_AVAILABLE }, status: at_pickup_point, pickup: true, confirmed: false }
+  - { match: { code: "live:PICKED_UP" }, status: out_for_delivery, confirmed: false }
+  - { match: { code: "live:RENDERED" }, status: out_for_delivery, confirmed: false }
+  - { match: { code: "live:SKIPPED_STOP" }, status: out_for_delivery, confirmed: false }
+  - { match: { code: "live:YOU_ARE_NEXT" }, status: out_for_delivery, confirmed: false }
+  - { match: { code: "live:DELIVERED_CONFIRMED" }, status: delivered, confirmed: false }
+  - { match: { code: "live:PARTIALLY_DELIVERED" }, status: problem, confirmed: false }
+  - { match: { code: "live:DELIVERY_ATTEMPTED" }, status: problem, confirmed: false }
+  - { match: { code: "live:DELIVERY_FAILED" }, status: problem, confirmed: false }
+  - { match: { code: "live:NOT_DELIVERED" }, status: problem, confirmed: false }
+  - { match: { code: "live:REJECTED" }, status: problem, confirmed: false }
+  - { match: { code: "live:ADDRESS_NOT_FOUND" }, status: problem, confirmed: false }
+  # Timeline events (whole message).
+  - {
+      match: { text: "^die sendung wurde vom empfänger abgeholt", flags: [i] },
+      status: delivered,
+      pickup: true,
+    }
+  - {
+      match:
+        {
+          text: "^(?:im briefkasten hinterlegt|lieferung in der nähe von haustür oder veranda abgelegt|delivered to customer|delivered to letterbox)",
+          flags: [i],
+        },
+      status: delivered,
+    }
+  - { match: { text: "^sendung wird zugestellt", flags: [i] }, status: out_for_delivery }
+  - {
+      match:
+        {
+          text: "^(?:das paket ist an einem amazon-standort eingetroffen|das paket hat einen amazon-standort verlassen|paket ist in der letzten lieferstation angekommen|paket hat die einrichtung des versandunternehmers verlassen)",
+          flags: [i],
+        },
+      status: in_transit,
+    }
+  - {
+      match:
+        {
+          text: "^(?:package arrived at an amazon facility|package departed an amazon facility|parcel arrived at a carrier facility|package left the courier facility|package arrived at the final delivery station)",
+          flags: [i],
+        },
+      status: in_transit,
+    }
+  # Order-list lines (start of the line; longer prefixes first).
+  - {
+      match: { text: "^(?:noch nicht versandt|not yet dispatched|not yet shipped)", flags: [i] },
+      status: registered,
+      confirmed: false,
+    }
+  - {
+      match: { text: "^(?:zustellung heute|wird heute zugestellt|out for delivery)", flags: [i] },
+      status: out_for_delivery,
+    }
+  - {
+      match: { text: "^(?:heute zugestellt|zugestellt|geliefert|delivered)", flags: [i] },
+      status: delivered,
+    }
+  - {
+      match:
+        {
+          text: "^(?:ankunft|zustellung|versandt|arriving|now arriving|shipped|dispatched)",
+          flags: [i],
+        },
+      status: in_transit,
+    }
+  - {
+      match:
+        {
+          text: "^(?:zustellung nicht möglich|zustellversuch|delivery attempted|undeliverable)",
+          flags: [i],
+        },
+      status: problem,
+      confirmed: false,
+    }
+tests:
+  - { input: { code: OUT_FOR_DELIVERY }, status: out_for_delivery }
+  - { input: { code: PICKED_UP }, status: delivered, pickup: true }
+  - { input: { code: "live:PICKED_UP" }, status: out_for_delivery }
+  - { input: { text: "Zustellung heute" }, status: out_for_delivery }
+  - { input: { text: "Zustellung: Freitag" }, status: in_transit }
+  - { input: { text: "Noch nicht versandt" }, status: registered }
+  - { input: { text: "Versandt" }, status: in_transit }
+  - { input: { text: "Not Yet Dispatched" }, status: registered }
+  - { input: { text: "Arriving today 9:00 AM - 1:00 PM" }, status: in_transit }
+  - { input: { text: "Delivered 3 October" }, status: delivered }
+  - { input: { text: "Zugestellt" }, status: delivered }
+  - {
+      input: { text: "Die Sendung wurde vom Empfänger abgeholt." },
+      status: delivered,
+      pickup: true,
+    }
+  - { input: { text: "Package arrived at the final delivery station" }, status: in_transit }
+  - { input: { text: "Storniert" }, status: null }
+  - { input: { text: "Refund issued" }, status: null }

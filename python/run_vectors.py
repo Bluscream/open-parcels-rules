@@ -1,0 +1,59 @@
+"""Runs the shared test vectors (dist/vectors.json) against the Python reference loader.
+
+Usage: python -I python/run_vectors.py [dist-dir]
+Exits non-zero on the first mismatch report.
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from open_parcels_rules import load_rules, map_status, validate_tracking_number  # noqa: E402
+
+
+def main() -> int:
+    dist = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parents[1] / "dist"
+    rules = load_rules(dist / "bundle.json")
+    vectors = json.loads((dist / "vectors.json").read_text(encoding="utf-8"))
+    failures: list[str] = []
+    checked = 0
+
+    ids = {}
+    for kind in rules.types:
+        ids.setdefault(kind.name, kind.id)
+    for vector in vectors["tracking"]:
+        type_id = vector["id"] or ids[vector["name"]]
+        for number in vector["valid"]:
+            checked += 1
+            result = validate_tracking_number(rules, number, type_id)
+            if result is None or not result["valid"]:
+                failures.append(f"{type_id}: {number!r} should be valid")
+        for number in vector["invalid"]:
+            checked += 1
+            result = validate_tracking_number(rules, number, type_id)
+            if result is not None and result["valid"]:
+                failures.append(f"{type_id}: {number!r} should be invalid")
+
+    for table in vectors["status"]:
+        for test in table["tests"]:
+            checked += 1
+            raw = test["input"]
+            mapped = map_status(rules, table["carrier"], raw.get("code"), raw.get("text"))
+            status = None if mapped is None else mapped["status"]
+            if status != test["status"]:
+                failures.append(f"status/{table['carrier']}: {raw} gave {status}, expected {test['status']}")
+            elif "pickup" in test and bool(mapped and mapped.get("pickup")) != test["pickup"]:
+                failures.append(f"status/{table['carrier']}: {raw} pickup flag differs")
+
+    for failure in failures:
+        print(f"FAIL {failure}")
+    print(f"{checked - len(failures)}/{checked} vectors passed (bundle {rules.version})")
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schema/tracking-numbers.schema.json",
+  "name": "Hermes",
+  "courier_code": "hermes",
+  "tracking_numbers": [
+    {
+      "name": "Hermes (14)",
+      "id": "hermes_14",
+      "description": "14-digit HermesID: 13 digits and a mod 10 check digit with weights 3 and 1 from the left. Shares its shape with DPD and other 14-digit numbers.",
+      "regex": ["\\s*(?<SerialNumber>([0-9]\\s*){13})", "(?<CheckDigit>[0-9]\\s*)"],
+      "validation": {
+        "checksum": {
+          "name": "mod10",
+          "modulo": 10,
+          "evens_multiplier": 3,
+          "odds_multiplier": 1,
+          "reverse": false
+        }
+      },
+      "tracking_url": "https://www.myhermes.de/empfangen/sendungsverfolgung/sendungsinformation/#%s",
+      "test_numbers": {
+        "valid": ["09123456789013", "4100 0111 2223 36", "12345678901231"],
+        "invalid": ["09123456789014", "0912345678901", "091234567890133"]
+      }
+    },
+    {
+      "name": "Hermes (20)",
+      "id": "hermes_20",
+      "description": "20-character HermesID: H, a 6-digit depot, an 8-digit counter, a 2-digit handling code and a 3-digit direction code. It has no check digit.",
+      "regex": "\\s*H\\s*(?<SerialNumber>([0-9]\\s*){19})",
+      "validation": {},
+      "tracking_url": "https://www.myhermes.de/empfangen/sendungsverfolgung/sendungsinformation/#%s",
+      "test_numbers": {
+        "valid": ["H1000012000000101001", "H 100001 20000001 01 001"],
+        "invalid": ["H100001200000010100", "H10000120000001010012", "K1000012000000101001"]
+      }
+    }
+  ]
+}

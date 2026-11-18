@@ -1,0 +1,253 @@
+# yaml-language-server: $schema=../schema/carriers.schema.json
+#
+# The carrier registry. `id` is what every other data file and the engine use; names and
+# aliases are matched ignoring case, accents and punctuation. Tracking-number files are tied
+# to a carrier by `courier_codes`; S10 numbers by the issuing country in `upu_countries`.
+carriers:
+  - id: dhl
+    name: DHL
+    aliases:
+      [
+        DHL Paket,
+        DHL Express,
+        Deutsche Post,
+        Deutsche Post DHL,
+        DHL Parcel,
+        DHL eCommerce,
+        Warenpost,
+      ]
+    countries: [DE]
+    domains: [dhl.de, dhl.com, deutschepost.de]
+    upu_countries: [DE]
+    tracking_urls:
+      default: "https://www.dhl.com/global-en/home/tracking/tracking-parcel.html?submit=1&tracking-id={tracking_number}"
+      de: "https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={tracking_number}"
+      de-DE: "https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={tracking_number}"
+    crossref: { 17track: "7041" }
+
+  - id: dpd
+    name: DPD
+    aliases: [DPD Deutschland, DPD Polska, DPD PL, DPD UK, Dynamic Parcel Distribution, dpdgroup]
+    countries: [DE, AT, PL, GB, NL, BE, FR]
+    domains: [dpd.de, dpd.com, dpd.com.pl, dpd.co.uk, dpdgroup.com, dpd.at]
+    tracking_urls:
+      default: "https://tracking.dpd.de/status/en_US/parcel/{tracking_number}"
+      de: "https://tracking.dpd.de/status/de_DE/parcel/{tracking_number}"
+      pl: "https://tracktrace.dpd.com.pl/parcelDetails?p1={tracking_number}"
+    crossref: { 17track: "100007" }
+
+  - id: hermes
+    name: Hermes
+    aliases: [Hermes Germany, Hermes Einrichtungs Service, myHermes, Evri]
+    countries: [DE, AT, GB]
+    domains: [myhermes.de, hermesworld.com, hermes-europe.eu, evri.com, myhermes.co.uk]
+    tracking_urls:
+      default: "https://www.myhermes.de/empfangen/sendungsverfolgung/sendungsinformation/#{tracking_number}"
+    crossref: { 17track: "100031" }
+
+  - id: gls
+    name: GLS
+    aliases: [General Logistics Systems, GLS Germany, GLS Group, GLS Poland]
+    countries: [DE, AT, NL, PL, ES, IT, FR, DK, BE]
+    domains: [gls-group.eu, gls-group.com, gls-pakete.de, gls-poland.com]
+    tracking_urls:
+      default: "https://gls-group.com/EU/en/parcel-tracking?match={tracking_number}"
+      de: "https://gls-group.com/DE/de/paketverfolgung?match={tracking_number}"
+    crossref: { 17track: "100005" }
+
+  - id: amazon
+    name: Amazon Logistics
+    aliases: [Amazon, Amazon Shipping, AMZL, Amazon Logistik]
+    domains:
+      [
+        amazon.de,
+        amazon.com,
+        amazon.co.uk,
+        amazon.fr,
+        amazon.it,
+        amazon.es,
+        amazon.pl,
+        amazon.nl,
+        amazon.ca,
+        amazon.com.au,
+        amazon.in,
+      ]
+    tracking_urls:
+      default: "https://track.amazon.com/tracking/{tracking_number}"
+    crossref: { 17track: "100308" }
+
+  - id: ups
+    name: UPS
+    aliases: [United Parcel Service]
+    domains: [ups.com]
+    tracking_urls:
+      default: "https://www.ups.com/track?tracknum={tracking_number}"
+      de: "https://www.ups.com/track?loc=de_DE&tracknum={tracking_number}"
+    crossref: { 17track: "100002" }
+
+  - id: fedex
+    name: FedEx
+    aliases: [Federal Express, FedEx Ground, TNT]
+    domains: [fedex.com]
+    tracking_urls:
+      default: "https://www.fedex.com/fedextrack/?trknbr={tracking_number}"
+    crossref: { 17track: "100003" }
+
+  - id: usps
+    name: USPS
+    aliases: [United States Postal Service, US Postal Service]
+    countries: [US]
+    domains: [usps.com]
+    upu_countries: [US]
+    tracking_urls:
+      default: "https://tools.usps.com/go/TrackConfirmAction?tLabels={tracking_number}"
+    crossref: { 17track: "21051" }
+
+  - id: postnl
+    name: PostNL
+    aliases: [Post NL]
+    countries: [NL]
+    domains: [postnl.nl, postnl.com]
+    upu_countries: [NL]
+    tracking_urls:
+      default: "https://postnl.nl/tracktrace/?B={tracking_number}&D=NL&T=C"
+    crossref: { 17track: "14041" }
+
+  - id: royalmail
+    name: Royal Mail
+    aliases: [Parcelforce]
+    countries: [GB]
+    domains: [royalmail.com, parcelforce.com]
+    upu_countries: [GB]
+    tracking_urls:
+      default: "https://www.royalmail.com/track-your-item#/tracking-results/{tracking_number}"
+    crossref: { 17track: "11031" }
+
+  - id: auspost
+    name: Australia Post
+    aliases: [AusPost, StarTrack]
+    countries: [AU]
+    domains: [auspost.com.au]
+    upu_countries: [AU]
+    tracking_urls:
+      default: "https://auspost.com.au/mypost/track/details/{tracking_number}"
+    crossref: { 17track: "1151" }
+
+  - id: canadapost
+    name: Canada Post
+    aliases: [Postes Canada, Canada Post Corporation]
+    countries: [CA]
+    domains: [canadapost.ca, postescanada.ca, canadapost-postescanada.ca]
+    courier_codes: [canada_post]
+    upu_countries: [CA]
+    tracking_urls:
+      default: "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={tracking_number}"
+    crossref: { 17track: "3041" }
+
+  - id: inpost
+    name: InPost
+    aliases: [InPost Paczkomaty, Paczkomaty, Kurier InPost]
+    countries: [PL]
+    domains: [inpost.pl, paczkomaty.pl]
+    tracking_urls:
+      default: "https://inpost.pl/sledzenie-przesylek?number={tracking_number}"
+    crossref: { 17track: "100043" }
+
+  - id: poczta_polska
+    name: Poczta Polska
+    aliases: [Polish Post, Poland Post, Pocztex]
+    countries: [PL]
+    domains: [poczta-polska.pl]
+    upu_countries: [PL]
+    tracking_urls:
+      default: "https://emonitoring.poczta-polska.pl/?numer={tracking_number}"
+    crossref: { 17track: "16081" }
+
+  - id: china_post
+    name: China Post
+    aliases: [China EMS, ChinaPost]
+    countries: [CN]
+    upu_countries: [CN]
+    crossref: { 17track: "3011" }
+
+  - id: cainiao
+    name: Cainiao
+    aliases: [AliExpress Standard Shipping, Cainiao Network]
+    domains: [cainiao.com]
+    tracking_urls:
+      default: "https://global.cainiao.com/newDetail.htm?mailNoList={tracking_number}"
+
+  - id: 4px
+    name: 4PX
+    aliases: [4PX Express, 4PX Worldwide Express]
+    domains: [4px.com]
+    tracking_urls:
+      default: "https://track.4px.com/#/result/0/{tracking_number}"
+
+  - id: yodel
+    name: Yodel
+    countries: [GB]
+    domains: [yodel.co.uk]
+    tracking_urls:
+      default: "https://www.yodel.co.uk/tracking/{tracking_number}"
+    crossref: { 17track: "100017" }
+
+  - id: canpar
+    name: Canpar
+    aliases: [Canpar Express]
+    countries: [CA]
+    domains: [canpar.com]
+    tracking_urls:
+      default: "https://www.canpar.com/en/track/tracking.jsp?reference={tracking_number}&locale=en"
+    crossref: { 17track: "100146" }
+
+  - id: purolator
+    name: Purolator
+    countries: [CA]
+    domains: [purolator.com]
+    tracking_urls:
+      default: "https://www.purolator.com/en/shipping/tracker?searchValue={tracking_number}"
+    crossref: { 17track: "100042" }
+
+  - id: ontrac
+    name: OnTrac
+    countries: [US]
+    domains: [ontrac.com]
+    tracking_urls:
+      default: "https://www.ontrac.com/tracking/?number={tracking_number}"
+    crossref: { 17track: "100049" }
+
+  - id: lasership
+    name: LaserShip
+    countries: [US]
+    domains: [lasership.com]
+    crossref: { 17track: "100052" }
+
+  - id: gofo
+    name: GOFO Express
+    countries: [US]
+    tracking_urls:
+      default: "https://www.gofoexpress.com/tracking.html?searchID={tracking_number}"
+
+  - id: landmark
+    name: Landmark Global
+    tracking_urls:
+      default: "https://track.landmarkglobal.com/?search={tracking_number}"
+
+  - id: old_dominion
+    name: Old Dominion Freight Line
+    aliases: [ODFL]
+    countries: [US]
+    tracking_urls:
+      default: "https://www.odfl.com/us/en/tools/trace-track-ltl-freight/trace.html?proNumbers={tracking_number}"
+
+  - id: speedee
+    name: Spee-Dee Delivery
+    countries: [US]
+    tracking_urls:
+      default: "https://www.speedeedelivery.com/track/?tracking={tracking_number}"
+
+  - id: yunexpress
+    name: YunExpress
+    tracking_urls:
+      default: "https://www.yuntrack.com/parcelTracking?id={tracking_number}"
