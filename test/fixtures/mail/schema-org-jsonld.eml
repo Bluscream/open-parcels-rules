@@ -1,0 +1,23 @@
+From: Example Shop <orders@shop.example.com>
+To: jane.doe@example.com
+Subject: Your order SO-2026-0815 is on its way
+Date: Wed, 18 Nov 2026 09:00:00 +0100
+Content-Type: text/html; charset=utf-8
+
+<html><head>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "ParcelDelivery",
+  "carrier": { "@type": "Organization", "name": "UPS" },
+  "trackingNumber": "1ZA1B2C30312345673",
+  "trackingUrl": "https://shop.example.com/track/SO-2026-0815",
+  "deliveryStatus": { "@type": "OrderStatus", "@id": "http://schema.org/OrderInTransit" },
+  "expectedArrivalFrom": "2026-11-20T09:00:00+01:00",
+  "expectedArrivalUntil": "2026-11-20T17:00:00+01:00",
+  "itemShipped": { "@type": "Product", "name": "Desk lamp" },
+  "partOfOrder": { "@type": "Order", "orderNumber": "SO-2026-0815" }
+}
+</script>
+<script type="application/ld+json">{ this is not json }</script>
+</head><body><p>Your order is on its way.</p></body></html>

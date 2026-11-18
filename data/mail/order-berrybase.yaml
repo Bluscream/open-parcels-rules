@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: order-berrybase
+name: BerryBase order confirmations and shipments
+kind: order
+senders:
+  domains: [sertronics.shop, berrybase.de]
+  local_parts: [noreply, info, bestellungen, shop, versand]
+extract:
+  order_number:
+    - pattern: '(?:bestellung(?:snummer)?|auftrag(?:snummer)?|order(?: no\.?)?|#)\s*:?\s*(?<order_number>\d{5,9})\b'
+event_keywords:
+  - event: order_cancelled
+    patterns: ["storniert|cancell?ed"]
+    in: [subject]
+  - event: order_shipped
+    patterns: ["versandt|versendet|shipped"]
+    in: [subject]
+  - event: order_confirmed
+    patterns: ["eingangsbestätigung|bestellbestätigung|bestellung|order confirmation"]
+    in: [subject]
+require: [order_number]
+tests:
+  - fixture: berrybase-order.eml
+    expect:
+      - ruleId: order-berrybase
+        kind: order
+        event: order_confirmed
+        orderNumbers: ["1234567"]

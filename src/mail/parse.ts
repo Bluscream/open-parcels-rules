@@ -43,9 +43,19 @@ function prepare(mail: MailInput): Prepared {
 }
 
 function senderMatches(rule: CompiledMailRule, prepared: Prepared): boolean {
+  if (rule.addresses.has(prepared.address)) return true;
+  if (!rule.domains.some((domain) => domainMatches(prepared.domain, domain))) return false;
+  const local = prepared.address.slice(0, prepared.address.lastIndexOf("@"));
+  return rule.localParts === null || rule.localParts.has(local);
+}
+
+function ruleApplies(rule: CompiledMailRule, prepared: Prepared): boolean {
+  const { subject, text } = prepared.sources;
   return (
-    rule.addresses.has(prepared.address) ||
-    rule.domains.some((domain) => domainMatches(prepared.domain, domain))
+    senderMatches(rule, prepared) &&
+    !rule.exclude.some((regex) => regex.test(subject)) &&
+    (rule.subject === null || rule.subject.some((regex) => regex.test(subject))) &&
+    (rule.body === null || rule.body.some((regex) => regex.test(text)))
   );
 }
 
@@ -72,19 +82,16 @@ function arrivalFrom(
   if (mail.date === undefined) return undefined;
   const grammar = grammarFor(rules);
   if (grammar === null) return undefined;
-  for (const text of texts) {
-    const window = parseWithGrammar(grammar, text, mail.date, mail.timeZone ?? "UTC");
-    if (window !== null) return window;
-  }
-  return undefined;
+  const { date } = mail;
+  const windows = texts
+    .map((text) => parseWithGrammar(grammar, text, date, mail.timeZone ?? "UTC"))
+    .filter((window) => window !== null);
+  // "kommt heute" in the subject and "heute 14-18 Uhr" in the body: the timed one says more.
+  return windows.find((window) => !window.allDay) ?? windows[0];
 }
 
-function resolveCarrier(
-  rules: Rules,
-  rule: CompiledMailRule,
-  sources: Sources,
-): string | undefined {
-  if (rule.carrier !== undefined) return rule.carrier;
+/** The carrier the mail names in its carrier field, if the rule reads one. */
+function namedCarrier(rules: Rules, rule: CompiledMailRule, sources: Sources): string | undefined {
   if (!rule.carrierFrom) return undefined;
   for (const name of collectField(rule, "carrier", sources)) {
     const carrier = lookupCarrier(rules.carriers, name);
@@ -115,7 +122,7 @@ function runExtractors(
       subject: prepared.sources.subject,
       text: prepared.sources.text,
       senderDomain: prepared.domain,
-      carrier: draft.carrier,
+      carrier: draft.carrier ?? rule.carrier,
       detect: (text, hints) => detect(rules, text, hints),
     });
     draft.trackingNumbers = unique([...draft.trackingNumbers, ...(output.trackingNumbers ?? [])]);
@@ -130,13 +137,18 @@ function applyRule(
 ): MailParseResult | null {
   const { sources } = prepared;
   const draft: Draft = {
-    carrier: resolveCarrier(rules, rule, sources),
+    carrier: namedCarrier(rules, rule, sources),
     trackingNumbers: unique(
       collectField(rule, "tracking_number", sources).map(normalizeTrackingNumber),
     ),
   };
   runExtractors(rules, rule, prepared, draft);
+  // Named in the mail, else recognised from the numbers, else the rule's default.
+  draft.carrier ??= rule.carrier;
   const orderNumbers = collectField(rule, "order_number", sources);
+  // A 14-digit order number also looks like a 14-digit parcel number; the label decides.
+  const orders = new Set(orderNumbers.map(normalizeTrackingNumber));
+  draft.trackingNumbers = draft.trackingNumbers.filter((number) => !orders.has(number));
   const items = collectField(rule, "item", sources);
   const trackingUrl = collectField(rule, "tracking_url", sources)[0]?.replace(
     TRAILING_URL_PUNCTUATION,
@@ -232,14 +244,7 @@ export function parseMailWith(rules: Rules, mail: MailInput): MailParseResult[] 
   const prepared = prepare(mail);
   const results: MailParseResult[] = [];
   for (const rule of rules.mailRules) {
-    if (!senderMatches(rule, prepared)) continue;
-    if (rule.exclude.some((regex) => regex.test(prepared.sources.subject))) continue;
-    if (
-      rule.subject !== null &&
-      !rule.subject.some((regex) => regex.test(prepared.sources.subject))
-    ) {
-      continue;
-    }
+    if (!ruleApplies(rule, prepared)) continue;
     const result = applyRule(rules, rule, prepared);
     if (result !== null) results.push(result);
   }

@@ -1,0 +1,13 @@
+From: Zalando <info@service-mail.zalando.de>
+To: max.mustermann@example.com
+Subject: Deine Bestellung ist unterwegs
+Date: Wed, 18 Nov 2026 14:00:00 +0100
+Content-Type: text/plain; charset=utf-8
+
+Hallo Max,
+
+deine Bestellung ist unterwegs!
+
+Bestellnummer: 10101234567890
+Versand mit DHL, Sendungsnummer 00340434987654321012
+Voraussichtliche Lieferung: Do., 19.11. - Fr., 20.11.

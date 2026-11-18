@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: parcel-dpd-pl
+name: DPD Poland parcel notifications (also relayed by Allegro)
+kind: parcel
+senders:
+  domains: [dpd.com.pl, allegromail.pl]
+body:
+  - '\bDPD\b'
+carrier: dpd
+extract:
+  tracking_number:
+    - pattern: '\b(?<tracking_number>\d{13}[0-9A-Z]{1,2})\b'
+status_keywords:
+  - status: delivered
+    patterns: ["została doręczona|doręczyliśmy"]
+  - status: out_for_delivery
+    patterns: ["dziś doręczamy|jest w doręczeniu"]
+  - status: in_transit
+    patterns: ["bezpieczne doręczenie|przesyłka została nadana|w drodze"]
+require: [tracking_number]
+tests:
+  - fixture: dpd-pl-delivered.eml
+    expect:
+      - ruleId: parcel-dpd-pl
+        carrier: dpd
+        trackingNumbers: ["01505012345678N"]
+        status: delivered
+  - fixture: dpd-pl-today.eml
+    expect:
+      - ruleId: parcel-dpd-pl
+        trackingNumbers: ["05309876543210T"]
+        status: out_for_delivery

@@ -1,0 +1,12 @@
+From: Example Shop <orders@shop.example.com>
+To: jane.doe@example.com
+Subject: Delivered
+Date: Thu, 19 Nov 2026 16:00:00 +0100
+Content-Type: text/html; charset=utf-8
+
+<html><body>
+<div itemscope itemtype="http://schema.org/ParcelDelivery">
+  <span itemprop="trackingNumber">0034 0434 9876 5432 1012</span>
+  <link itemprop="deliveryStatus" href="http://schema.org/OrderDelivered">
+</div>
+</body></html>

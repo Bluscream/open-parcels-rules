@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: order-jlcpcb
+name: JLCPCB order confirmations and shipments
+kind: order
+senders:
+  domains: [jlcpcb.com]
+  local_parts: [noreply, no-reply, support, order]
+extract:
+  order_number:
+    - pattern: '(?:order|bestellung)\s*(?:number)?\s*#?\s*:?\s*(?<order_number>(?:JL|W)?\d{6,15})\b'
+event_keywords:
+  - event: order_shipped
+    patterns: ["shipped|dispatched|has been sent"]
+    in: [subject]
+  - event: order_confirmed
+    patterns: ["payment received|confirmed|placed successfully|order"]
+    in: [subject]
+require: [order_number]
+tests:
+  - fixture: jlcpcb-order.eml
+    expect:
+      - ruleId: order-jlcpcb
+        kind: order
+        event: order_confirmed
+        orderNumbers: ["W202611180001"]

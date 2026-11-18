@@ -30,6 +30,8 @@ const START = String.raw`(?<![\p{L}\p{N}])`;
 const END = String.raw`(?![\p{L}\p{N}])`;
 const DASH = String.raw`\s*[-–—‐]\s*`;
 const ORDINAL = String.raw`(?:\.|st|nd|rd|th)?`;
+/** "Fr., " before the second date of a range; only the date counts, so any short word will do. */
+const WEEKDAY_ABBREVIATION = String.raw`(?:\p{L}{2,3}\.,?\s*)?`;
 
 function escape(word: string): string {
   return word.replace(/[.*+?^${}()|[\]\\/]/gu, "\\$&").replace(/\s+/gu, String.raw`\s+`);
@@ -73,8 +75,8 @@ function dateShapes(month: string, sep: string): RegExp[] {
     `${day("d1")}${ORDINAL}${sep}${day("d2")}${ORDINAL}\\s*${monthGroup("m1")}${year("y1")}`,
     // Oct 27-29, Oct 30 - Nov 2
     `${monthGroup("m1")}\\s+${day("d1")}${ORDINAL}${sep}(?:${monthGroup("m2")}\\s+)?${day("d2")}${ORDINAL}${year("y1")}`,
-    // 20.11. - 22.11.2026
-    `${numeric("d1", "n1", "y1")}${sep}${numeric("d2", "n2", "y2")}`,
+    // 20.11. - 22.11.2026, Do., 19.11. - Fr., 20.11.
+    `${numeric("d1", "n1", "y1")}${sep}${WEEKDAY_ABBREVIATION}${numeric("d2", "n2", "y2")}`,
     // 20 November 2026, 20. Okt.
     `${day("d1")}${ORDINAL}\\s*${monthGroup("m1")}${year("y1")}`,
     // November 20, 2026

@@ -55,7 +55,14 @@ const eventKeywordSchema = keywordSchema.extend({ event: mailEventSchema });
 const sendersSchema = z
   .strictObject({
     addresses: z.array(z.string().regex(/^[^@\s]+@[a-z0-9.-]+$/u)).default([]),
-    domains: z.array(z.string().regex(/^[a-z0-9-]+(\.[a-z0-9-]+)+$/u)).default([]),
+    domains: z.array(z.string().regex(/^[a-z0-9-]+(\.[a-z0-9-]+)+$/u)).default([]).meta({
+      description: "Sender domains; subdomains match too.",
+    }),
+    local_parts: z.array(z.string().regex(/^[^@\s]+$/u)).optional().meta({
+      description:
+        "If set, a sender matched by `domains` must also have one of these local parts " +
+        "(e.g. shipment-tracking for shipment-tracking@amazon.de). Compared case-insensitively.",
+    }),
   })
   .refine((senders) => senders.addresses.length + senders.domains.length > 0, {
     message: "A rule needs at least one sender address or domain.",
@@ -87,15 +94,24 @@ export const mailRuleSchema = z.strictObject({
   exclude: z.array(regexLikeSchema).optional().meta({
     description: "If any matches the subject, the rule does not apply.",
   }),
+  body: z.array(regexLikeSchema).optional().meta({
+    description:
+      "If set, at least one must match the text (or the HTML as text); for senders such as " +
+      "marketplaces that relay mails of several carriers.",
+  }),
   extract: z.partialRecord(mailFieldSchema, z.array(extractSpecSchema).min(1)).default({}),
   status_keywords: z.array(statusKeywordSchema).default([]).meta({
     description: "Checked in order; the first group with a matching pattern sets the status.",
   }),
   event_keywords: z.array(eventKeywordSchema).default([]),
   default_status: parcelStatusSchema.optional(),
-  carrier: identifierSchema.optional(),
+  carrier: identifierSchema.optional().meta({
+    description: "The carrier when the mail names none (see carrier_from).",
+  }),
   carrier_from: z.literal("carrier").optional().meta({
-    description: "Take the carrier from the extracted carrier field, normalised via aliases.",
+    description:
+      "Take the carrier from the extracted carrier field, normalised via carriers.yaml " +
+      "aliases; falls back to `carrier`.",
   }),
   extractors: z.array(z.string()).default([]).meta({
     description: "Named code extractors (src/mail/extractors) for what a regex cannot express.",

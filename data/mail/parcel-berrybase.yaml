@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: parcel-berrybase
+name: BerryBase shipping notifications
+kind: parcel
+senders:
+  domains: [sertronics.shop, berrybase.de]
+  local_parts: [noreply, info, versand, shipping]
+subject:
+  - "versandt|versendet|shipped|tracking|sendungsverfolgung"
+carrier: dhl
+carrier_from: carrier
+extractors: [detect_tracking_numbers]
+extract:
+  carrier:
+    - pattern: '(?:versand mit|versanddienstleister|versandart)\s*:?\s*(?<carrier>DHL|Deutsche Post|DPD|GLS|UPS|Hermes)\b'
+  order_number:
+    - pattern: '(?:bestellung(?:snummer)?|auftrag(?:snummer)?|order(?: no\.?)?|#)\s*:?\s*(?<order_number>\d{5,9})\b'
+default_status: in_transit
+require: [tracking_number]
+tests:
+  - fixture: berrybase-shipped.eml
+    expect:
+      - ruleId: order-berrybase
+        event: order_shipped
+        orderNumbers: ["1234567"]
+      - ruleId: parcel-berrybase
+        carrier: dhl
+        trackingNumbers: ["00340434000000000420"]
+        orderNumbers: ["1234567"]
+        status: in_transit

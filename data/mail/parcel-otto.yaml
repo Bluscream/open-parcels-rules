@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: parcel-otto
+name: OTTO shipping notifications
+kind: parcel
+senders:
+  domains: [otto.de]
+subject:
+  - "unterwegs|versandt|versendet|lieferung|zugestellt"
+carrier_from: carrier
+extractors: [detect_tracking_numbers]
+extract:
+  carrier:
+    - pattern: '(?:versanddienstleister|versand mit|zusteller|lieferung durch)\s*:?\s*(?<carrier>Hermes|DHL|DPD|GLS|UPS)\b'
+  order_number:
+    - pattern: '(?:bestellnummer|auftragsnummer):?\s*(?<order_number>\d{6,12})\b'
+  arrival:
+    - pattern: '(?<arrival>(?:voraussichtlich|lieferung|zustellung)[^\n]{0,80})'
+      in: [text]
+status_keywords:
+  - status: delivered
+    patterns: ["zugestellt"]
+    in: [subject]
+default_status: in_transit
+tests:
+  - fixture: otto-shipped.eml
+    time_zone: Europe/Berlin
+    expect:
+      - ruleId: order-otto
+        event: order_shipped
+        orderNumbers: ["98765432"]
+      - ruleId: parcel-otto
+        kind: parcel
+        carrier: hermes
+        trackingNumbers: ["H1000012000000101001"]
+        orderNumbers: ["98765432"]
+        status: in_transit
+        arrival:
+          { from: "2026-11-20T00:00:00+01:00", to: "2026-11-24T00:00:00+01:00", allDay: true }

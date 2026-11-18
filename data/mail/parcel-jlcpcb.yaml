@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: parcel-jlcpcb
+name: JLCPCB shipping notifications
+kind: parcel
+senders:
+  domains: [jlcpcb.com]
+  local_parts: [noreply, no-reply, support, shipping, order]
+subject:
+  - "shipped|dispatched|tracking|shipment|has been sent|on its way"
+carrier_from: carrier
+extractors: [detect_tracking_numbers]
+extract:
+  carrier:
+    - pattern: '(?:shipping method|carrier|logistics|shipped (?:via|with))\s*:?\s*(?<carrier>DHL(?: Express)?|UPS|FedEx|4PX|YunExpress|Cainiao|China Post)\b'
+  tracking_number:
+    - pattern: '(?:tracking\s*(?:number|no\.?|#)?|sendungsnummer)\s*:?\s*(?<tracking_number>[A-Z0-9]{8,30})\b'
+  order_number:
+    - pattern: '(?:order|bestellung)\s*(?:number)?\s*#?\s*:?\s*(?<order_number>(?:JL|W)?\d{6,15})\b'
+default_status: in_transit
+require: [tracking_number]
+tests:
+  - fixture: jlcpcb-shipped.eml
+    expect:
+      - ruleId: order-jlcpcb
+        event: order_shipped
+        orderNumbers: ["W202611180001"]
+      - ruleId: parcel-jlcpcb
+        carrier: dhl
+        trackingNumbers: ["1234567891"]
+        orderNumbers: ["W202611180001"]
+        status: in_transit

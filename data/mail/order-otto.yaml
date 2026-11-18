@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: order-otto
+name: OTTO order confirmations and shipments
+kind: order
+senders:
+  domains: [otto.de]
+subject:
+  - "bestellung|auftrag|unterwegs|versandt|versendet|storniert"
+extract:
+  order_number:
+    - pattern: '(?:bestellnummer|auftragsnummer):?\s*(?<order_number>\d{6,12})\b'
+event_keywords:
+  - event: order_cancelled
+    patterns: ["storniert"]
+    in: [subject]
+  - event: order_shipped
+    patterns: ["unterwegs|versandt|versendet"]
+    in: [subject]
+  - event: order_confirmed
+    patterns: ["bestellung|auftrag"]
+    in: [subject]
+require: [order_number]
+tests:
+  - fixture: otto-order.eml
+    expect:
+      - ruleId: order-otto
+        kind: order
+        event: order_confirmed
+        orderNumbers: ["98765432"]

@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: order-shopify
+name: Order mails of shops hosted on Shopify
+kind: order
+senders:
+  domains: [shopify.com, shopifyemail.com]
+extract:
+  order_number:
+    - pattern: 'order\s+#(?<order_number>[A-Z0-9-]{3,20})\b'
+event_keywords:
+  - event: order_cancelled
+    patterns: ["cancell?ed|storniert"]
+    in: [subject]
+  - event: order_shipped
+    patterns: ["shipped|on (?:its|the) way|versandt|unterwegs"]
+    in: [subject]
+  - event: order_confirmed
+    patterns:
+      [
+        "order confirmed|thank you for your order|bestellbestätigung|potwierdzenie zamówienia|order #",
+      ]
+    in: [subject]
+require: [order_number]
+tests:
+  - fixture: shopify-order.eml
+    expect:
+      - ruleId: order-shopify
+        kind: order
+        event: order_confirmed
+        orderNumbers: ["1042"]

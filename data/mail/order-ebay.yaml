@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: order-ebay
+name: eBay purchase confirmations
+kind: order
+senders:
+  domains: [ebay.com, ebay.de, ebay.co.uk, ebay.ca, ebay.it, ebay.com.au, ebay.pl, ebay.fr, ebay.at]
+  local_parts: [ebay]
+subject:
+  - "order confirmed|bestätigung ihres kaufs|bestellung bestätigt|your ebay order|kupione|vielen dank für ihren kauf|storniert|cancell?ed"
+extract:
+  order_number:
+    - pattern: '\b(?<order_number>\d{2}-\d{5}-\d{5})\b'
+  item:
+    - pattern: '(?:artikel|item):\s*(?<item>[^\n]{3,80})'
+      in: [text]
+event_keywords:
+  - event: order_cancelled
+    patterns: ["storniert|cancell?ed"]
+    in: [subject]
+  - event: order_confirmed
+    patterns: ["."]
+    in: [subject]
+require: [order_number]
+tests:
+  - fixture: ebay-de-order.eml
+    expect:
+      - ruleId: order-ebay
+        kind: order
+        event: order_confirmed
+        orderNumbers: ["12-34567-89012"]
+        items: ["Retro-Kofferradio, gebraucht"]

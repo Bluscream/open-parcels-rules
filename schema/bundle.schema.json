@@ -818,10 +818,19 @@
               },
               "domains": {
                 "default": [],
+                "description": "Sender domains; subdomains match too.",
                 "type": "array",
                 "items": {
                   "type": "string",
                   "pattern": "^[a-z0-9-]+(\\.[a-z0-9-]+)+$"
+                }
+              },
+              "local_parts": {
+                "description": "If set, a sender matched by `domains` must also have one of these local parts (e.g. shipment-tracking for shipment-tracking@amazon.de). Compared case-insensitively.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[^@\\s]+$"
                 }
               }
             },
@@ -882,6 +891,44 @@
           },
           "exclude": {
             "description": "If any matches the subject, the rule does not apply.",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "A regex in the portable subset."
+                    },
+                    "flags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "i",
+                          "m",
+                          "s"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ],
+                  "additionalProperties": false,
+                  "description": "A regex in the portable subset (no lookaround, backreferences, atomic groups, possessive quantifiers, \\A/\\Z or inline flags; named groups as (?<name>...))."
+                }
+              ]
+            }
+          },
+          "body": {
+            "description": "If set, at least one must match the text (or the HTML as text); for senders such as marketplaces that relay mails of several carriers.",
             "type": "array",
             "items": {
               "anyOf": [
@@ -1162,12 +1209,12 @@
             "description": "Canonical parcel status. at_pickup_point means arrived and waiting for collection; a parcel still on its way to a pickup point is in_transit with pickup: true."
           },
           "carrier": {
+            "description": "The carrier when the mail names none (see carrier_from).",
             "type": "string",
-            "pattern": "^[a-z0-9][a-z0-9_-]*$",
-            "description": "Lower-case identifier: letters, digits, '_' and '-'."
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
           },
           "carrier_from": {
-            "description": "Take the carrier from the extracted carrier field, normalised via aliases.",
+            "description": "Take the carrier from the extracted carrier field, normalised via carriers.yaml aliases; falls back to `carrier`.",
             "type": "string",
             "const": "carrier"
           },

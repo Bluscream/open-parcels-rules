@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: parcel-gls
+name: GLS parcel notifications (also relayed by Allegro)
+kind: parcel
+senders:
+  domains: [gls-group.eu, gls-group.com, gls-pakete.de, allegromail.pl]
+body:
+  - '\bGLS\b'
+carrier: gls
+extractors: [detect_tracking_numbers]
+extract:
+  tracking_number:
+    - pattern: '(?:paketnummer|parcel number|numer paczki):?\s*(?<tracking_number>\d{11,12})\b'
+    # The 8-character TrackID is too loose to detect in free text; it is only read where the
+    # mail labels it.
+    - pattern: '(?:track ?id|trackid):?\s*(?<tracking_number>[A-Z0-9]{8})\b'
+  tracking_url:
+    - pattern: '(?<tracking_url>https://(?:www\.)?gls-(?:group\.(?:eu|com)|pakete\.de)/[^\s"<>]+)'
+      in: [text, html]
+  arrival:
+    - pattern: '(?<arrival>(?:zustellung|voraussichtlich|kommt|lieferung)[^\n]{0,80})'
+status_keywords:
+  - status: at_pickup_point
+    patterns: ["paketshop .{0,40}(?:abholbereit|zur abholung)|gotowa do odbioru"]
+  - status: problem
+    patterns: ["nicht zugestellt|zustellversuch|niedoręczona"]
+  - status: delivered
+    patterns: ["wurde zugestellt|została dzisiaj dostarczona|informacja o dostawie"]
+  - status: out_for_delivery
+    patterns: ["wird heute zugestellt|im laufe des tages zugestellt|in zustellung"]
+  - status: in_transit
+    patterns: ["unterwegs|paczka w drodze|auf dem weg"]
+require: [tracking_number]
+tests:
+  - fixture: gls-de-transit.eml
+    time_zone: Europe/Berlin
+    expect:
+      - ruleId: parcel-gls
+        carrier: gls
+        trackingNumbers: ["678901234566", "ZX4L7P9Q"]
+        status: in_transit
+        arrival:
+          { from: "2026-11-19T00:00:00+01:00", to: "2026-11-20T00:00:00+01:00", allDay: true }
+  - fixture: gls-pl-delivered.eml
+    expect:
+      - ruleId: parcel-gls
+        trackingNumbers: ["12345678901"]
+        status: delivered

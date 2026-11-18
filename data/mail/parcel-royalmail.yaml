@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: parcel-royalmail
+name: Royal Mail tracking notifications
+kind: parcel
+senders:
+  addresses: [no-reply@royalmail.com]
+  domains: [royalmail.com]
+carrier: royalmail
+extract:
+  tracking_number:
+    - pattern: '\b(?<tracking_number>[A-Z]{2}\d{9}GB)\b'
+status_keywords:
+  - status: delivered
+    patterns: ["has been delivered"]
+  - status: at_pickup_point
+    patterns: ["ready to collect|waiting for you at"]
+  - status: out_for_delivery
+    patterns: ["to be delivered today|out for delivery"]
+  - status: in_transit
+    patterns: ["is on its way"]
+require: [tracking_number]
+tests:
+  - fixture: royalmail-delivered.eml
+    expect:
+      - ruleId: parcel-royalmail
+        carrier: royalmail
+        trackingNumbers: ["RR987654326GB"]
+        status: delivered

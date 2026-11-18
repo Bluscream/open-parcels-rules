@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: parcel-inpost
+name: InPost parcel locker notifications (also relayed by Allegro)
+kind: parcel
+senders:
+  addresses: [powiadomienia@inpost.pl, info@paczkomaty.pl]
+  domains: [allegromail.pl]
+body:
+  # "paczkoma" covers the inflected forms (Paczkomat, Paczkomacie, Paczkomatu).
+  - "inpost|paczkoma"
+carrier: inpost
+extract:
+  tracking_number:
+    - pattern: '\b(?<tracking_number>\d{24})\b'
+  pickup_code:
+    - pattern: 'kod odbioru:?\s*(?<pickup_code>\d{6})\b'
+      in: [text]
+status_keywords:
+  - status: delivered
+    patterns: ["potwierdzenie odbioru|została odebrana"]
+  - status: at_pickup_point
+    patterns: ["umieszczona w paczkomacie|czeka na ciebie|gotowa do odbioru"]
+  - status: out_for_delivery
+    patterns: ["prawie u ciebie|wydana do doręczenia"]
+  - status: in_transit
+    patterns: ["jest w drodze|została nadana"]
+require: [tracking_number]
+tests:
+  - fixture: inpost-locker.eml
+    expect:
+      - ruleId: parcel-inpost
+        carrier: inpost
+        trackingNumbers: ["602345678901234567890123"]
+        status: at_pickup_point
+        pickupCode: "135790"

@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: return-paypal
+name: PayPal refund notifications
+kind: return
+senders:
+  domains: [paypal.com, paypal.de, paypal.co.uk, paypal.pl, paypal.it, paypal.fr]
+  local_parts: [service]
+subject:
+  - "refund from|rückzahlung von|erstattung von|zwrot pieniędzy od|zwrot od|remboursement de|rimborso da"
+event_keywords:
+  - event: refund_issued
+    patterns: ["."]
+    in: [subject]
+tests:
+  - fixture: paypal-refund.eml
+    expect:
+      - ruleId: return-paypal
+        kind: return
+        event: refund_issued
+        trackingNumbers: []
+        orderNumbers: []

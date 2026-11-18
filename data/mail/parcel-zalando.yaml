@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: parcel-zalando
+name: Zalando shipping notifications
+kind: parcel
+senders:
+  domains: [zalando.de, zalando.at, zalando.com]
+subject:
+  - "unterwegs|versandt|on its way|shipped|zugestellt|delivered"
+carrier_from: carrier
+extractors: [detect_tracking_numbers]
+extract:
+  carrier:
+    - pattern: '(?:versanddienstleister|versand mit|carrier)\s*:?\s*(?<carrier>DHL|Hermes|DPD|GLS|UPS)\b'
+  order_number:
+    - pattern: '(?:bestellnummer|order number):?\s*(?<order_number>\d{8,16})\b'
+  arrival:
+    - pattern: '(?<arrival>(?:voraussichtlich|lieferung|zustellung|delivery)[^\n]{0,80})'
+      in: [text]
+status_keywords:
+  - status: delivered
+    patterns: ["zugestellt|delivered"]
+    in: [subject]
+default_status: in_transit
+tests:
+  - fixture: zalando-shipped.eml
+    time_zone: Europe/Berlin
+    expect:
+      - ruleId: order-zalando
+        event: order_shipped
+        orderNumbers: ["10101234567890"]
+      - ruleId: parcel-zalando
+        carrier: dhl
+        trackingNumbers: ["00340434987654321012"]
+        orderNumbers: ["10101234567890"]
+        status: in_transit
+        arrival:
+          { from: "2026-11-19T00:00:00+01:00", to: "2026-11-21T00:00:00+01:00", allDay: true }

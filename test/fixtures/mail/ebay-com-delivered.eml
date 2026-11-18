@@ -1,0 +1,11 @@
+From: eBay <ebay@ebay.com>
+To: jane.doe@example.com
+Subject: Your item was delivered
+Date: Wed, 18 Nov 2026 17:00:00 -0500
+Content-Type: text/plain; charset=utf-8
+
+Your order has arrived.
+
+Order number: 21-12345-67890
+Shipping service: USPS
+Tracking number: 9400 1112 0000 0001 2345 65

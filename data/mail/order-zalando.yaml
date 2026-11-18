@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: order-zalando
+name: Zalando order confirmations and shipments
+kind: order
+senders:
+  domains: [zalando.de, zalando.at, zalando.com]
+subject:
+  - "bestellung|order|unterwegs|versandt|shipped|storniert|cancell?ed"
+extract:
+  order_number:
+    - pattern: '(?:bestellnummer|order number):?\s*(?<order_number>\d{8,16})\b'
+event_keywords:
+  - event: order_cancelled
+    patterns: ["storniert|cancell?ed"]
+    in: [subject]
+  - event: order_shipped
+    patterns: ["unterwegs|versandt|shipped|on its way"]
+    in: [subject]
+  - event: order_confirmed
+    patterns: ["bestellung|order"]
+    in: [subject]
+require: [order_number]
+tests:
+  - fixture: zalando-order.eml
+    expect:
+      - ruleId: order-zalando
+        kind: order
+        event: order_confirmed
+        orderNumbers: ["10101234567890"]

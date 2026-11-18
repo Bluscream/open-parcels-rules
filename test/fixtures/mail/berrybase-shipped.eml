@@ -1,0 +1,10 @@
+From: BerryBase <versand@berrybase.de>
+To: max.mustermann@example.com
+Subject: Ihre Bestellung 1234567 wurde versandt
+Date: Wed, 18 Nov 2026 13:00:00 +0100
+Content-Type: text/plain; charset=utf-8
+
+Hallo Max Mustermann,
+
+Ihre Bestellung 1234567 hat unser Lager verlassen.
+Versand mit DHL, Sendungsnummer: 00340434000000000420

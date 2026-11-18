@@ -15,8 +15,11 @@ export interface CompiledMailRule {
   readonly kind: MailKind;
   readonly addresses: ReadonlySet<string>;
   readonly domains: readonly string[];
+  /** Lower-cased local parts a domain match must also have; null for any. */
+  readonly localParts: ReadonlySet<string> | null;
   readonly subject: readonly RegExp[] | null;
   readonly exclude: readonly RegExp[];
+  readonly body: readonly RegExp[] | null;
   readonly extract: ReadonlyMap<MailField, readonly CompiledPattern[]>;
   readonly statusKeywords: readonly { status: ParcelStatus; patterns: CompiledPattern[] }[];
   readonly eventKeywords: readonly { event: MailEvent; patterns: CompiledPattern[] }[];
@@ -62,8 +65,13 @@ export function compileMailRule(rule: Omit<MailRule, "tests">): CompiledMailRule
     kind: rule.kind,
     addresses: new Set(rule.senders.addresses),
     domains: rule.senders.domains,
+    localParts:
+      rule.senders.local_parts === undefined
+        ? null
+        : new Set(rule.senders.local_parts.map((part) => part.toLowerCase())),
     subject: rule.subject === undefined ? null : compileAll(rule.subject, rule.flags),
     exclude: compileAll(rule.exclude ?? [], rule.flags),
+    body: rule.body === undefined ? null : compileAll(rule.body, rule.flags),
     extract,
     statusKeywords: rule.status_keywords.map((group) => ({
       status: group.status,

@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: parcel-auspost
+name: Australia Post shipment notifications
+kind: parcel
+senders:
+  addresses: [noreply@notifications.auspost.com.au]
+carrier: auspost
+extract:
+  tracking_number:
+    - pattern: '\b(?<tracking_number>[A-Z]{2}\d{9}AU|\d{7,12}|[A-Z0-9]{3}\d{20})\b'
+      flags: []
+status_keywords:
+  - status: delivered
+    patterns: ["has been delivered"]
+    in: [subject]
+  - status: at_pickup_point
+    patterns: ["ready to collect|awaiting collection"]
+  - status: out_for_delivery
+    patterns: ["is coming today|out for delivery|on board for delivery"]
+  - status: in_transit
+    patterns: ["is on its way"]
+require: [tracking_number]
+tests:
+  - fixture: auspost-coming-today.eml
+    expect:
+      - ruleId: parcel-auspost
+        carrier: auspost
+        trackingNumbers: ["CX555666772AU"]
+        status: out_for_delivery

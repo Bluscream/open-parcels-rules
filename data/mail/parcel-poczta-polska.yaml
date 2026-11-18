@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+id: parcel-poczta-polska
+name: Poczta Polska notifications (also relayed by Allegro)
+kind: parcel
+senders:
+  addresses: [informacja@poczta-polska.pl]
+  domains: [allegromail.pl]
+body:
+  - "poczta polska|pocztex"
+carrier: poczta_polska
+extract:
+  tracking_number:
+    - pattern: '\b(?<tracking_number>\d{20}|[A-Z]{2}\d{9}PL)\b'
+status_keywords:
+  - status: delivered
+    patterns: ["doręczona|odebrana"]
+  - status: at_pickup_point
+    patterns: ["awizo|czeka na odbiór|do odbioru w placówce"]
+  - status: out_for_delivery
+    patterns: ["wydana do doręczenia|w doręczeniu"]
+default_status: in_transit
+require: [tracking_number]
+tests:
+  - fixture: poczta-polska-einfo.eml
+    expect:
+      - ruleId: parcel-poczta-polska
+        carrier: poczta_polska
+        trackingNumbers: ["RR111222332PL"]
+        status: at_pickup_point

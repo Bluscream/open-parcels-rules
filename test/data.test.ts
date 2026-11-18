@@ -107,7 +107,7 @@ describe("regex portability", () => {
   const regexes = dataRegexes();
 
   it("finds the regexes it is meant to check", () => {
-    expect(regexes.length).toBeGreaterThan(80);
+    expect(regexes.length).toBeGreaterThan(250);
   });
 
   it("keeps every data regex inside the portable subset", () => {
