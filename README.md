@@ -1,43 +1,110 @@
-# Email Parser Rules Repository Documentation
+# open-parcels-rules
 
-`email-parser-rules` is a decoupled, modular rules engine for parsing structured information (such as shipping parcels, merchant order confirmations, and return requests) directly from incoming emails. 
+Collectively maintained knowledge about parcel tracking, written as plain data, plus a small
+TypeScript engine that reads it:
 
-By separating the parsing rules from your core application, you can update, expand, and maintain rulesets without needing to redeploy or restart the main application server.
+- **Tracking-number formats**: which carrier a number belongs to, with check digits.
+- **Carrier status tables**: raw carrier codes and texts mapped onto eight canonical states.
+- **Delivery-date phrases**: "Arriving 3 - 5 December", "Zustellung heute 17h - 19h" and the
+  like turned into a time window in the right time zone.
+- **Shipping-mail rules**: which sender says what, and where the tracking number, order
+  number, arrival date and pickup code are.
 
----
+The data is language neutral (YAML and JSON with JSON Schemas, and a regex subset that compiles
+the same in JavaScript, Python and Go), so other projects can read it too. A stdlib-only Python
+loader in [`python/`](python/) proves that.
 
-## 💡 Core Philosophy
+## Contents
 
-1. **Modular Source Files**: Rules are organized cleanly in folders inside `src/`. No single massive configuration file.
-2. **Naming Convention (`_.json`)**: Basic metadata about each courier or shipper (such as name and domains) is stored in a file called `_.json` so that it always sorts to the very top in your code editor.
-3. **Single-File Bundled Assets**: The repository contains a build script using `esbuild` to merge, minify, and bundle everything into exactly **one single-file compiled Javascript bundle** per category under `dist/` (e.g. `dist/parcel.js`, `dist/order.js`, `dist/return.js`).
-4. **Resilient dynamic consumption**: Your application downloads this single bundle from a remote URL (like a GitHub Raw URL or Release Asset), loads it in memory, and persists it to a local disk cache to survive server restarts and network outages.
+| Path | What it holds |
+| --- | --- |
+| [`data/carriers.yaml`](data/carriers.yaml) | Carrier registry: id, name, aliases, countries, mail domains, tracking URL templates per locale, cross-reference ids |
+| [`data/tracking-numbers/`](data/tracking-numbers/) | Our tracking-number formats, in the same schema as the vendored community files |
+| [`vendor/tracking_number_data/`](vendor/tracking_number_data/) | Pinned, unmodified copy of the community tracking_number_data courier files (MIT, see its `LICENSE` and `VERSION`) |
+| [`data/status/`](data/status/) | Status tables per carrier, with test vectors |
+| [`data/locales/`](data/locales/) | Delivery-date words and phrases per language, with test vectors |
+| [`data/mail/`](data/mail/) | One YAML file per mail rule, each tested against made-up `.eml` fixtures in [`test/fixtures/mail/`](test/fixtures/mail/) |
+| [`schema/`](schema/) | JSON Schema (2020-12) for every data file type, generated from the TypeScript schemas |
+| [`src/`](src/) | The TypeScript engine |
+| [`python/`](python/) | Python reference loader and vector runner |
+| [`docs/`](docs/) | Data formats, how to contribute, how to consume the package |
 
----
+## Canonical statuses
 
-## 📖 Table of Contents
+`registered`, `in_transit`, `out_for_delivery`, `at_pickup_point`, `delivered`, `returning`,
+`problem`, `unknown`. A parcel waiting to be collected is `at_pickup_point`; one still on its
+way to a pickup point is `in_transit` with `pickup: true`. `problem` covers exceptions, failed
+attempts, holds, damage and address issues; `returning` means on its way back to the sender.
 
-*   [**Creating Rules**](docs/creating-rules.md)
-    *   Learn how to configure metadata (`_.json`), build status matching, use high-performance prefix search, extract variables declaratively using Regex Named Capture Groups, and write custom JavaScript parser callbacks.
-*   [**Application Integration Guide**](docs/app-integration.md)
-    *   Learn how to fetch, safely execute, cache, and fall back on compiled JS rulesets inside your own application engine.
+## Using it from TypeScript
 
----
+```ts
+import { loadRules, detectTrackingNumbers, mapStatus, parseArrival, parseMail } from "open-parcels-rules";
 
-## 🛠️ Quick Start
+const rules = loadRules(); // reads and validates dist/bundle.json once
 
-To build and compile your rules locally:
+detectTrackingNumbers(rules, "Sendungsnummer 00340434123456789012", { country: "DE" });
+// [{ carrier: "dhl", trackingNumber: "00340434123456789012", confidence: 0.73, checksumValid: true, ... }, ...]
 
-1. Clone or navigate to the directory:
-   ```bash
-   cd email-parser-rules
-   ```
-2. Install the lightweight development dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the build compiler:
-   ```bash
-   npm run build
-   ```
-4. Verify the output compiled assets under the `dist/` directory.
+mapStatus(rules, "hermes", { code: "ZUGESTELLT_PAKETSHOP" });
+// { status: "at_pickup_point", pickup: true, confirmed: true }
+
+parseArrival(rules, "Zustellung heute 17h - 19h", { now: new Date(), timeZone: "Europe/Berlin" });
+// { from: "...T17:00:00+01:00", to: "...T19:00:00+01:00", allDay: false, matched: "Zustellung heute 17h - 19h" }
+
+parseMail(rules, { from: "noreply@dhl.de", subject: "Ihr DHL Paket kommt heute", text, date });
+```
+
+The full API, with every option, is in [`docs/consuming.md`](docs/consuming.md). Mail results
+can carry a `pickupCode`: show it to the recipient, but never write it to logs.
+
+## Using it from Python
+
+```sh
+npm run build                          # produces dist/bundle.json
+python -I python/run_vectors.py        # runs the shared test vectors
+```
+
+```python
+from open_parcels_rules import load_rules, detect_tracking_numbers, map_status
+
+rules = load_rules("dist/bundle.json")
+detect_tracking_numbers(rules, "RR987654326GB")
+map_status(rules, "gls", code="DELIVEREDPS")
+```
+
+## Contributing a rule
+
+Every rule comes with test vectors, and the gate fails without them. In short:
+
+1. Edit or add the data file (the `# yaml-language-server: $schema=...` header gives editor
+   completion).
+2. Add vectors: `test_numbers` for formats, `tests` for statuses and locales, and an `.eml`
+   fixture with its expected result for mail rules. Use made-up values only; numbers must
+   still pass their check digits.
+3. Run `npm run gate`.
+
+Details for each data type are in [`docs/contributing.md`](docs/contributing.md).
+
+### The regex subset
+
+Every regex in our data files must compile to the same meaning in JavaScript (`u` flag),
+Python `re` and Go RE2. A test enforces this:
+
+- no lookahead or lookbehind, no backreferences, no atomic groups, no possessive quantifiers;
+- no `\A`, `\Z` or `\z` (use `^` and `$`), no `\u` escapes (write the character), no `{,n}`;
+- named groups as `(?<name>...)` (Python ports rewrite them to `(?P<name>...)`);
+- case-insensitivity through a `flags: [i]` field, never inline `(?i)`.
+
+The vendored upstream files keep their own patterns; the ones outside the subset are listed in
+[`vendor/tracking_number_data/PORTABILITY.md`](vendor/tracking_number_data/PORTABILITY.md).
+
+## Development
+
+Node 26 and npm 11. `npm install`, then `npm run gate` (format check, lint, type check, build,
+tests, Python vectors). `npm run generate` refreshes the JSON Schemas and the portability report
+after a schema change.
+
+## Licence
+
+Not decided yet. The vendored community data keeps its own MIT licence.
