@@ -1,17 +1,16 @@
 # yaml-language-server: $schema=../../schema/mail-rule.schema.json
 id: parcel-hermes
-name: Hermes Germany and Evri parcel notifications
+name: Hermes Germany parcel notifications
 kind: parcel
 senders:
-  addresses: [donotreply@myhermes.co.uk]
-  domains: [myhermes.de, hermesworld.com, evri.com]
+  domains: [myhermes.de, hermesworld.com]
 carrier: hermes
 extractors: [detect_tracking_numbers]
 extract:
   tracking_number:
     - pattern: '\b(?<tracking_number>H\d{19})\b'
   tracking_url:
-    - pattern: '(?<tracking_url>https://(?:www\.)?(?:myhermes\.de|evri\.com)/[^\s"<>]+)'
+    - pattern: '(?<tracking_url>https://(?:www\.)?myhermes\.de/[^\s"<>]+)'
       in: [text, html]
   arrival:
     - pattern: '(?<arrival>(?:voraussichtlich|zustellung|kommt|lieferung|expected|arriving|delivery)[^\n]{0,80})'
@@ -51,8 +50,3 @@ tests:
         status: out_for_delivery
         arrival:
           { from: "2026-11-18T10:00:00+01:00", to: "2026-11-18T13:00:00+01:00", allDay: false }
-  - fixture: hermes-uk-delivered.eml
-    expect:
-      - ruleId: parcel-hermes
-        trackingNumbers: ["H1000012000000101001"]
-        status: delivered
