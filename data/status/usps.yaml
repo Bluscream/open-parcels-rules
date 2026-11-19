@@ -25,9 +25,47 @@ entries:
   - { match: { code_prefix: "delivery exception" }, status: problem }
   - { match: { code_prefix: "undeliverable" }, status: problem }
   - { match: { code_prefix: "forwarded" }, status: problem }
+  # Informed Delivery's `statusCategory` (lower case), as `informed:<category>`: deliberately
+  # narrower than the tracking texts above, only categories seen in real inboxes. The `status`
+  # beside it carries a location suffix, hence prefixes.
+  - { match: { code_prefix: "informed:delivered" }, status: delivered }
+  - { match: { code_prefix: "informed:out for delivery" }, status: out_for_delivery }
+  - { match: { code_prefix: "informed:preparing for delivery" }, status: in_transit }
+  - { match: { code_prefix: "informed:on the way" }, status: in_transit }
+  - { match: { code_prefix: "informed:accepted" }, status: in_transit }
+  # Still with the shipper's own partner; USPS has not scanned it yet.
+  - { match: { code_prefix: "informed:usps awaiting item" }, status: registered }
 tests:
+  - { input: { code: "informed:On the Way" }, status: in_transit }
+  - { input: { code: "informed:delivered, front door/porch" }, status: delivered }
+  - { input: { code: "informed:USPS Awaiting Item" }, status: registered }
+  - { input: { code: "informed:out for delivery" }, status: out_for_delivery }
+  - { input: { code: "informed:preparing for delivery" }, status: in_transit }
+  - { input: { code: "informed:accepted at usps origin facility" }, status: in_transit }
+  - { input: { code: "informed:alert" }, status: null }
   - { input: { code: "pre-shipment info sent to usps" }, status: registered }
   - { input: { code: "arrived at usps regional facility" }, status: in_transit }
   - { input: { code: "delivered, in/at mailbox" }, status: delivered }
   - { input: { code: "held at post office, at customer request" }, status: at_pickup_point }
   - { input: { code: "notice left" }, status: null }
+  - { input: { code: "pre-shipment" }, status: registered }
+  - { input: { code: "shipping label created" }, status: registered }
+  - { input: { code: "label created" }, status: registered }
+  - { input: { code: "accepted" }, status: in_transit }
+  - { input: { code: "usps in possession" }, status: in_transit }
+  - { input: { code: "in transit" }, status: in_transit }
+  - { input: { code: "arrived" }, status: in_transit }
+  - { input: { code: "departed" }, status: in_transit }
+  - { input: { code: "processed" }, status: in_transit }
+  - { input: { code: "preparing for delivery" }, status: in_transit }
+  - { input: { code: "out for delivery" }, status: out_for_delivery }
+  - { input: { code: "available for pickup" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "ready for pickup" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "held at post office" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "delivered" }, status: delivered }
+  - { input: { code: "return to sender" }, status: returning }
+  - { input: { code: "returning" }, status: returning }
+  - { input: { code: "alert" }, status: problem }
+  - { input: { code: "delivery exception" }, status: problem }
+  - { input: { code: "undeliverable" }, status: problem }
+  - { input: { code: "forwarded" }, status: problem }

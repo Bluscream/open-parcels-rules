@@ -36,9 +36,42 @@ entries:
   - { match: { code: "return_disposed" }, status: problem }
   - { match: { code: "return_empty_locker_found" }, status: problem }
   - { match: { code: "return_cancelled" }, status: problem }
+  # The account list's `resolution` of a finished shipment, as `resolution:<value>`; only a
+  # delivery is known so far, anything else stays unmapped.
+  - { match: { code: "resolution:delivered" }, status: delivered }
 tests:
+  - { input: { code: "resolution:delivered" }, status: delivered }
+  - { input: { code: "resolution:refunded" }, status: null }
   - { input: { code: tracking_code_created }, status: registered }
   - { input: { code: ready_for_collection_at_merchant }, status: at_pickup_point, pickup: true }
   - { input: { code: returned }, status: delivered }
   - { input: { code: return_in_transit }, status: returning }
   - { input: { code: teleported }, status: null }
+  - { input: { code: "created" }, status: registered }
+  - { input: { code: "shipped" }, status: in_transit }
+  - { input: { code: "hand_over" }, status: in_transit }
+  - { input: { code: "in_depot" }, status: in_transit }
+  - { input: { code: "left_depot" }, status: in_transit }
+  - { input: { code: "in_transit" }, status: in_transit }
+  - { input: { code: "redirected" }, status: in_transit }
+  - { input: { code: "left_our_network" }, status: in_transit }
+  - { input: { code: "in_delivery" }, status: out_for_delivery }
+  - { input: { code: "available_for_pickup" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "ready_for_pickup" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "delivered" }, status: delivered }
+  - { input: { code: "concluded" }, status: delivered }
+  - { input: { code: "disposed" }, status: problem }
+  - { input: { code: "empty_locker_found" }, status: problem }
+  - { input: { code: "lost" }, status: problem }
+  - { input: { code: "pickup_failed" }, status: problem }
+  - { input: { code: "cancelled" }, status: problem }
+  - { input: { code: "pickup_cancelled" }, status: problem }
+  - { input: { code: "return" }, status: returning }
+  - { input: { code: "return_return" }, status: returning }
+  - { input: { code: "return_to_sender" }, status: returning }
+  - { input: { code: "return_ready_for_pickup" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "return_delivered" }, status: delivered }
+  - { input: { code: "return_lost" }, status: problem }
+  - { input: { code: "return_disposed" }, status: problem }
+  - { input: { code: "return_empty_locker_found" }, status: problem }
+  - { input: { code: "return_cancelled" }, status: problem }
