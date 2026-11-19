@@ -41,3 +41,33 @@ tests:
   - { input: { code: HP }, status: at_pickup_point, pickup: true }
   - { input: { code: DL }, status: delivered }
   - { input: { code: ZZ }, status: null }
+  - { input: { code: "DO" }, status: registered }
+  - { input: { code: "IN" }, status: registered }
+  - { input: { code: "PD" }, status: problem }
+  - { input: { code: "CA" }, status: problem }
+  - { input: { code: "DD" }, status: problem }
+  - { input: { code: "SE" }, status: problem }
+  - { input: { code: "CD" }, status: problem }
+  - { input: { code: "DE" }, status: problem }
+  - { input: { code: "IP" }, status: in_transit }
+  - { input: { code: "DS" }, status: in_transit }
+  - { input: { code: "US" }, status: in_transit }
+  - { input: { code: "TR" }, status: in_transit }
+  - { input: { code: "DR" }, status: in_transit }
+  - { input: { code: "PM" }, status: in_transit }
+  - { input: { code: "MD" }, status: in_transit }
+  - { input: { code: "CH" }, status: in_transit }
+  - { input: { code: "AC" }, status: in_transit }
+  - { input: { code: "OX" }, status: in_transit }
+  - { input: { code: "CP" }, status: in_transit }
+  - { input: { code: "EA" }, status: in_transit }
+  - { input: { code: "AE" }, status: in_transit }
+  - { input: { code: "AO" }, status: in_transit }
+  - { input: { code: "DY" }, status: in_transit }
+  - { input: { code: "AR" }, status: in_transit }
+  - { input: { code: "AF" }, status: in_transit }
+  - { input: { code: "DP" }, status: in_transit }
+  - { input: { code: "CC" }, status: in_transit }
+  - { input: { code: "PU" }, status: in_transit }
+  - { input: { code: "IT" }, status: in_transit }
+  - { input: { code: "OD" }, status: out_for_delivery }

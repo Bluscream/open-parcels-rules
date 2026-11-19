@@ -509,3 +509,193 @@ tests:
   - { input: { text: "Sendung wurde gewogen" }, status: null }
   - { input: { fields: { pl_status: TT_OP } }, status: delivered }
   - { input: { fields: { pl_step: DeliveredToLocker } }, status: at_pickup_point, pickup: true }
+  - { input: { code: "fortschritt:0" }, status: registered }
+  - { input: { code: "fortschritt:1" }, status: registered }
+  - { input: { code: "fortschritt:2" }, status: in_transit }
+  - { input: { code: "fortschritt:3" }, status: in_transit }
+  - { input: { code: "transit" }, status: in_transit }
+  - { input: { code: "delivered" }, status: delivered }
+  - { input: { code: "failure" }, status: problem }
+  - { input: { code: "unknown" }, status: unknown }
+  - { input: { code: "DATA_RECEIVED" }, status: registered }
+  - { input: { code: "LEG" }, status: registered }
+  - { input: { code: "UNDERWAY" }, status: in_transit }
+  - { input: { code: "CUSTOMS" }, status: in_transit }
+  - { input: { code: "IN_DELIVERY" }, status: out_for_delivery }
+  - { input: { code: "PROBLEM" }, status: problem }
+  - { input: { code: "INTERVENTION" }, status: problem }
+  - { input: { code: "EXCEPTION" }, status: problem }
+  - { input: { code: "PRENOTIFICATION_RECEIVED" }, status: registered }
+  - { input: { code: "DATA_RECEIVED_WITH_PREFIX_LABEL" }, status: registered }
+  - { input: { code: "OUT_FOR_DELIVERY" }, status: out_for_delivery }
+  - { input: { code: "LOAD_VEHICLE" }, status: out_for_delivery }
+  - { input: { code: "PARCEL_INTO_FALLBACK" }, status: out_for_delivery }
+  - { input: { code: "PARCEL_WILL_BE_DELIVERED_SOON" }, status: out_for_delivery }
+  - {
+      input: { code: "NOTIFICATION_FOR_PARCELSHOP_COLLECTION_HAS_BEEN_SENT" },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - {
+      input: { code: "NOTIFICATION_FOR_PARCELSTATION_COLLECTION_HAS_BEEN_SENT" },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { input: { code: "AWAITING_RECEIVER_COLLECTION" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "CLOSED_AWAITING_COLLECTION" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "DELIVERED_AT_ACCESSPOINT" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "DELIVERY_CODE_MISSING_PICK_UP" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "ON_HOLD_FOR_COLLECTION" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "PARCEL_FOUND_AT_PARCELSHOP" }, status: at_pickup_point, pickup: true }
+  - {
+      input: { code: "PARCEL_HELD_FOR_COLLECTION_AT_LOCAL_DEPOT" },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { input: { code: "REMINDER_FOR_COLLECTION_SENT_EMAIL" }, status: at_pickup_point, pickup: true }
+  - {
+      input: { code: "REMINDER_FOR_COLLECTION_SENT_LETTER" },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { input: { code: "REMINDER_FOR_COLLECTION_SENT_SMS" }, status: at_pickup_point, pickup: true }
+  - {
+      input: { code: "INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_ANOTHER_TIME/DATE" },
+      status: in_transit,
+    }
+  - {
+      input: { code: "INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_ACCESSPOINT" },
+      status: in_transit,
+      pickup: true,
+    }
+  - { input: { code: "INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_NEIGHBOURS" }, status: in_transit }
+  - {
+      input: { code: "INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_PARCELSHOP" },
+      status: in_transit,
+      pickup: true,
+    }
+  - {
+      input: { code: "INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_PARCELSTATION" },
+      status: in_transit,
+      pickup: true,
+    }
+  - {
+      input: { code: "INTERVENTION_RECEIVER_REQUESTS_DELIVERY_AT_PREFERRED_NEIGHBOURS" },
+      status: in_transit,
+    }
+  - { input: { code: "PARCEL_ARRIVED_AT_LOCAL_DEPOT" }, status: in_transit }
+  - { input: { code: "PARCEL_SORTED_AT_HUB" }, status: in_transit }
+  - { input: { code: "FACILITY_CHECK_IN" }, status: in_transit }
+  - { input: { code: "NOT_HOME_NEW_DELIVERY" }, status: problem }
+  - { input: { code: "COLLECTED_AT_ACCESSPOINT" }, status: delivered, pickup: true }
+  - { input: { code: "COLLECTED_AT_PARCELSTATION" }, status: delivered, pickup: true }
+  - { input: { code: "SHIPMENT_COLLECTED" }, status: delivered, pickup: true }
+  - { input: { code: "DELIVERED_AT_NEIGHBOURS" }, status: delivered }
+  - { input: { code: "DELIVERED_AT_PREFERED_NEIGHBOURS" }, status: delivered }
+  - { input: { code: "DELIVERED_AT_SAFEPLACE" }, status: delivered }
+  - { input: { code: "DELIVERED_IN_MAILBOX" }, status: delivered }
+  - { input: { code: "DELIVERED_DAMAGED" }, status: delivered }
+  - { input: { code: "DELIVERED_NOT_IN_TIME" }, status: delivered }
+  - { input: { code: "DELIVERED_NO_CODE_VALIDATION" }, status: delivered }
+  - { input: { code: "ADDRESS_UNKNOWN" }, status: returning }
+  - { input: { code: "CUSTOMS_DATA_INCORRECT_RETURN_TO_SHIPPER" }, status: returning }
+  - { input: { code: "DAMAGE_RETURN" }, status: returning }
+  - { input: { code: "DELIVERY_CODE_MISSING_RETURN" }, status: returning }
+  - { input: { code: "DELIVERY_DATA_INCORRECT_RETURN" }, status: returning }
+  - { input: { code: "EXPECTED_RETURN_DELIVERED_AT_SHIPPER_CALCULATED" }, status: returning }
+  - { input: { code: "INTERVENTION_RECEIVER_REQUEST_DELIVERY_CANCELLED" }, status: returning }
+  - { input: { code: "INTERVENTION_SHIPPER_REQUEST_DELIVERY_CANCELLED" }, status: returning }
+  - { input: { code: "INVALID_SHIPMENT_SPECIFICATION_RETURN" }, status: returning }
+  - { input: { code: "MISROUTED_RETURN_TO_SHIPPER" }, status: returning }
+  - { input: { code: "NOT_HOME_RETURN_TO_SHIPPER" }, status: returning }
+  - { input: { code: "NO_MONEY_RETURN" }, status: returning }
+  - { input: { code: "ON_ROUTE_TO_SHIPPER" }, status: returning }
+  - { input: { code: "PARCELSTATION_DELIVERY_UNSUCCESFULL_RETURN" }, status: returning }
+  - { input: { code: "PARCEL_ALREADY_RETURNED" }, status: returning }
+  - { input: { code: "PARCEL_RELABELED_FOR_RETURN_TO_SHIPPER" }, status: returning }
+  - { input: { code: "PARCEL_SCANNED_AT_RETURN_HUB" }, status: returning }
+  - { input: { code: "PARCEL_SCANNED_FOR_RETURN_TO_HUB" }, status: returning }
+  - { input: { code: "PARCEL_TOO_HEAVY_RETURN" }, status: returning }
+  - { input: { code: "PARCEL_TOO_LARGE_RETURN" }, status: returning }
+  - { input: { code: "POSTAL_CODE_INCORRECT" }, status: returning }
+  - { input: { code: "PO_BOX" }, status: returning }
+  - { input: { code: "RECEIVER_RETURN" }, status: returning }
+  - { input: { code: "RECEIVER_UNKNOWN_RETURN" }, status: returning }
+  - { input: { code: "REFUSED_AT_PARCELSHOP" }, status: returning }
+  - { input: { code: "REFUSED_BY_RECEIVER" }, status: returning }
+  - { input: { code: "REFUSED_NOT_COLLECTED" }, status: returning }
+  - { input: { code: "RETURNED_NOT_COLLECTED" }, status: returning }
+  - { input: { code: "RETURNED_TO_SHIPPER" }, status: returning }
+  - { input: { code: "SPONTANEOUS_RETURN" }, status: returning }
+  - { input: { code: "INTERVENTION_REQUEST_CANCEL_INTERVENTION" }, status: returning }
+  - { input: { code: "POSTPROCESS_" }, status: returning }
+  - { input: { code: "REFUSED_RETURN" }, status: returning }
+  - { input: { code: "STORAGE_PERIOD_ENDED_AT_ACCESSPOINT" }, status: returning }
+  - { input: { code: "STORAGE_PERIOD_ENDED_AT_PARCELSHOP" }, status: returning }
+  - { input: { code: "STORAGE_PERIOD_ENDED_AT_PARCELSTATION" }, status: returning }
+  - { input: { code: "TT_EDWP" }, status: registered }
+  - { input: { code: "SP_DSP" }, status: in_transit }
+  - { input: { code: "TT_MAG" }, status: in_transit }
+  - { input: { code: "TT_MAG_INT" }, status: in_transit }
+  - { input: { code: "TT_PRZEKIERUJ" }, status: in_transit }
+  - { input: { code: "TT_DWP" }, status: out_for_delivery }
+  - { input: { code: "TT_DWP_INT" }, status: out_for_delivery }
+  - { input: { code: "TT_LK" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "TT_AWI" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "TT_DOR" }, status: delivered }
+  - { input: { code: "TT_ZWN" }, status: returning }
+  - { input: { code: "TT_DOR_ZWN" }, status: returning }
+  - { input: { code: "TT_DELAY_KUR" }, status: problem }
+  - { input: { code: "TT_DELAY_MAG" }, status: problem }
+  - { input: { code: "TT_OWL" }, status: problem }
+  - { input: { code: "TT_CS" }, status: problem }
+  - { input: { code: "TT_ZGN" }, status: problem }
+  - { input: { code: "TT_LIK" }, status: problem }
+  - { input: { code: "SP_CN" }, status: problem }
+  - { input: { code: "ShipmentInPreparation" }, status: registered }
+  - { input: { code: "WaitingForCourierPickup" }, status: registered }
+  - { input: { code: "PostedAtPoint" }, status: in_transit }
+  - { input: { code: "PickedUpByCourier" }, status: in_transit }
+  - { input: { code: "Redirected" }, status: in_transit }
+  - { input: { code: "RedirectedToPoint" }, status: in_transit, pickup: true }
+  - { input: { code: "DeliveryToPoint" }, status: in_transit, pickup: true }
+  - { input: { code: "DeliveryToLocker" }, status: in_transit, pickup: true }
+  - { input: { code: "DeliveredToPoint" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "RetrievedFromPoint" }, status: delivered, pickup: true }
+  - { input: { code: "RetrievedFromLocker" }, status: delivered, pickup: true }
+  - { input: { code: "Refusal" }, status: returning }
+  - { input: { code: "ParcelReturnsToSender" }, status: returning }
+  - { input: { code: "ParcelReturnedToSender" }, status: returning }
+  - { input: { code: "DeliveredToSender" }, status: returning }
+  - { input: { code: "Disposed" }, status: problem }
+  - { input: { code: "Lost" }, status: problem }
+  - { input: { code: "UnsuccessfulAttemptAtDelivery" }, status: problem }
+  - { input: { code: "SecondUnsuccessfulAttemptAtDelivery" }, status: problem }
+  - { input: { code: "DeliveryDelay" }, status: problem }
+  - { input: { code: "DeliveryProblem" }, status: problem }
+  - { input: { code: "WaitingForShipperDecision" }, status: problem }
+  - { input: { code: "iberia:BS" }, status: in_transit }
+  - { input: { code: "iberia:HS" }, status: in_transit }
+  - { input: { code: "iberia:AS" }, status: in_transit, pickup: true }
+  - { input: { code: "iberia:ES" }, status: in_transit, pickup: true }
+  - { input: { code: "iberia:GT" }, status: in_transit }
+  - { input: { code: "iberia:DIA" }, status: in_transit }
+  - { input: { code: "iberia:EC" }, status: in_transit }
+  - { input: { code: "iberia:ZZZ" }, status: in_transit }
+  - { input: { code: "iberia:A" }, status: out_for_delivery }
+  - { input: { code: "iberia:NH" }, status: problem }
+  - { input: { code: "iberia:CR" }, status: problem }
+  - { input: { code: "iberia:CH" }, status: problem }
+  - { input: { code: "iberia:PE" }, status: problem }
+  - { input: { code: "iberia:FM" }, status: problem }
+  - { input: { code: "iberia:OH" }, status: problem }
+  - { input: { code: "iberia:FA" }, status: problem }
+  - { input: { code: "iberia:AI" }, status: problem }
+  - { input: { code: "iberia:RT" }, status: returning }
+  - { input: { code: "iberia:R" }, status: delivered }
+  - { input: { code: "iberia:PC" }, status: delivered }
+  - { input: { code: "iberia:RS" }, status: delivered, pickup: true }
+  - { input: { code: "iberia:Shipment received at DHL Depot" }, status: in_transit }
+  - { input: { code: "iberia:In transit in" }, status: in_transit }
+  - { input: { code: "iberia:Departed from" }, status: in_transit }
+  - { input: { code: "iberia:Picked up" }, status: in_transit }

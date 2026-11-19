@@ -131,3 +131,22 @@ tests:
   - { input: { text: "Zugestellt" }, status: delivered, ignored: null }
   - { input: { code: PICKUP_DONE }, status: in_transit }
   - { input: { code: DELIVERED_TO_DOORSTEP }, status: delivered }
+  - { input: { code: "ORDERED" }, status: registered }
+  - { input: { code: "ORDER_PLACED" }, status: registered }
+  - { input: { code: "SHIPPED" }, status: in_transit }
+  - { input: { code: "IN_TRANSIT" }, status: in_transit }
+  - { input: { code: "DELIVERED" }, status: delivered }
+  - { input: { code: "PICKUP_AVAILABLE" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "live:RENDERED" }, status: out_for_delivery }
+  - { input: { code: "live:SKIPPED_STOP" }, status: out_for_delivery }
+  - { input: { code: "live:YOU_ARE_NEXT" }, status: out_for_delivery }
+  - { input: { code: "live:DELIVERED_CONFIRMED" }, status: delivered }
+  - { input: { code: "live:PARTIALLY_DELIVERED" }, status: problem }
+  - { input: { code: "live:DELIVERY_ATTEMPTED" }, status: problem }
+  - { input: { code: "live:DELIVERY_FAILED" }, status: problem }
+  - { input: { code: "live:NOT_DELIVERED" }, status: problem }
+  - { input: { code: "live:REJECTED" }, status: problem }
+  - { input: { code: "live:ADDRESS_NOT_FOUND" }, status: problem }
+  - { input: { code: "CREATION_CONFIRMED" }, status: registered }
+  - { input: { code: "RECEIVED" }, status: in_transit }
+  - { input: { code: "DEPARTED" }, status: in_transit }

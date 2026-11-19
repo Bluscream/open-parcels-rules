@@ -126,3 +126,96 @@ tests:
   - { input: { code: "group:in_transit_last_mile" }, status: out_for_delivery }
   - { input: { code: "tracking:eol.1001" }, status: delivered }
   - { input: { code: "inbox:teleported" }, status: null }
+  - { input: { code: "inbox:created" }, status: registered }
+  - { input: { code: "inbox:confirmed" }, status: registered }
+  - { input: { code: "inbox:dispatched_by_sender" }, status: registered }
+  - { input: { code: "inbox:dispatched_by_sender_to_pok" }, status: registered }
+  - { input: { code: "inbox:taken_by_courier_from_pok" }, status: in_transit }
+  - { input: { code: "inbox:collected_from_sender" }, status: in_transit }
+  - { input: { code: "inbox:adopted_at_source_branch" }, status: in_transit }
+  - { input: { code: "inbox:sent_from_source_branch" }, status: in_transit }
+  - { input: { code: "inbox:adopted_at_sorting_center" }, status: in_transit }
+  - { input: { code: "inbox:sent_from_sorting_center" }, status: in_transit }
+  - { input: { code: "inbox:adopted_at_target_branch" }, status: in_transit }
+  - { input: { code: "inbox:redirect_to_box" }, status: in_transit }
+  - { input: { code: "inbox:permanently_redirected_to_box_machine" }, status: in_transit }
+  - {
+      input: { code: "inbox:permanently_redirected_to_customer_service_point" },
+      status: in_transit,
+    }
+  - { input: { code: "inbox:readdressed" }, status: in_transit }
+  - { input: { code: "inbox:out_for_delivery" }, status: out_for_delivery }
+  - { input: { code: "inbox:out_for_delivery_to_address" }, status: out_for_delivery }
+  - { input: { code: "inbox:ready_to_pickup" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "inbox:ready_for_collection" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "inbox:ready_to_pickup_from_branch" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "inbox:ready_to_pickup_from_pok" }, status: at_pickup_point, pickup: true }
+  - {
+      input: { code: "inbox:ready_to_pickup_from_pok_registered" },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { input: { code: "inbox:stack_in_box_machine" }, status: at_pickup_point, pickup: true }
+  - {
+      input: { code: "inbox:stack_in_customer_service_point" },
+      status: at_pickup_point,
+      pickup: true,
+    }
+  - { input: { code: "inbox:pickup_reminder_sent" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "inbox:pickup_reminder_sent_address" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "inbox:delivered" }, status: delivered }
+  - { input: { code: "inbox:collected_by_customer" }, status: delivered }
+  - { input: { code: "inbox:claimed" }, status: delivered }
+  - { input: { code: "inbox:returned_to_sender" }, status: returning }
+  - { input: { code: "inbox:return_pickup_confirmation_to_sender" }, status: returning }
+  - { input: { code: "inbox:delay_in_delivery" }, status: problem }
+  - { input: { code: "inbox:delivery_attempt_failed" }, status: problem }
+  - { input: { code: "inbox:rejected_by_receiver" }, status: problem }
+  - { input: { code: "inbox:not_collected" }, status: problem }
+  - { input: { code: "inbox:missing" }, status: problem }
+  - { input: { code: "inbox:oversized" }, status: problem }
+  - { input: { code: "inbox:canceled" }, status: problem }
+  - { input: { code: "inbox:cancelled" }, status: problem }
+  - { input: { code: "inbox:pickup_time_expired" }, status: problem }
+  - { input: { code: "inbox:stack_parcel_pickup_time_expired" }, status: problem }
+  - { input: { code: "inbox:avizo" }, status: problem }
+  - { input: { code: "inbox:avizo_rejected" }, status: problem }
+  - { input: { code: "inbox:undelivered" }, status: problem }
+  - { input: { code: "inbox:undelivered_cod_cash_receiver" }, status: problem }
+  - { input: { code: "inbox:undelivered_incomplete_address" }, status: problem }
+  - { input: { code: "inbox:undelivered_lack_of_access_letterbox" }, status: problem }
+  - { input: { code: "inbox:undelivered_no_mailbox" }, status: problem }
+  - { input: { code: "inbox:undelivered_not_live_address" }, status: problem }
+  - { input: { code: "inbox:undelivered_unknown_receiver" }, status: problem }
+  - { input: { code: "inbox:undelivered_wrong_address" }, status: problem }
+  - { input: { code: "inbox:c2x_completed" }, status: unknown }
+  - { input: { code: "inbox-group:to_send" }, status: registered }
+  - { input: { code: "inbox-group:in_delivery" }, status: in_transit }
+  - { input: { code: "inbox-group:delivered" }, status: delivered }
+  - { input: { code: "group:at_the_origin" }, status: registered }
+  - { input: { code: "group:in_transit" }, status: in_transit }
+  - { input: { code: "group:awaiting_collection" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "group:delivered" }, status: delivered }
+  - { input: { code: "group:not_delivered" }, status: problem }
+  - { input: { code: "group:exception" }, status: problem }
+  - { input: { code: "group:return" }, status: returning }
+  - { input: { code: "tracking:cre.1001" }, status: registered }
+  - { input: { code: "tracking:fmd.1001" }, status: registered }
+  - { input: { code: "tracking:fmd.1002" }, status: in_transit }
+  - { input: { code: "tracking:mmd.1001" }, status: in_transit }
+  - { input: { code: "tracking:mmd.1002" }, status: in_transit }
+  - { input: { code: "tracking:mmd.1003" }, status: in_transit }
+  - { input: { code: "tracking:mmd.1004" }, status: in_transit }
+  - { input: { code: "tracking:lmd.1001" }, status: in_transit }
+  - { input: { code: "tracking:lmd.1002" }, status: in_transit }
+  - { input: { code: "tracking:lmd.3006" }, status: in_transit }
+  - { input: { code: "tracking:lmd.3014" }, status: in_transit }
+  - { input: { code: "tracking:lmd.1004" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "tracking:lmd.1005" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "tracking:lmd.9001" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "tracking:lmd.9002" }, status: problem }
+  - { input: { code: "tracking:lmd.9014" }, status: returning }
+  - { input: { code: "tracking:eol.1003" }, status: delivered }
+  - { input: { code: "tracking:eol.9001" }, status: problem }
+  - { input: { code: "tracking:rts.1001" }, status: returning }
+  - { input: { code: "tracking:rts.1002" }, status: returning }

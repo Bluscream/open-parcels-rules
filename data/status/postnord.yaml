@@ -27,3 +27,14 @@ tests:
   - { input: { code: "event:113" }, status: out_for_delivery }
   - { input: { code: "event:z2F" }, status: at_pickup_point }
   - { input: { code: "status:OTHER" }, status: null }
+  - { input: { code: "status:CREATED" }, status: registered }
+  - { input: { code: "status:INFORMED" }, status: registered }
+  - { input: { code: "status:AVAILABLE_FOR_DELIVERY" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "status:DELIVERY" }, status: out_for_delivery }
+  - { input: { code: "status:DELIVERED" }, status: delivered }
+  - { input: { code: "status:DELIVERY_IMPOSSIBLE" }, status: problem }
+  - { input: { code: "status:EXPECTED_DELAY" }, status: problem }
+  - { input: { code: "status:RETURNED" }, status: returning }
+  - { input: { code: "status:STOPPED" }, status: problem }
+  - { input: { code: "status:DELAYED" }, status: problem }
+  - { input: { code: "event:45" }, status: at_pickup_point, pickup: true }

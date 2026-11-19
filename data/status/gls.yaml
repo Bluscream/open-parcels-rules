@@ -140,3 +140,42 @@ tests:
   - { input: { text: "The parcel has been delivered / dropped off." }, status: delivered }
   - { input: { text: "Pickup" }, status: in_transit }
   - { input: { code: stored }, status: null }
+  - { input: { code: "PREADVICE" }, status: registered }
+  - { input: { code: "PROCESSING" }, status: registered }
+  - { input: { code: "INTRANSIT" }, status: in_transit }
+  - { input: { code: "INWAREHOUSE" }, status: in_transit }
+  - { input: { code: "MULTIPACK" }, status: in_transit }
+  - { input: { code: "INDELIVERY" }, status: out_for_delivery }
+  - { input: { code: "NOTPICKEDUP" }, status: returning }
+  - { input: { code: "RETURNED" }, status: returning }
+  - { input: { code: "NOTDELIVERED" }, status: problem }
+  - { input: { code: "CANCELLED" }, status: problem }
+  - { input: { code: "CANCELED" }, status: problem }
+  - { input: { code: "UNAVAILABLE" }, status: problem }
+  - { input: { code: "0.100" }, status: registered }
+  - { input: { code: "0.0" }, status: in_transit }
+  - { input: { code: "2.0" }, status: in_transit }
+  - { input: { code: "17.0" }, status: in_transit }
+  - { input: { code: "11.0" }, status: out_for_delivery }
+  - { input: { code: "OUT_FOR_DELIVERY" }, status: out_for_delivery }
+  - { input: { code: "NOT_DELIVERED" }, status: problem }
+  - { input: { code: "BLOCKED" }, status: problem }
+  - { input: { code: "UNKNOWN" }, status: unknown }
+  - { input: { code: "state:0" }, status: registered }
+  - { input: { code: "state:1" }, status: in_transit }
+  - { input: { code: "state:2" }, status: in_transit }
+  - { input: { code: "state:4" }, status: delivered }
+  - { input: { code: "dataReceived" }, status: registered }
+  - { input: { code: "pickupPending" }, status: registered }
+  - { input: { code: "picked" }, status: in_transit }
+  - { input: { code: "onTransit" }, status: in_transit }
+  - { input: { code: "partiallyDelivered" }, status: in_transit }
+  - { input: { code: "rechannelized" }, status: in_transit }
+  - { input: { code: "onDelivery" }, status: out_for_delivery }
+  - { input: { code: "receivedOnParcel" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "onReturn" }, status: returning }
+  - { input: { code: "retained" }, status: problem }
+  - { input: { code: "broken" }, status: problem }
+  - { input: { code: "destroyed" }, status: problem }
+  - { input: { code: "pickupIncidence" }, status: problem }
+  - { input: { code: "incidence" }, status: problem }

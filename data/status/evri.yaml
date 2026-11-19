@@ -26,3 +26,14 @@ tests:
   - { input: { code: "3", fields: { stage: "3", leg: return } }, status: returning }
   - { input: { code: "3", fields: { stage: "3", leg: forward } }, status: in_transit }
   - { input: { code: "9" }, status: null }
+  - { input: { code: "0" }, status: registered }
+  - { input: { code: "1" }, status: registered }
+  - { input: { code: "2" }, status: in_transit }
+  - { input: { code: "4" }, status: in_transit }
+  - { input: { code: "6" }, status: problem }
+  - { input: { code: "4_COURIER" }, status: out_for_delivery }
+  - { input: { code: "4_LOCKER" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "5_SHOP" }, status: delivered }
+  - { input: { code: "A" }, status: returning }
+  - { input: { code: "6_INFO" }, status: problem }
+  - { input: { code: "6_ACTION" }, status: problem }

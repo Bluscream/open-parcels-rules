@@ -198,3 +198,81 @@ tests:
   - { input: { text: "Die Sendung wurde Hermes elektronisch angekündigt." }, status: registered }
   - { input: { text: "Die Sendung wurde sortiert und weiterversandt." }, status: in_transit }
   - { input: { text: "Wunschablageort gebucht" }, status: null }
+  - { input: { code: "ANNOUNCED" }, status: registered }
+  - { input: { code: "ORDER_INFO_RECEIVED" }, status: registered }
+  - { input: { code: "PREANNOUNCED" }, status: registered }
+  - { input: { code: "PARCELSHOP_DROP_OFF" }, status: registered }
+  - { input: { code: "ATG_OUT_OF_WAREHOUSE" }, status: registered }
+  - { input: { code: "SHIPMENT_PICKED_UP" }, status: in_transit }
+  - { input: { code: "TAKEN_OVER_BY_HERMES" }, status: in_transit }
+  - { input: { code: "HANDED_OVER_TO_HERMES" }, status: in_transit }
+  - { input: { code: "HANDED_OVER" }, status: in_transit }
+  - { input: { code: "PARCELSHOP_COLLECTED_BY_DRIVER" }, status: in_transit }
+  - { input: { code: "IN_TRANSIT" }, status: in_transit }
+  - { input: { code: "SORTED" }, status: in_transit }
+  - { input: { code: "ARRIVED_AT_DEPOT" }, status: in_transit }
+  - { input: { code: "ARRIVED_AT_DELIVERY_DEPOT" }, status: in_transit }
+  - { input: { code: "ARRIVED_IN_DESTINATION_REGION" }, status: in_transit }
+  - { input: { code: "OUT_FOR_DELIVERY" }, status: out_for_delivery }
+  - { input: { code: "NEXT_STOP" }, status: out_for_delivery }
+  - { input: { code: "DELIVERED_HOMEDELIVERY" }, status: delivered }
+  - { input: { code: "DELIVERED_INHOUSE" }, status: delivered }
+  - { input: { code: "DELIVERED_NEIGHBOUR" }, status: delivered }
+  - { input: { code: "DELIVERED_PARCELBOX" }, status: delivered }
+  - { input: { code: "DELIVERED_MAILBOX" }, status: delivered }
+  - { input: { code: "DELIVERED_DROPOFF" }, status: delivered }
+  - { input: { code: "DELIVERED" }, status: delivered }
+  - { input: { code: "PICKED_UP_BY_RECIPIENT" }, status: delivered, pickup: true }
+  - { input: { code: "COLLECTED" }, status: delivered, pickup: true }
+  - { input: { code: "PARCELSHOP_ITEMS_FOR_COLLECTION" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "READY_FOR_COLLECTION" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "READY_FOR_PICKUP" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "RETURN_DELIVERED_TO_SENDER" }, status: returning }
+  - { input: { code: "RETURN_TO_SENDER" }, status: returning }
+  - { input: { code: "RETURN" }, status: returning }
+  - { input: { code: "NOT_DELIVERABLE" }, status: problem }
+  - { input: { code: "DELIVERY_FAILED" }, status: problem }
+  - { input: { code: "UNKNOWN_WHEREABOUTS" }, status: problem }
+  - { input: { code: "AVISE" }, status: registered }
+  - { input: { code: "SENDUNG_VON_HERMES_UEBERNOMMEN" }, status: in_transit }
+  - { input: { code: "UNTERWEGS" }, status: in_transit }
+  - { input: { code: "UNTERWEGS_ZU_HERMES" }, status: in_transit }
+  - { input: { code: "UMSCHLAG_INLAND" }, status: in_transit }
+  - { input: { code: "UMSCHLAG_AUSLAND" }, status: in_transit }
+  - { input: { code: "SENDUNG_IN_ZIELREGION_ANGEKOMMEN" }, status: in_transit }
+  - { input: { code: "AN_INSELSPEDITEUR_UEBERGEBEN" }, status: in_transit }
+  - { input: { code: "AM_PKS_ABGEGEBEN" }, status: in_transit }
+  - { input: { code: "ABGEHOLT_AN_FAHRER_UEBERGEBEN" }, status: in_transit }
+  - { input: { code: "PAKETSHOP_AN_FAHRER_UEBERGEBEN" }, status: in_transit }
+  - { input: { code: "ZUSTELLTOUR" }, status: out_for_delivery }
+  - { input: { code: "ZUSTELLTOUR_VERSPAETET" }, status: out_for_delivery }
+  - { input: { code: "ZUSTELLTOUR_STARK_VERSPAETET" }, status: out_for_delivery }
+  - { input: { code: "PAKETSHOP" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "WUNSCHPAKETSHOP" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "READY_FOR_COLLECTION_SINCE" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "LAGERND" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "LAGERND_TERMIN" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "LAGERND_MEHRCOLLIG" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "ZUGESTELLT" }, status: delivered }
+  - { input: { code: "ZUGESTELLT_BRIEFKASTEN" }, status: delivered }
+  - { input: { code: "INT_ZUGESTELLT_ABLAGEORT" }, status: delivered }
+  - { input: { code: "RETOURE_AUSLIEFERUNG_ZUM_ATG" }, status: returning }
+  - { input: { code: "RETOURE_AUSLIEFERUNG_ZUM_ATG_NACH_SCHADEN" }, status: returning }
+  - { input: { code: "RETOURE_AUSGELIEFERT_BEIM_ATG" }, status: returning }
+  - { input: { code: "RETOURE_AUSGELIEFERT_BEIM_ATG_NACH_SCHADEN" }, status: returning }
+  - { input: { code: "RUECKVERSAND_RETOURE" }, status: returning }
+  - { input: { code: "RUECKVERSAND_DURCH_ATG" }, status: returning }
+  - { input: { code: "RUECKVERSAND_SCHADENFALL" }, status: returning }
+  - { input: { code: "RUECKVERSAND_NICHT_AM_PKS_ABGEHOLT" }, status: returning }
+  - { input: { code: "NICHT_ZUSTELLBAR_RUECKVERSAND" }, status: returning }
+  - { input: { code: "NICHT_ZUSTELLBAR_ADRESSFEHLER" }, status: problem }
+  - { input: { code: "NICHT_ZUSTELLBAR_ERNEUTER_VERSUCH" }, status: problem }
+  - { input: { code: "NICHT_ANGETROFFEN_1" }, status: problem }
+  - { input: { code: "NICHT_ANGETROFFEN_3" }, status: problem }
+  - { input: { code: "NICHT_ANGETROFFEN_4" }, status: problem }
+  - { input: { code: "UNKLARER_SENDUNGSVERBLEIB" }, status: problem }
+  - { input: { code: "PRUEFUNG_AUF_BESCHAEDIGUNG" }, status: problem }
+  - { input: { code: "ABHOLUNG_STORNIERT" }, status: problem }
+  - { input: { code: "STORNIERTE_ONLINEBEZAHLUNG" }, status: problem }
+  - { input: { code: "HBX_STORAGETIME_EXPIRED" }, status: problem }
+  - { input: { code: "NICHT_ANGEZEIGT" }, status: unknown }

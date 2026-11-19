@@ -196,3 +196,82 @@ tests:
   - { input: { text: "Your parcel is on the vehicle for delivery" }, status: out_for_delivery }
   - { input: { text: "Your parcel has been delivered" }, status: delivered }
   - { input: { code: XYZ }, status: null }
+  - { input: { code: "ORDER_CREATED" }, status: registered }
+  - { input: { code: "PARCEL_HANDED" }, status: in_transit }
+  - { input: { code: "IN_TRANSIT" }, status: in_transit }
+  - { input: { code: "AT_DELIVERY_CENTER" }, status: in_transit }
+  - { input: { code: "DELIVERED" }, status: delivered }
+  - { input: { code: "AVAILABLE_FOR_COLLECTION" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "RETURN_TO_SENDER" }, status: returning }
+  - { input: { code: "ENA" }, status: registered }
+  - { input: { code: "ORI" }, status: in_transit }
+  - { input: { code: "ORW" }, status: in_transit }
+  - { input: { code: "HUI" }, status: in_transit }
+  - { input: { code: "HUS" }, status: in_transit }
+  - { input: { code: "HUW" }, status: in_transit }
+  - { input: { code: "HUZ" }, status: in_transit }
+  - { input: { code: "SPE" }, status: in_transit }
+  - { input: { code: "SPL" }, status: in_transit }
+  - { input: { code: "SPS" }, status: in_transit }
+  - { input: { code: "SPV" }, status: in_transit }
+  - { input: { code: "SPW" }, status: in_transit }
+  - { input: { code: "SPZ" }, status: in_transit }
+  - { input: { code: "DLI" }, status: in_transit }
+  - { input: { code: "DLS" }, status: in_transit }
+  - { input: { code: "DLW" }, status: in_transit }
+  - { input: { code: "DLZ" }, status: in_transit }
+  - { input: { code: "DLR" }, status: problem }
+  - { input: { code: "MSDLO" }, status: in_transit }
+  - { input: { code: "DLO" }, status: out_for_delivery }
+  - { input: { code: "DEHD" }, status: in_transit, pickup: true }
+  - { input: { code: "DEHDY" }, status: in_transit, pickup: true }
+  - { input: { code: "DOMSDLO" }, status: in_transit, pickup: true }
+  - { input: { code: "DEY" }, status: delivered }
+  - { input: { code: "DEYY" }, status: delivered }
+  - { input: { code: "DODEYY" }, status: delivered, pickup: true }
+  - { input: { code: "SPR" }, status: returning }
+  - { input: { code: "DEN" }, status: returning }
+  - { input: { code: "DODEN" }, status: returning }
+  - { input: { code: "DODEH" }, status: returning }
+  - { input: { code: "ENX" }, status: problem }
+  - { input: { code: "ORX" }, status: problem }
+  - { input: { code: "HUX" }, status: problem }
+  - { input: { code: "SPX" }, status: problem }
+  - { input: { code: "DLX" }, status: problem }
+  - { input: { code: "DEX" }, status: problem }
+  - { input: { code: "DODEX" }, status: problem }
+  - { input: { code: "Start" }, status: registered }
+  - { input: { code: "OnTheRoad" }, status: in_transit }
+  - { input: { code: "DeliveryDepot" }, status: in_transit }
+  - { input: { code: "ORDER_DATA" }, status: registered }
+  - { input: { code: "ON_THE_WAY" }, status: in_transit }
+  - { input: { code: "IN_DEPOT" }, status: in_transit }
+  - { input: { code: "IN_DELIVERY" }, status: out_for_delivery }
+  - { input: { code: "READY_TO_SEND" }, status: registered }
+  - { input: { code: "RECEIVED_FROM_SENDER" }, status: in_transit }
+  - { input: { code: "SENT" }, status: in_transit }
+  - { input: { code: "IN_TRANSPORT" }, status: in_transit }
+  - { input: { code: "RECEIVED_IN_DEPOT" }, status: in_transit }
+  - { input: { code: "REDIRECTED" }, status: in_transit }
+  - { input: { code: "RESCHEDULED" }, status: in_transit }
+  - { input: { code: "HANDED_OVER_FOR_DELIVERY" }, status: out_for_delivery }
+  - { input: { code: "READY_TO_PICK_UP" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "READY_TO_PICK_UP_SP" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "SELF_PICKUP" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "HARD_RESERVED" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "PICKED_UP" }, status: delivered, pickup: true }
+  - { input: { code: "RETURNED_TO_SENDER" }, status: returning }
+  - { input: { code: "EXPIRED_PICKUP" }, status: returning }
+  - { input: { code: "UNSUCCESSFUL_DELIVERY" }, status: problem }
+  - { input: { code: "parcelStatusType:0" }, status: in_transit }
+  - { input: { code: "parcelStatusType:2" }, status: delivered }
+  - { input: { code: "parcelStatusType:3" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "parcelStatusType:4" }, status: in_transit, pickup: true }
+  - { input: { code: "parcelStatusType:6" }, status: out_for_delivery }
+  - { input: { code: "parcelStatusType:7" }, status: problem }
+  - { input: { code: "parcelStatusType:8" }, status: in_transit }
+  - { input: { code: "step:ACCEPTED" }, status: registered }
+  - { input: { code: "step:AT_SENDING_DEPOT" }, status: in_transit }
+  - { input: { code: "step:ON_THE_ROAD" }, status: in_transit }
+  - { input: { code: "step:OUT_FOR_DELIVERY" }, status: out_for_delivery }
+  - { input: { code: "step:DELIVERED" }, status: delivered }

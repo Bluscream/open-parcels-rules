@@ -74,3 +74,54 @@ tests:
   - { input: { code: "cd:1466" }, status: delivered }
   - { input: { code: "type:ATTEMPTED" }, status: problem }
   - { input: { code: "status:Unknown" }, status: null }
+  - { input: { code: "status:HalfAccepted" }, status: registered }
+  - { input: { code: "status:FullAccepted" }, status: in_transit }
+  - { input: { code: "status:InTransitAlert" }, status: problem }
+  - { input: { code: "status:FullProgress" }, status: out_for_delivery }
+  - { input: { code: "status:FullProgressAlert" }, status: problem }
+  - { input: { code: "status:HalfDelivered" }, status: problem }
+  - { input: { code: "status:Available_for_pickup_by" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "status:Delivered" }, status: delivered }
+  - { input: { code: "status:HalfAccepted-" }, status: registered }
+  - { input: { code: "status:FullAccepted-" }, status: in_transit }
+  - { input: { code: "status:InTransit-" }, status: in_transit }
+  - { input: { code: "status:InTransitAlert-" }, status: problem }
+  - { input: { code: "status:FullProgress-" }, status: out_for_delivery }
+  - { input: { code: "status:FullProgressAlert-" }, status: problem }
+  - { input: { code: "status:HalfDelivered-" }, status: problem }
+  - { input: { code: "status:ReadyPickup-" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "status:Available_for_pickup_by-" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "status:Delivered-" }, status: delivered }
+  - { input: { code: "cd:3000" }, status: registered }
+  - { input: { code: "cd:0174" }, status: out_for_delivery }
+  - { input: { code: "cd:0500" }, status: out_for_delivery }
+  - { input: { code: "cd:1701" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "cd:0156" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "cd:2407" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "cd:1419" }, status: returning }
+  - { input: { code: "cd:1481" }, status: returning }
+  - { input: { code: "cd:2600" }, status: returning }
+  - { input: { code: "cd:1303" }, status: returning }
+  - { input: { code: "cd:3001" }, status: returning }
+  - { input: { code: "cd:3002" }, status: returning }
+  - { input: { code: "cd:1100" }, status: problem }
+  - { input: { code: "type:ARRIVALINCANADA" }, status: in_transit }
+  - { input: { code: "type:CONTAINER" }, status: in_transit }
+  - { input: { code: "type:INCOMING" }, status: in_transit }
+  - { input: { code: "type:INDUCTION" }, status: in_transit }
+  - { input: { code: "type:INFOTID" }, status: in_transit }
+  - { input: { code: "type:REVIEWCOMPLETE" }, status: in_transit }
+  - { input: { code: "type:VEHICLEINFO" }, status: in_transit }
+  - { input: { code: "type:PRRECEIVED" }, status: in_transit }
+  - { input: { code: "type:INFOCONT" }, status: in_transit }
+  - { input: { code: "type:DISPATCH" }, status: in_transit }
+  - { input: { code: "type:TOCUST" }, status: in_transit }
+  - { input: { code: "type:FROMCUST" }, status: in_transit }
+  - { input: { code: "type:INFO" }, status: in_transit }
+  - { input: { code: "type:TORETAIL" }, status: in_transit }
+  - { input: { code: "type:OUT" }, status: out_for_delivery }
+  - { input: { code: "type:DETENTION" }, status: problem }
+  - { input: { code: "type:FORREVIEW" }, status: problem }
+  - { input: { code: "type:RTSLABELPROC" }, status: returning }
+  - { input: { code: "type:DELIVERED" }, status: delivered }
+  - { input: { code: "type:SIGNATURE" }, status: delivered }

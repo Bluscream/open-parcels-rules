@@ -43,3 +43,30 @@ tests:
   - { input: { code: I010000V }, status: delivered }
   - { input: { code: O140000V }, status: returning }
   - { input: { code: Z999999V }, status: null }
+  - { input: { code: "A090000V" }, status: registered }
+  - { input: { code: "X010000V" }, status: registered }
+  - { input: { code: "P040000V" }, status: in_transit }
+  - { input: { code: "G01L010V" }, status: in_transit }
+  - { input: { code: "P101110V" }, status: in_transit }
+  - { input: { code: "P101120V" }, status: in_transit }
+  - { input: { code: "P100000V" }, status: in_transit }
+  - { input: { code: "P090000V" }, status: in_transit }
+  - { input: { code: "P110000V" }, status: in_transit }
+  - { input: { code: "H01I360V" }, status: in_transit }
+  - { input: { code: "X020000V" }, status: in_transit }
+  - { input: { code: "X040000V" }, status: in_transit }
+  - { input: { code: "X060000V" }, status: in_transit }
+  - { input: { code: "X070000V" }, status: in_transit }
+  - { input: { code: "X110100V" }, status: in_transit }
+  - { input: { code: "X080000V" }, status: out_for_delivery }
+  - { input: { code: "H01I350V" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "X380000V" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "X390000V" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "I01H210V" }, status: delivered }
+  - { input: { code: "X120000V" }, status: delivered }
+  - { input: { code: "H010930R" }, status: problem }
+  - { input: { code: "M01E020R" }, status: problem }
+  - { input: { code: "H06P010V" }, status: problem }
+  - { input: { code: "X090100R" }, status: problem }
+  - { input: { code: "X090060R" }, status: problem }
+  - { input: { code: "X130000R" }, status: problem }

@@ -25,3 +25,14 @@ tests:
   - { input: { code: RETURNED }, status: returning }
   - { input: { code: LOST }, status: null }
   - { input: { code: "account:WAITING_FOR_PICKUP" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "REGISTERED" }, status: registered }
+  - { input: { code: "TO_BE_DELIVERED" }, status: in_transit }
+  - { input: { code: "DELIVERED" }, status: delivered }
+  - { input: { code: "MISSED_DELIVERY" }, status: problem }
+  - { input: { code: "NOT_DELIVERED" }, status: problem }
+  - { input: { code: "account:NOT_YET_SENT" }, status: registered }
+  - { input: { code: "account:ON_GOING_DELIVERY" }, status: in_transit }
+  - { input: { code: "account:DELIVERED" }, status: delivered }
+  - { input: { code: "account:NOT_DELIVERED" }, status: problem }
+  - { input: { code: "account:RETURNED" }, status: returning }
+  - { input: { code: "account:UNKNOWN" }, status: unknown }

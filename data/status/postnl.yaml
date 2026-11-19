@@ -111,3 +111,67 @@ tests:
   - { input: { text: "pakket ligt klaar bij postnl punt" }, status: at_pickup_point }
   - { input: { text: "pakket is bezorgd" }, status: delivered }
   - { input: { code: Q99 }, status: null }
+  - { input: { code: "A03" }, status: registered }
+  - { input: { code: "M02" }, status: registered }
+  - { input: { code: "B01" }, status: in_transit }
+  - { input: { code: "C02" }, status: in_transit }
+  - { input: { code: "F01" }, status: in_transit }
+  - { input: { code: "J01" }, status: in_transit }
+  - { input: { code: "R01" }, status: in_transit }
+  - { input: { code: "J10" }, status: in_transit }
+  - { input: { code: "J04" }, status: in_transit }
+  - { input: { code: "J21" }, status: in_transit }
+  - { input: { code: "J31" }, status: in_transit }
+  - { input: { code: "J32" }, status: in_transit }
+  - { input: { code: "J30" }, status: in_transit }
+  - { input: { code: "J39" }, status: in_transit }
+  - { input: { code: "J40" }, status: in_transit }
+  - { input: { code: "J46" }, status: in_transit }
+  - { input: { code: "J44" }, status: in_transit }
+  - { input: { code: "J55" }, status: in_transit }
+  - { input: { code: "X01" }, status: in_transit }
+  - { input: { code: "X02" }, status: in_transit }
+  - { input: { code: "X03" }, status: in_transit }
+  - { input: { code: "X04" }, status: in_transit }
+  - { input: { code: "X08" }, status: in_transit }
+  - { input: { code: "X19" }, status: in_transit }
+  - { input: { code: "A21" }, status: in_transit }
+  - { input: { code: "I07" }, status: in_transit }
+  - { input: { code: "G01" }, status: in_transit }
+  - { input: { code: "G03" }, status: in_transit }
+  - { input: { code: "G05" }, status: in_transit }
+  - { input: { code: "K01" }, status: in_transit }
+  - { input: { code: "J14" }, status: in_transit }
+  - { input: { code: "K70" }, status: in_transit }
+  - { input: { code: "T04" }, status: in_transit }
+  - { input: { code: "T02" }, status: in_transit }
+  - { input: { code: "V06" }, status: in_transit }
+  - { input: { code: "H04" }, status: returning }
+  - { input: { code: "I08" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "J02" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "J12" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "J23" }, status: at_pickup_point, pickup: true }
+  - { input: { code: "A80" }, status: delivered }
+  - { input: { code: "I01" }, status: delivered }
+  - { input: { code: "I02" }, status: delivered }
+  - { input: { code: "I05" }, status: delivered }
+  - { input: { code: "I10" }, status: delivered }
+  - { input: { code: "I11" }, status: delivered }
+  - { input: { code: "I12" }, status: delivered }
+  - { input: { code: "A04" }, status: unknown }
+  - { input: { code: "A18" }, status: unknown }
+  - { input: { code: "A19" }, status: unknown }
+  - { input: { code: "A24" }, status: unknown }
+  - { input: { code: "A25" }, status: unknown }
+  - { input: { code: "A44" }, status: unknown }
+  - { input: { code: "A65" }, status: unknown }
+  - { input: { code: "A94" }, status: unknown }
+  - { input: { code: "A95" }, status: unknown }
+  - { input: { code: "A96" }, status: unknown }
+  - { input: { code: "A98" }, status: unknown }
+  - { input: { code: "A20" }, status: unknown }
+  - { input: { code: "B03" }, status: unknown }
+  - { input: { code: "J09" }, status: unknown }
+  - { input: { code: "K50" }, status: unknown }
+  - { input: { code: "P21" }, status: unknown }
+  - { input: { code: "P02" }, status: unknown }

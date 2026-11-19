@@ -38,3 +38,28 @@ tests:
   - { input: { code: "event:item is ready for a pick up" }, status: at_pickup_point, pickup: true }
   - { input: { code: "event:no digital signature was received" }, status: unknown }
   - { input: { code: "event:item vanished" }, status: null }
+  - { input: { code: "main:DELIVERED" }, status: delivered }
+  - {
+      input:
+        { code: "event:we have received information about an upcoming delivery from the sender" },
+      status: registered,
+    }
+  - { input: { code: "event:item has been registered" }, status: registered }
+  - { input: { code: "event:the item is in sorting" }, status: in_transit }
+  - { input: { code: "event:the item is in transport" }, status: in_transit }
+  - { input: { code: "event:item accepted from transport" }, status: in_transit }
+  - { input: { code: "event:item is in delivery transportation" }, status: out_for_delivery }
+  - { input: { code: "event:item has been released for delivery" }, status: out_for_delivery }
+  - { input: { code: "event:the item has been delivered" }, status: delivered }
+  - { input: { code: "event:item has not been collected.returned to sender" }, status: returning }
+  - { input: { code: "event:the item has been returned to the sender" }, status: returning }
+  - { input: { code: "event:we sent the recipient an email about the item" }, status: unknown }
+  - {
+      input: { code: "event:we sent the recipient an omaposti notification about the item" },
+      status: unknown,
+    }
+  - {
+      input: { code: "event:we have tried to reach the recipient again by email" },
+      status: unknown,
+    }
+  - { input: { code: "event:we have tried to reach the recipient again by sms" }, status: unknown }

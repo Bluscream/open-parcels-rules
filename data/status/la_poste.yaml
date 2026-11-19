@@ -42,3 +42,31 @@ tests:
   - { input: { code: "chronopost:RE1" }, status: returning }
   - { input: { code: "chronopost:DI1" }, status: delivered }
   - { input: { code: "colissimo:DI1" }, status: null }
+  - { input: { code: "colissimo:EDRDEP" }, status: in_transit }
+  - { input: { code: "colissimo:EDRINT" }, status: in_transit }
+  - { input: { code: "colissimo:ACHNAT" }, status: in_transit }
+  - { input: { code: "colissimo:ACHORI" }, status: in_transit }
+  - { input: { code: "colissimo:ACHERI" }, status: in_transit }
+  - { input: { code: "colissimo:ACHDOU" }, status: in_transit }
+  - { input: { code: "colissimo:DISINTAS" }, status: in_transit }
+  - { input: { code: "colissimo:DISARR" }, status: in_transit }
+  - { input: { code: "colissimo:DISTOU" }, status: in_transit }
+  - { input: { code: "colissimo:DISIRST" }, status: in_transit }
+  - { input: { code: "colissimo:AARIDOU" }, status: in_transit }
+  - { input: { code: "colissimo:AARENDDOU" }, status: in_transit }
+  - { input: { code: "colissimo:AARIREF" }, status: in_transit }
+  - { input: { code: "colissimo:ACHIECA" }, status: problem }
+  - { input: { code: "colissimo:AARAREF" }, status: problem }
+  - { input: { code: "colissimo:AARABECH" }, status: problem }
+  - { input: { code: "colissimo:DISIECHEC" }, status: problem }
+  - { input: { code: "colissimo:DESLIVD" }, status: delivered }
+  - { input: { code: "colissimo:DESOBS" }, status: delivered }
+  - { input: { code: "colissimo:DESLIVHD" }, status: delivered }
+  - { input: { code: "colissimo:DESMDREXP" }, status: returning }
+  - { input: { code: "chronopost:PC1" }, status: in_transit }
+  - { input: { code: "chronopost:ET1" }, status: in_transit }
+  - { input: { code: "chronopost:EP1" }, status: in_transit }
+  - { input: { code: "chronopost:MD2" }, status: in_transit }
+  - { input: { code: "chronopost:DR1" }, status: in_transit }
+  - { input: { code: "chronopost:MD1" }, status: out_for_delivery }
+  - { input: { code: "chronopost:AG1" }, status: at_pickup_point, pickup: true }
