@@ -22,6 +22,12 @@ carriers:
     crossref: { 17track: "7041" } # identifiers in other systems, as strings
 ```
 
+A `tracking_urls` key is a language (`de`) or a full tag (`de-AT`, also used for a regional site
+such as `en-NZ`). `{tracking_number}` is always filled in; any other lower-case placeholder, such
+as `{postcode}`, comes from the caller's `params`. A template whose placeholders are not all given
+is skipped for the next, less specific key, so `default` should need only the number where the
+carrier allows it. Every value is URL-encoded.
+
 `tracking_number_pattern` is a plausibility check before a lookup is sent, anchored with `^` and
 `$`. It is not detection: detection uses the tracking-number formats below, with check digits.
 

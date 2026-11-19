@@ -38,15 +38,22 @@ export function findCarrier(rules: Rules, nameOrAlias: string): CarrierInfo | un
   return lookupCarrier(rules.carriers, nameOrAlias);
 }
 
-/** The carrier's tracking page for a number, in the locale's language where one is listed. */
+/**
+ * The carrier's tracking page for a number, in the locale's language (or regional site) where
+ * one is listed. `params` fills a template's other placeholders, such as `{postcode}`; a
+ * template whose placeholders are not all given is skipped for the next, less specific one.
+ */
 export function trackingUrl(
   rules: Rules,
   carrierId: string,
   trackingNumber: string,
   locale?: string,
+  params?: Readonly<Record<string, string>>,
 ): string | undefined {
   const carrier = lookupCarrier(rules.carriers, carrierId);
-  return carrier === undefined ? undefined : buildTrackingUrl(carrier, trackingNumber, locale);
+  return carrier === undefined
+    ? undefined
+    : buildTrackingUrl(carrier, trackingNumber, locale, params);
 }
 
 /**

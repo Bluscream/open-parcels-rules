@@ -47,7 +47,7 @@ import type { Rules, ParcelStatus, CarrierInfo, TrackingCandidate } from "open-p
 | `rulesFromBundle(data: unknown): Rules` | The same from bundle data you loaded yourself (a newer `bundle.json`, say). Throws a zod error on invalid data. |
 | `carriers(rules)` | Every `CarrierInfo`. |
 | `findCarrier(rules, nameOrAlias)` | A carrier by id, name or alias; case, accents and punctuation are ignored. |
-| `trackingUrl(rules, carrierId, number, locale?)` | The tracking page: tries the full locale tag, then the language, then `default`. |
+| `trackingUrl(rules, carrierId, number, locale?, params?)` | The tracking page: tries the full locale tag, then the language, then `default`, skipping a template whose placeholders (such as `{postcode}`) `params` does not fill. |
 | `detectTrackingNumbers(rules, text, hints?)` | Every plausible `{ carrier, trackingNumber, confidence, checksumValid, types }`, best first. |
 | `mapStatus(rules, carrier, { code?, text?, fields? })` | `{ status, pickup?, confirmed, stage?, label? }` or `null` when the table lacks the value. |
 | `ignoredStatus(rules, carrier, raw)` | The mail event an `ignore` entry gives the value (`order_cancelled`, `refund_issued`, ...), or `null`. |

@@ -28,12 +28,17 @@ export const carrierSchema = z.strictObject({
     description: "Countries whose UPU S10 numbers (e.g. RR123456785DE) this carrier delivers.",
   }),
   tracking_urls: z
-    .record(z.string(), z.string().regex(/^https:\/\/\S*\{tracking_number\}\S*$/u))
+    .record(
+      z.string().regex(/^(default|[a-z]{2,3}(-[A-Z]{2})?)$/u),
+      z.string().regex(/^https:\/\/\S*\{tracking_number\}\S*$/u),
+    )
     .default({})
     .meta({
       description:
         "Tracking page templates keyed by locale ('default', a language such as 'de', or a " +
-        "full tag such as 'de-AT'). {tracking_number} is replaced by the URL-encoded number.",
+        "full tag such as 'de-AT' for a regional site). {tracking_number} is replaced by the " +
+        "URL-encoded number; any other {name} (lower-case, e.g. {postcode}) by the value the " +
+        "caller passes, and a template whose placeholders are not all given is skipped.",
     }),
   tracking_number_pattern: regexSpecSchema.optional().meta({
     description:

@@ -22,7 +22,9 @@ carriers:
     domains: [dhl.de, dhl.com, deutschepost.de]
     upu_countries: [DE]
     tracking_urls:
-      default: "https://www.dhl.com/global-en/home/tracking/tracking-parcel.html?submit=1&tracking-id={tracking_number}"
+      default: "https://www.dhl.com/global-en/home/tracking.html?tracking-id={tracking_number}"
+      # DHL eCommerce Netherlands looks a parcel up by the receiver's postcode (spaces removed).
+      nl: "https://my.dhlecommerce.nl/portal/tracktrace/{tracking_number}/{postcode}"
       de: "https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={tracking_number}"
       de-DE: "https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode={tracking_number}"
     crossref: { 17track: "7041" }
@@ -68,6 +70,12 @@ carriers:
     tracking_urls:
       default: "https://gls-group.com/EU/en/parcel-tracking?match={tracking_number}"
       de: "https://gls-group.com/DE/de/paketverfolgung?match={tracking_number}"
+      en-CA: "https://gls-group.com/CA/en/send-and-receive/track-a-shipment/?match={tracking_number}"
+      en-PL: "https://gls-group.com/PL/en/parcel-tracking/?match={tracking_number}"
+      # The national portals look a parcel up with the delivery postcode (spaces removed).
+      nl: "https://www.gls-info.nl/tracking?trackid={tracking_number}&zipcode={postcode}"
+      es: "https://mygls.gls-spain.es/e/{tracking_number}/{postcode}/es"
+      pt: "https://mygls.gls-portugal.pt/e/{tracking_number}/{postcode}/pt"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,24}$", flags: [i] }
     crossref: { 17track: "100005" }
 
@@ -159,7 +167,8 @@ carriers:
     courier_codes: [canada_post]
     upu_countries: [CA]
     tracking_urls:
-      default: "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={tracking_number}"
+      default: "https://www.canadapost-postescanada.ca/track-reperage/en#/details/{tracking_number}"
+      fr: "https://www.canadapost-postescanada.ca/track-reperage/fr#/details/{tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{10,40}$", flags: [i] }
     crossref: { 17track: "3041" }
 
@@ -169,7 +178,11 @@ carriers:
     countries: [PL]
     domains: [inpost.pl, paczkomaty.pl]
     tracking_urls:
-      default: "https://inpost.pl/sledzenie-przesylek?number={tracking_number}"
+      default: "https://inpost.pl/en/find-parcel?number={tracking_number}"
+      it: "https://inpost.it/trova-il-tuo-pacco?number={tracking_number}"
+      pt: "https://www.inpost.pt/seguimento-do-envio/?exp={tracking_number}&language=pt&pais=PT"
+      en-GB: "https://inpost.co.uk/tracking/result?parcel_code={tracking_number}"
+      es: "https://www.inpost.es/seguimiento-del-envio/?exp={tracking_number}&language=ES"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
     crossref: { 17track: "100043" }
 
@@ -196,7 +209,7 @@ carriers:
     aliases: [AliExpress Standard Shipping, Cainiao Network]
     domains: [cainiao.com]
     tracking_urls:
-      default: "https://global.cainiao.com/newDetail.htm?mailNoList={tracking_number}"
+      default: "https://global.cainiao.com/detail.htm?mailNoList={tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
 
   - id: 4px
@@ -344,6 +357,11 @@ carriers:
   - id: box_now
     name: BOX NOW
     countries: [GR, BG, HR, CY]
+    tracking_urls:
+      default: "https://boxnow.gr/homepage-gr?track={tracking_number}"
+      bg: "https://boxnow.bg/homepage?track={tracking_number}"
+      hr: "https://boxnow.hr/?track={tracking_number}"
+      el-CY: "https://boxnow.cy/?track={tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$", flags: [i] }
 
   - id: bpost
@@ -351,6 +369,8 @@ carriers:
     aliases: [Belgian Post, bpost Belgium]
     countries: [BE]
     upu_countries: [BE]
+    tracking_urls:
+      default: "https://track.bpost.cloud/btr/web/#/search?lang=en&itemCode={tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
 
   - id: budbee
@@ -379,6 +399,9 @@ carriers:
   - id: colis_prive
     name: Colis Privé
     countries: [FR, BE, NL]
+    tracking_urls:
+      # The page takes the parcel number with the delivery postcode appended as one value.
+      default: "https://colisprive.com/moncolis/pages/detailColis.aspx?numColis={tracking_number}&lang={lang}"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
 
   - id: colisweb
@@ -404,6 +427,8 @@ carriers:
     upu_countries: [PT]
     tracking_urls:
       default: "https://www.ctt.pt/feapl_2/app/open/objectSearch/objectSearch.jspx?objects={tracking_number}"
+      # CTT Express, the Spanish parcel network.
+      es: "https://www.cttexpress.com/localizador-de-envios/?sc={tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
 
   - id: dao
@@ -423,6 +448,10 @@ carriers:
   - id: dragonfly
     name: Dragonfly
     countries: [NL, AU, CA]
+    tracking_urls:
+      default: "https://dragonflyshipping.nl/nl/volg-je-pakket/?tracking-id={tracking_number}"
+      en-AU: "https://dragonflyshipping.com.au/track-your-package/?tracking-id={tracking_number}"
+      en-CA: "https://intelcom.ca/en/track-your-package/?tracking-id={tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$" }
 
   - id: dynalogic
@@ -441,6 +470,8 @@ carriers:
     name: Econt
     aliases: [Econt Express]
     countries: [BG]
+    tracking_urls:
+      default: "https://ee.econt.com/load_direct.php?target=EeActivityTraceParcell&shipment_num={tracking_number}"
     tracking_number_pattern: { pattern: "^[0-9]{6,20}$" }
 
   - id: ecoscooting
@@ -458,6 +489,8 @@ carriers:
   - id: fan_courier
     name: FAN Courier
     countries: [RO]
+    tracking_urls:
+      default: "https://www.fancourier.ro/awb-tracking/?tracking={tracking_number}"
     tracking_number_pattern: { pattern: "^[0-9]{8,20}$" }
 
   - id: geniki_taxydromiki
@@ -476,6 +509,8 @@ carriers:
   - id: helthjem
     name: Helthjem
     countries: [NO]
+    tracking_urls:
+      default: "https://helthjem.no/sporing/?trackingReference={tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,40}$", flags: [i] }
 
   - id: hrvatska_posta
@@ -516,6 +551,9 @@ carriers:
   - id: mondial_relay
     name: Mondial Relay
     countries: [FR, BE, NL, ES, PT, LU]
+    tracking_urls:
+      # {brand}: the first two characters of the shipment's brand code (Enseigne).
+      default: "https://www.mondialrelay.be/nl-be/shipment-tracking?numeroExpedition={tracking_number}&codeMarque={brand}"
     tracking_number_pattern: { pattern: "^[0-9]{6,20}$" }
 
   - id: nova_post
@@ -558,6 +596,8 @@ carriers:
     name: Packeta
     aliases: [Zásilkovna, Packeta (Zásilkovna)]
     countries: [CZ, SK, HU, RO, PL, DE, AT]
+    tracking_urls:
+      default: "https://tracking.packeta.com/en/?id={tracking_number}"
     tracking_number_pattern: { pattern: "^Z?[A-Z0-9]{8,30}$", flags: [i] }
 
   - id: pdn_express
@@ -578,6 +618,8 @@ carriers:
     aliases: [Slovenian Post, Posta Slovenije]
     countries: [SI]
     upu_countries: [SI]
+    tracking_urls:
+      default: "https://moja.posta.si/tracking?trackingNumber={tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
 
   - id: brt
@@ -648,17 +690,25 @@ carriers:
     aliases: [PostNord Sverige, PostNord Danmark]
     countries: [DK, SE, NO, FI]
     upu_countries: [DK, SE]
+    tracking_urls:
+      default: "https://tracking.postnord.com/en/tracking?id={tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
 
   - id: quickpac
     name: Quickpac
     countries: [CH]
+    tracking_urls:
+      default: "https://quickpac.ch/de/tracking?identcode={tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,40}$", flags: [i] }
 
   - id: sameday
     name: Sameday
     aliases: [Sameday Courier]
     countries: [RO, HU, BG]
+    tracking_urls:
+      default: "https://sameday.ro/status-colet/?awb={tracking_number}"
+      hu: "https://sameday.hu/#awb={tracking_number}"
+      bg: "https://sameday.bg/status-na-pratkata/?awb={tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{6,30}$", flags: [i] }
 
   - id: seur
@@ -669,6 +719,14 @@ carriers:
     name: Shopee Xpress
     aliases: [SPX, SPX Express]
     countries: [BR, ID, MY, PH, TH, VN]
+    tracking_urls:
+      # One site per market; the number is the whole query string.
+      default: "https://spx.com.br/track?{tracking_number}"
+      id: "https://spx.co.id/track?{tracking_number}"
+      ms: "https://spx.com.my/track?{tracking_number}"
+      en-PH: "https://spx.ph/track?{tracking_number}"
+      th: "https://spx.co.th/track?{tracking_number}"
+      vi: "https://spx.vn/track?{tracking_number}"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{8,30}$", flags: [i] }
 
   - id: slovak_parcel_service
@@ -698,6 +756,8 @@ carriers:
   - id: straightship
     name: Straightship
     countries: [US]
+    tracking_urls:
+      default: "https://straightship.com/track-your-shipment/tracking-id/{tracking_number}/"
     tracking_number_pattern: { pattern: "^[A-Z0-9]{6,30}$", flags: [i] }
 
   - id: sunyou
@@ -724,6 +784,9 @@ carriers:
   - id: trunkrs
     name: Trunkrs
     countries: [NL, BE]
+    tracking_urls:
+      # Looked up with the delivery postcode.
+      default: "https://parcel.trunkrs.nl/{tracking_number}/{postcode}"
     tracking_number_pattern: { pattern: "^[A-Z0-9-]{6,30}$", flags: [i] }
 
   - id: ukrposhta

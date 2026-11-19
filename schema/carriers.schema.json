@@ -64,10 +64,11 @@
           },
           "tracking_urls": {
             "default": {},
-            "description": "Tracking page templates keyed by locale ('default', a language such as 'de', or a full tag such as 'de-AT'). {tracking_number} is replaced by the URL-encoded number.",
+            "description": "Tracking page templates keyed by locale ('default', a language such as 'de', or a full tag such as 'de-AT' for a regional site). {tracking_number} is replaced by the URL-encoded number; any other {name} (lower-case, e.g. {postcode}) by the value the caller passes, and a template whose placeholders are not all given is skipped.",
             "type": "object",
             "propertyNames": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^(default|[a-z]{2,3}(-[A-Z]{2})?)$"
             },
             "additionalProperties": {
               "type": "string",

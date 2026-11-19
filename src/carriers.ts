@@ -68,10 +68,32 @@ export function carrierForDomain(index: CarrierIndex, domain: string): CarrierIn
   return index.list.find((carrier) => carrier.domains.some((d) => domainMatches(domain, d)));
 }
 
+const PLACEHOLDER = /\{([a-z_]+)\}/gu;
+
+/** The template filled in, or undefined when it names a placeholder `values` lacks. */
+function fillTemplate(
+  template: string,
+  values: Readonly<Record<string, string>>,
+): string | undefined {
+  const given = (name: string): string | undefined =>
+    Object.hasOwn(values, name) ? values[name] : undefined;
+  const names = Array.from(template.matchAll(PLACEHOLDER), (match) => match[1] ?? "");
+  if (names.some((name) => given(name) === undefined)) return undefined;
+  return template.replace(PLACEHOLDER, (_match, name: string) =>
+    encodeURIComponent(given(name) ?? ""),
+  );
+}
+
+/**
+ * The first template, by locale (full tag, lower-cased tag, language, then `default`), whose
+ * placeholders are all given: `{tracking_number}` always, any other `{name}` from `params`.
+ * Every value is URL-encoded.
+ */
 export function buildTrackingUrl(
   carrier: CarrierInfo,
   trackingNumber: string,
   locale?: string,
+  params: Readonly<Record<string, string>> = {},
 ): string | undefined {
   const urls = carrier.trackingUrls;
   const keys: string[] = [];
@@ -79,6 +101,11 @@ export function buildTrackingUrl(
     keys.push(locale, locale.toLowerCase(), locale.split(/[-_]/u)[0]?.toLowerCase() ?? "");
   }
   keys.push("default");
-  const template = keys.map((key) => urls[key]).find((value) => value !== undefined);
-  return template?.replaceAll("{tracking_number}", encodeURIComponent(trackingNumber));
+  const values = { ...params, tracking_number: trackingNumber };
+  for (const key of new Set(keys)) {
+    const template = Object.hasOwn(urls, key) ? urls[key] : undefined;
+    const url = template === undefined ? undefined : fillTemplate(template, values);
+    if (url !== undefined) return url;
+  }
+  return undefined;
 }
