@@ -7,12 +7,20 @@ Exits non-zero on the first mismatch report.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from open_parcels_rules import ignored_status, load_rules, map_status, validate_tracking_number  # noqa: E402
+from open_parcels_rules import (  # noqa: E402
+    _flags,
+    ignored_status,
+    load_rules,
+    map_status,
+    to_python_regex,
+    validate_tracking_number,
+)
 
 
 def main() -> int:
@@ -56,6 +64,12 @@ def main() -> int:
                 ignored = ignored_status(rules, table["carrier"], raw.get("code"), raw.get("text"), raw.get("fields"))
                 if ignored != test["ignored"]:
                     failures.append(f"status/{table['carrier']}: {raw} ignored as {ignored}, expected {test['ignored']}")
+
+    for case in vectors.get("regex", []):
+        checked += 1
+        regex = re.compile(to_python_regex(case["pattern"]), _flags(case.get("flags")))
+        if (regex.search(case["input"]) is not None) != case["matches"]:
+            failures.append(f"regex: {case['pattern']!r} on {case['input']!r} should match: {case['matches']}")
 
     for failure in failures:
         print(f"FAIL {failure}")

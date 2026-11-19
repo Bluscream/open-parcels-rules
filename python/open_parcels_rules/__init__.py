@@ -31,17 +31,68 @@ _NAMED_GROUP = re.compile(r"\(\?<(?=[A-Za-z_])")
 _BASE36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
+# What the TypeScript engine's `u`-flag regexes mean by each class escape. Python's defaults are
+# Unicode-wide (\d matches Arabic-Indic digits, \w accented letters), and re.ASCII narrows \s to
+# ASCII whitespace while JavaScript's \s also covers NBSP and the other Unicode spaces. Spelling
+# the classes out gives both engines one meaning whatever the flags.
+_JS_SPACE = "\\t\\n\\v\\f\\r \\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff"
+_WORD = "A-Za-z0-9_"
+_IN_CLASS = {"d": "0-9", "w": _WORD, "s": _JS_SPACE}
+_OUTSIDE = {
+    "d": "[0-9]",
+    "D": "[^0-9]",
+    "w": f"[{_WORD}]",
+    "W": f"[^{_WORD}]",
+    "s": f"[{_JS_SPACE}]",
+    "S": f"[^{_JS_SPACE}]",
+    "b": f"(?:(?<=[{_WORD}])(?![{_WORD}])|(?<![{_WORD}])(?=[{_WORD}]))",
+    "B": f"(?:(?<=[{_WORD}])(?=[{_WORD}])|(?<![{_WORD}])(?![{_WORD}]))",
+}
+
+
+def _spell_out_classes(pattern: str) -> str:
+    out: list[str] = []
+    index = 0
+    in_class = False
+    while index < len(pattern):
+        char = pattern[index]
+        if char == "\\" and index + 1 < len(pattern):
+            escape = pattern[index + 1]
+            if in_class and escape in _IN_CLASS:
+                out.append(_IN_CLASS[escape])
+            elif not in_class and escape in _OUTSIDE:
+                out.append(_OUTSIDE[escape])
+            else:
+                # \D, \W and \S inside a class are outside the portable subset's use; kept as is.
+                out.append(pattern[index : index + 2])
+            index += 2
+            continue
+        if in_class and char == "]":
+            in_class = False
+        elif not in_class and char == "[":
+            in_class = True
+            if pattern[index + 1 : index + 2] == "]":
+                out.append("[]")
+                index += 2
+                continue
+        out.append(char)
+        index += 1
+    return "".join(out)
+
+
 def to_python_regex(pattern: str) -> str:
-    """Rewrites the portable named-group syntax for Python's re module."""
-    return _NAMED_GROUP.sub("(?P<", pattern)
+    """Rewrites a portable pattern for Python's re: named groups, and class escapes as JS reads them."""
+    return _spell_out_classes(_NAMED_GROUP.sub("(?P<", pattern))
 
 
 def _flags(names: list[str] | None) -> int:
+    """re flags for a data pattern. re.ASCII unless case is ignored: JavaScript's `iu` folds
+    non-ASCII letters (Ä/ä), and so must Python, which re.ASCII would stop."""
     table = {"i": re.IGNORECASE, "m": re.MULTILINE, "s": re.DOTALL}
     result = 0
     for name in names or []:
         result |= table[name]
-    return result
+    return result if result & re.IGNORECASE else result | re.ASCII
 
 
 def _digit(char: str) -> int:
@@ -156,8 +207,8 @@ def load_rules(path: str | Path = DEFAULT_BUNDLE) -> Rules:
                     id=spec.get("id") or f"{courier['courier_code']}_{_slug(spec['name'])}",
                     name=spec["name"],
                     spec=spec,
-                    exact=re.compile(f"(?:{pattern})"),
-                    search=re.compile(f"(?<![A-Za-z0-9])(?:{pattern})(?![A-Za-z0-9])"),
+                    exact=re.compile(f"(?:{pattern})", re.ASCII),
+                    search=re.compile(f"(?<![A-Za-z0-9])(?:{pattern})(?![A-Za-z0-9])", re.ASCII),
                 )
             )
     courier_carriers: dict[str, str] = {}
@@ -248,7 +299,7 @@ def _check_type(kind: TrackingType, number: str) -> dict[str, Any] | None:
     if checksum is not None:
         serial, check = groups.get("SerialNumber"), groups.get("CheckDigit")
         prepend = validation.get("serial_number_format", {}).get("prepend_if")
-        if serial is not None and prepend and re.search(prepend["matches_regex"], serial):
+        if serial is not None and prepend and re.search(to_python_regex(prepend["matches_regex"]), serial, re.ASCII):
             serial = prepend["content"] + serial
         checksum_valid = (
             serial is not None and check is not None and _CHECKSUMS[checksum["name"]](checksum, serial, check)
@@ -259,7 +310,7 @@ def _check_type(kind: TrackingType, number: str) -> dict[str, Any] | None:
         value = groups.get(additional["regex_group_name"]) if additional else None
         lookups_ok = lookups_ok and value is not None and any(
             row.get("matches") == value
-            or (row.get("matches_regex") and re.fullmatch(row["matches_regex"], value))
+            or (row.get("matches_regex") and re.fullmatch(to_python_regex(row["matches_regex"]), value, re.ASCII))
             for row in additional["lookup"]
         )
     return {

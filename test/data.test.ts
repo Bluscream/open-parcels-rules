@@ -162,3 +162,16 @@ describe("regex portability", () => {
     }
   });
 });
+
+describe("regex vectors", () => {
+  const { cases } = JSON.parse(
+    readFileSync(join(ROOT, "test", "fixtures", "regex-vectors.json"), "utf8"),
+  ) as {
+    cases: { pattern: string; flags?: string[]; input: string; matches: boolean }[];
+  };
+
+  it.each(cases)("$pattern on $input", ({ pattern, flags, input, matches }) => {
+    expect(portabilityProblems(pattern)).toEqual([]);
+    expect(compileDataRegex(pattern, flags).test(input)).toBe(matches);
+  });
+});

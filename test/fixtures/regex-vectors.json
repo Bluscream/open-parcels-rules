@@ -1,0 +1,20 @@
+{
+  "description": "Unicode inputs on which a data regex must mean the same in every engine port (JavaScript with the u flag, the Python reference loader). Each case says whether the pattern finds a match anywhere in the input.",
+  "cases": [
+    { "pattern": "^\\d{4}$", "input": "1234", "matches": true },
+    { "pattern": "^\\d{4}$", "input": "١٢٣٤", "matches": false },
+    { "pattern": "^\\d{4}$", "input": "１２３４", "matches": false },
+    { "pattern": "^\\w+$", "input": "abc_123", "matches": true },
+    { "pattern": "^\\w+$", "input": "straße", "matches": false },
+    { "pattern": "^\\W$", "input": "é", "matches": true },
+    { "pattern": "\\bpaket\\b", "input": "üpaket", "matches": true },
+    { "pattern": "\\bpaket\\b", "input": "xpaket", "matches": false },
+    { "pattern": "^[0-9]+\\s[0-9]+$", "input": "12 34", "matches": true },
+    { "pattern": "^[0-9]+\\s[0-9]+$", "input": "12 34", "matches": true },
+    { "pattern": "^[0-9]+[\\s,]+[0-9]+$", "input": "12　,34", "matches": true },
+    { "pattern": "^\\S+$", "input": "a b", "matches": false },
+    { "pattern": "^\\d+\\s*[A-Z]$", "input": "12٣ A", "matches": false },
+    { "pattern": "^empfänger$", "flags": ["i"], "input": "EMPFÄNGER", "matches": true },
+    { "pattern": "^zugestellt$", "flags": ["i"], "input": "ZUGESTELLT", "matches": true }
+  ]
+}

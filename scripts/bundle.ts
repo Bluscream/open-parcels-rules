@@ -2,7 +2,7 @@
  * Writes dist/bundle.json (what loadRules reads) and dist/vectors.json (the test vectors, for
  * ports of the engine such as the Python reference loader).
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { collectData, ROOT } from "./collect.ts";
 
@@ -25,5 +25,11 @@ const vectors = {
     })),
   ),
   status: data.status.map((file) => ({ carrier: file.carrier, tests: file.tests })),
+  // Unicode inputs on which every engine must read a data regex the same way.
+  regex: (
+    JSON.parse(readFileSync(join(ROOT, "test", "fixtures", "regex-vectors.json"), "utf8")) as {
+      cases: unknown[];
+    }
+  ).cases,
 };
 writeFileSync(join(dist, "vectors.json"), `${JSON.stringify(vectors, null, 1)}\n`);
