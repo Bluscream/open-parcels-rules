@@ -28,7 +28,7 @@ const SCHEMAS: Readonly<Record<string, z.ZodType>> = {
 function jsonSchema(name: string, schema: z.ZodType): string {
   const generated = z.toJSONSchema(schema, { io: "input", target: "draft-2020-12" });
   const withId = {
-    $id: `https://raw.githubusercontent.com/Bluscream/open-parcels-rules/main/schema/${name}`,
+    $id: `https://raw.githubusercontent.com/open-parcels/open-parcels-rules/main/schema/${name}`,
     ...generated,
   };
   return `${JSON.stringify(withId, null, 2)}\n`;

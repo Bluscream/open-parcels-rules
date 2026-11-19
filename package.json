@@ -2,6 +2,14 @@
   "name": "open-parcels-rules",
   "version": "2.0.0-dev.7",
   "description": "Collectively maintained parcel-tracking knowledge (tracking-number formats, carrier status tables, delivery-date phrases, shipping-mail rules) and a TypeScript engine that reads it.",
+  "homepage": "https://github.com/open-parcels/open-parcels-rules#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-parcels/open-parcels-rules.git"
+  },
+  "bugs": {
+    "url": "https://github.com/open-parcels/open-parcels-rules/issues"
+  },
   "type": "module",
   "engines": {
     "node": ">=26"

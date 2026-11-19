@@ -1,5 +1,5 @@
 {
-  "$id": "https://raw.githubusercontent.com/Bluscream/open-parcels-rules/main/schema/carriers.schema.json",
+  "$id": "https://raw.githubusercontent.com/open-parcels/open-parcels-rules/main/schema/carriers.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
