@@ -403,3 +403,51 @@ keys:
     source: app
     last_verified: 2026-11-18
     value: swisspost_main_prod
+  - carrier: bpost
+    name: app_os
+    purpose: "`os` header the My bpost app sends with every call."
+    source: app
+    last_verified: 2026-11-18
+    value: android
+  - carrier: bpost
+    name: app_os_version
+    purpose: "`osVersion` header the My bpost app sends with every call."
+    source: app
+    last_verified: 2026-11-18
+    value: "14"
+  - carrier: canadapost
+    name: tracking_basic_auth
+    purpose: "`authorization` of the public tracking page's own calls: Basic auth with an empty user and password."
+    source: website
+    last_verified: 2026-11-18
+    value: "Basic Og=="
+  - carrier: cargus
+    name: b2c_policy
+    purpose: Azure AD B2C policy of the MyCargus web sign-in.
+    source: website
+    last_verified: 2026-11-18
+    value: B2C_1A_ACCOUNTLINK_SUSI_WEB
+  - carrier: cargus
+    name: source_header
+    purpose: "`Source` header the MyCargus website sends with account calls."
+    source: website
+    last_verified: 2026-11-18
+    value: "1"
+  - carrier: correos
+    name: application_code
+    purpose: "`codAplicacion` of the public tracking page's event lookup."
+    source: website
+    last_verified: 2026-11-18
+    value: "60"
+  - carrier: correos
+    name: channel_code
+    purpose: "`codCanal` of the public tracking page's event lookup."
+    source: website
+    last_verified: 2026-11-18
+    value: "3"
+  - carrier: inpost
+    name: inbox_api_version
+    purpose: "`x-api-version` header the InPost app sends to its parcel inbox."
+    source: app
+    last_verified: 2026-11-18
+    value: "1"
