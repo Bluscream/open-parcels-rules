@@ -18,7 +18,8 @@
         "parcel",
         "order",
         "return",
-        "dunning"
+        "dunning",
+        "ignore"
       ]
     },
     "senders": {

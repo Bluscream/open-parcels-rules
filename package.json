@@ -1,6 +1,6 @@
 {
   "name": "open-parcels-rules",
-  "version": "2.0.0-dev.3",
+  "version": "2.0.0-dev.4",
   "description": "Collectively maintained parcel-tracking knowledge (tracking-number formats, carrier status tables, delivery-date phrases, shipping-mail rules) and a TypeScript engine that reads it.",
   "type": "module",
   "engines": {

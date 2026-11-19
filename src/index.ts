@@ -1,6 +1,7 @@
 import { parseWithGrammar } from "./arrival/parse.ts";
 import { buildTrackingUrl, lookupCarrier } from "./carriers.ts";
-import { parseMailWith } from "./mail/parse.ts";
+import { fitsCarrierPattern, isBoilerplateItem, isPlaceholder } from "./mail/context.ts";
+import { isIgnoredMail, parseMailWith } from "./mail/parse.ts";
 import type { Rules } from "./rules.ts";
 import { grammarFor, keyId } from "./rules.ts";
 import { ignoredWithTable, mapWithTable, resolveWithTable } from "./status.ts";
@@ -140,6 +141,39 @@ export function parseArrival(
 ): ArrivalWindow | null {
   const grammar = grammarFor(rules, options.locales);
   return grammar === null ? null : parseWithGrammar(grammar, text, options.now, options.timeZone);
+}
+
+/**
+ * Whether a number a mail named could still stand for a parcel under the current mail rules:
+ * not a placeholder (runs of 0 or 9, one digit repeated) and fitting the carrier's number
+ * pattern where carriers.yaml lists one. For re-checking parcels that mails created earlier.
+ */
+export function plausibleMailTrackingNumber(
+  rules: Rules,
+  carrier: string,
+  trackingNumber: string,
+): boolean {
+  const id = lookupCarrier(rules.carriers, carrier)?.id ?? carrier;
+  return (
+    !isPlaceholder(trackingNumber) &&
+    fitsCarrierPattern(rules, {
+      carrier: id,
+      trackingNumber,
+      confidence: 1,
+      checksumValid: null,
+      types: [],
+    })
+  );
+}
+
+/** True for an item bullet that is an instruction ("Enter the recipient's postal code …"). */
+export function isBoilerplateItemTitle(title: string): boolean {
+  return isBoilerplateItem(title);
+}
+
+/** True when an `ignore` mail rule drops a mail with this sender and subject. */
+export function ignoredMail(rules: Rules, from: string, subject: string): boolean {
+  return isIgnoredMail(rules, { from, subject });
 }
 
 /** Every rule result for a mail; a format-detection fallback when no rule applies. */

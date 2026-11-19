@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+#
+# Carrier developer portals and API consoles: nothing they send is about a parcel.
+id: ignore-developer-portals
+name: Carrier developer portals
+kind: ignore
+senders:
+  domains: [developer.dhl.com, developer.dpd.de, developer.ups.com, developer.fedex.com]
+tests:
+  - fixture: dhl-developer-portal-account.eml
+    expect: []

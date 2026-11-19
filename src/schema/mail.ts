@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { identifierSchema, parcelStatusSchema, regexFlagSchema, regexLikeSchema } from "./common.ts";
 
-export const MAIL_KINDS = ["parcel", "order", "return", "dunning"] as const;
+/** `ignore` rules produce nothing: a mail they match yields no result at all. */
+export const MAIL_KINDS = ["parcel", "order", "return", "dunning", "ignore"] as const;
 export const mailKindSchema = z.enum(MAIL_KINDS);
 
 /** Kind-specific events for mails that are not about a parcel's journey. */

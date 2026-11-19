@@ -84,6 +84,14 @@ tests:
         arrival:
           { from: "2026-11-20T00:00:00+01:00", to: "2026-11-21T00:00:00+01:00", allDay: true }
         trackingUrl: "https://www.amazon.de/gp/your-account/ship-track?orderId=302-1234567-1234567&shipmentId=Dx0Ex0Ax0Mx0P"
+  # A placeholder number and an instruction bullet: no tracking number, one real item.
+  - fixture: amazon-de-placeholder-dpd.eml
+    time_zone: Europe/Berlin
+    expect:
+      - ruleId: order-amazon
+      - ruleId: parcel-amazon
+        trackingNumbers: []
+        items: ["Beispielartikel"]
   - fixture: amazon-com-delivered.eml
     time_zone: America/New_York
     expect:

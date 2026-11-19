@@ -7,7 +7,7 @@ come in rule-id order.
 ```yaml
 id: parcel-dhl
 name: DHL parcel notifications
-kind: parcel                      # parcel | order | return | dunning
+kind: parcel                      # parcel | order | return | dunning | ignore
 senders:
   addresses: [donotreply_odd@dhl.com]   # exact addresses
   domains: [dhl.de]                     # domain suffixes
@@ -71,10 +71,29 @@ Add another only when data cannot do the job, and document it here.
 - **schema.org**: `ParcelDelivery` in JSON-LD (`<script type="application/ld+json">`) or
   microdata gives an extra result with `ruleId: "schema.org"`. Mails without the word
   `ParcelDelivery` cost nothing.
-- **Fallback**: when no rule and no markup applies, a mail from a known carrier domain, or one
-  that mentions a tracking keyword from the locale tables ("Sendungsnummer", "tracking
-  number"), is scanned for tracking numbers; numbers with a confidence of at least 0.6 give a
-  result with `ruleId: "fallback"`.
+- **Fallback**: when no rule and no markup applies, a mail from a known sender (a carrier
+  domain in `carriers.yaml`, or a domain a non-`ignore` mail rule reads) is scanned for tracking
+  numbers; numbers with a confidence of at least 0.6 give a result with `ruleId: "fallback"`.
+  Mail from any other sender gives nothing.
+
+## Detected numbers must look like tracking numbers
+
+Every number found by format detection (the fallback and `detect_tracking_numbers`) must also:
+
+- sit in a tracking context: a tracking keyword from the locale tables on its line or the line
+  above, a parcel noun ("Sendung", "shipment", "paczka") on its line, or a tracking link
+  around it;
+- fit the carrier's `tracking_number_pattern` where `carriers.yaml` gives one;
+- not be a placeholder: one character repeated, or only 0s and 9s (optionally followed by one
+  check digit).
+
+Item bullets that are instructions ("Enter the recipient's postal code …") are dropped.
+
+## Ignore rules
+
+A rule with `kind: ignore` matches mails that never describe a parcel: account details,
+developer portals, newsletters. When one applies, the mail yields no result at all, whatever
+other rules say. Give it test vectors with `expect: []`.
 
 ## Fixtures
 

@@ -37,7 +37,8 @@ carriers:
       default: "https://tracking.dpd.de/status/en_US/parcel/{tracking_number}"
       de: "https://tracking.dpd.de/status/de_DE/parcel/{tracking_number}"
       pl: "https://tracktrace.dpd.com.pl/parcelDetails?p1={tracking_number}"
-    tracking_number_pattern: { pattern: "^[0-9]{14}$" }
+    # 14 digits, optionally followed by the check character DPD prints after them.
+    tracking_number_pattern: { pattern: "^[0-9]{14}[0-9A-Z]?$", flags: [i] }
     crossref: { 17track: "100007" }
 
   - id: hermes

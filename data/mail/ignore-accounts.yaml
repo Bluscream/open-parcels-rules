@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../schema/mail-rule.schema.json
+#
+# Account, developer-portal and marketing mails from carriers and shops. They can carry numbers
+# that fit a tracking format (customer and account ids, voucher codes), but never a parcel.
+id: ignore-accounts
+name: Account, developer-portal and newsletter mails
+kind: ignore
+senders:
+  domains:
+    [
+      dhl.de,
+      dhl.com,
+      deutschepost.de,
+      dpd.de,
+      dpd.com,
+      myhermes.de,
+      gls-pakete.de,
+      gls-group.eu,
+      ups.com,
+      fedex.com,
+      amazon.de,
+      amazon.com,
+      amazon.co.uk,
+    ]
+subject:
+  - "developer portal|api portal|account details|kontodaten|zugangsdaten|password|passwort|verify your (?:e-?mail|account)|bestätigen sie ihre e-?mail|newsletter|neuigkeiten|unsubscribe|abmelden|welcome to|willkommen bei|sign-?in (?:code|attempt)|anmeldung bei|your account|ihr (?:kunden)?konto"
+tests:
+  - fixture: dhl-developer-portal-account.eml
+    expect: []
+  - fixture: dhl-de-newsletter.eml
+    expect: []

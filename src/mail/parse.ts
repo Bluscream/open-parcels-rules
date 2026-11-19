@@ -1,5 +1,5 @@
 import { parseWithGrammar } from "../arrival/parse.ts";
-import { carrierForDomain, domainMatches, lookupCarrier } from "../carriers.ts";
+import { domainMatches, lookupCarrier } from "../carriers.ts";
 import type { Rules } from "../rules.ts";
 import { grammarFor } from "../rules.ts";
 import type { MailField, MailSource } from "../schema/mail.ts";
@@ -7,6 +7,7 @@ import { detect } from "../tracking/detect.ts";
 import { normalizeTrackingNumber } from "../tracking/validate.ts";
 import type { ArrivalWindow, MailInput, MailParseResult } from "../types.ts";
 import type { CompiledMailRule, CompiledPattern } from "./compile.ts";
+import { isBoilerplateItem, isKnownSender, trustedCandidates } from "./context.ts";
 import { EXTRACTORS } from "./extractors.ts";
 import { htmlToText } from "./html.ts";
 import { extractSchemaOrg } from "./schema-org.ts";
@@ -123,7 +124,7 @@ function runExtractors(
       text: prepared.sources.text,
       senderDomain: prepared.domain,
       carrier: draft.carrier ?? rule.carrier,
-      detect: (text, hints) => detect(rules, text, hints),
+      detect: (text, hints) => trustedCandidates(rules, text, detect(rules, text, hints)),
     });
     draft.trackingNumbers = unique([...draft.trackingNumbers, ...(output.trackingNumbers ?? [])]);
     draft.carrier ??= output.carrier;
@@ -149,7 +150,7 @@ function applyRule(
   // A 14-digit order number also looks like a 14-digit parcel number; the label decides.
   const orders = new Set(orderNumbers.map(normalizeTrackingNumber));
   draft.trackingNumbers = draft.trackingNumbers.filter((number) => !orders.has(number));
-  const items = collectField(rule, "item", sources);
+  const items = collectField(rule, "item", sources).filter((item) => !isBoilerplateItem(item));
   const trackingUrl = collectField(rule, "tracking_url", sources)[0]?.replace(
     TRAILING_URL_PUNCTUATION,
     "",
@@ -221,11 +222,13 @@ function arrivalFromIso(from: string | undefined, until: string): ArrivalWindow 
 function fallback(rules: Rules, prepared: Prepared): MailParseResult[] {
   const { subject, text } = prepared.sources;
   const body = `${subject}\n${text}`;
-  const fromCarrier = carrierForDomain(rules.carriers, prepared.domain);
-  if (fromCarrier === undefined && !rules.trackingKeywords.test(body)) return [];
-  const candidates = detect(rules, body, { senderDomain: prepared.domain }).filter(
-    (candidate) => candidate.confidence >= FALLBACK_THRESHOLD,
-  );
+  // Only carriers and shops the rules know may announce a parcel by a bare number.
+  if (!isKnownSender(rules, prepared.domain)) return [];
+  const candidates = trustedCandidates(
+    rules,
+    body,
+    detect(rules, body, { senderDomain: prepared.domain }),
+  ).filter((candidate) => candidate.confidence >= FALLBACK_THRESHOLD);
   if (candidates.length === 0) return [];
   const carriers = new Set(candidates.map((candidate) => candidate.carrier));
   const [only] = carriers;
@@ -240,11 +243,19 @@ function fallback(rules: Rules, prepared: Prepared): MailParseResult[] {
   ];
 }
 
+/** True when an `ignore` rule matches the mail's sender, subject and (if given) text. */
+export function isIgnoredMail(rules: Rules, mail: MailInput): boolean {
+  const prepared = prepare(mail);
+  return rules.mailRules.some((rule) => rule.kind === "ignore" && ruleApplies(rule, prepared));
+}
+
 export function parseMailWith(rules: Rules, mail: MailInput): MailParseResult[] {
   const prepared = prepare(mail);
+  const applying = rules.mailRules.filter((rule) => ruleApplies(rule, prepared));
+  // Account, developer-portal and newsletter mails never describe a parcel.
+  if (applying.some((rule) => rule.kind === "ignore")) return [];
   const results: MailParseResult[] = [];
-  for (const rule of rules.mailRules) {
-    if (!ruleApplies(rule, prepared)) continue;
+  for (const rule of applying) {
     const result = applyRule(rules, rule, prepared);
     if (result !== null) results.push(result);
   }

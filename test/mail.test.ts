@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ROOT } from "../scripts/collect.ts";
 import { parseMail } from "../src/index.ts";
+import { isBoilerplateItem, isPlaceholder } from "../src/mail/context.ts";
 import { EXTRACTORS } from "../src/mail/extractors.ts";
 import { senderAddress } from "../src/mail/parse.ts";
 import type { MailInput } from "../src/types.ts";
@@ -126,16 +127,59 @@ describe("parseMail beyond the rules", () => {
     ]);
   });
 
-  it("falls back to format detection for a shop mail that mentions a tracking number", () => {
-    expect(parseMail(rules, fixture("fallback-shop.eml"))).toEqual([
+  it("ignores a tracking number from a sender the rules do not know", () => {
+    expect(parseMail(rules, fixture("fallback-shop.eml"))).toEqual([]);
+  });
+
+  it("falls back to format detection for a carrier mail with a labelled number", () => {
+    const results = parseMail(rules, {
+      from: "info@dhl.com",
+      subject: "Shipment update",
+      text: "Hello,\nTracking number: 00340434123456789012\n",
+    });
+    expect(results).toEqual([
       {
         ruleId: "fallback",
         kind: "parcel",
         carrier: "dhl",
-        trackingNumbers: ["00340434000000000420"],
+        trackingNumbers: ["00340434123456789012"],
         orderNumbers: [],
       },
     ]);
+  });
+
+  it("needs a tracking word or link next to a detected number", () => {
+    const results = parseMail(rules, {
+      from: "info@dhl.com",
+      subject: "Your invoice",
+      text: "Hello,\nCustomer reference 00340434123456789012\n",
+    });
+    expect(results).toEqual([]);
+  });
+
+  it("accepts a number inside a tracking link", () => {
+    const [result] = parseMail(rules, {
+      from: "info@dhl.com",
+      subject: "Shipment update",
+      text: "See https://www.dhl.de/verfolgen.html?piececode=00340434123456789012\n",
+    });
+    expect(result?.trackingNumbers).toEqual(["00340434123456789012"]);
+  });
+
+  it("rejects placeholder numbers", () => {
+    for (const number of ["990000000000002", "000000000000", "99999999999999", "1111111111"]) {
+      expect(isPlaceholder(number)).toBe(true);
+    }
+    expect(isPlaceholder("00340434123456789012")).toBe(false);
+    expect(isPlaceholder("00340434000000000017")).toBe(false);
+    expect(isPlaceholder("09446624362703")).toBe(false);
+  });
+
+  it("drops instructional bullets as item names", () => {
+    expect(isBoilerplateItem("Enter the recipient's postal code to track with the carrier")).toBe(
+      true,
+    );
+    expect(isBoilerplateItem("Ersatzkabel 2 m")).toBe(false);
   });
 
   it("leaves unrelated mail alone", () => {

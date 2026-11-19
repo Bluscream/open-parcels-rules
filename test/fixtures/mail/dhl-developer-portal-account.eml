@@ -1,0 +1,15 @@
+From: DHL API Developer Portal <noreply@developer.dhl.com>
+To: jane.doe@example.com
+Subject: Account details for jane.doe at DHL API Developer Portal
+Date: Wed, 18 Nov 2026 10:05:00 +0100
+Content-Type: text/plain; charset=utf-8
+
+Hello jane.doe,
+
+Thank you for registering at DHL API Developer Portal.
+Your customer number is 1234567890.
+
+You may now log in by clicking this link:
+https://developer.dhl.com/user/reset/1234567890/abcdef
+
+-- DHL API Developer Portal team
