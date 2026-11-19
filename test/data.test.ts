@@ -61,6 +61,18 @@ describe("data files match their JSON Schemas", () => {
   });
 });
 
+type TrackingType = ReturnType<
+  typeof testData
+>["bundle"]["tracking"][number]["courier"]["tracking_numbers"][number];
+
+/** The `matches_regex` values of a format's lookup tables. */
+function lookupRegexes(type: TrackingType): string[] {
+  return (type.additional ?? [])
+    .flatMap((additional) => additional.lookup)
+    .map((row) => row["matches_regex"])
+    .filter((regex): regex is string => typeof regex === "string");
+}
+
 /** Every regex written in our own data files, with where it came from. */
 function dataRegexes(): { where: string; pattern: string; flags: readonly string[] }[] {
   const data = testData();
@@ -82,12 +94,20 @@ function dataRegexes(): { where: string; pattern: string; flags: readonly string
       add(`carriers/${carrier.id}`, carrier.tracking_number_pattern);
   }
   for (const file of data.status) {
-    for (const entry of file.entries) {
+    for (const entry of [...file.entries, ...file.ignore]) {
       if ("text" in entry.match)
         add(`status/${file.carrier}`, {
           pattern: entry.match.text,
           ...(entry.match.flags === undefined ? {} : { flags: entry.match.flags }),
         });
+    }
+  }
+  // The lookup tables of our own formats.
+  for (const source of data.bundle.tracking.filter((s) => s.origin === "overlay")) {
+    for (const type of source.courier.tracking_numbers) {
+      for (const regex of lookupRegexes(type)) {
+        add(`${source.file} ${type.id ?? type.name} lookup`, regex);
+      }
     }
   }
   for (const locale of data.locales) {
@@ -109,8 +129,53 @@ function dataRegexes(): { where: string; pattern: string; flags: readonly string
   return found;
 }
 
+/**
+ * The vendored formats' regexes. They are third-party data and use lookarounds, which both
+ * engines of this package support, so they are held to "compiles in the JavaScript engine" here
+ * (the Python vectors compile them in Python) rather than to the portable subset.
+ */
+function vendoredRegexes(): { where: string; pattern: string }[] {
+  const found: { where: string; pattern: string }[] = [];
+  for (const source of testData().bundle.tracking.filter((s) => s.origin !== "overlay")) {
+    for (const type of source.courier.tracking_numbers) {
+      const where = `${source.file} ${type.id ?? type.name}`;
+      const regex = Array.isArray(type.regex) ? type.regex.join("") : type.regex;
+      found.push({ where, pattern: toRegexSpec(regex).pattern });
+      const prepend = type.validation.serial_number_format?.prepend_if.matches_regex;
+      if (prepend !== undefined)
+        found.push({ where: `${where} prepend_if`, pattern: toRegexSpec(prepend).pattern });
+      found.push(...lookupRegexes(type).map((pattern) => ({ where: `${where} lookup`, pattern })));
+    }
+  }
+  return found;
+}
+
+describe("vendored regexes", () => {
+  it("all compile in the JavaScript engine", () => {
+    const regexes = vendoredRegexes();
+    expect(regexes.length).toBeGreaterThan(50);
+    const failing = regexes.filter(({ pattern }) => {
+      try {
+        compileDataRegex(pattern, []);
+        return false;
+      } catch {
+        return true;
+      }
+    });
+    expect(failing).toEqual([]);
+  });
+});
+
 describe("regex portability", () => {
   const regexes = dataRegexes();
+
+  it("covers the ignore entries and lookup tables too", () => {
+    const where = new Set(regexes.map((regex) => regex.where));
+    const ignoreTexts = testData().status.flatMap((file) =>
+      file.ignore.filter((entry) => "text" in entry.match).map(() => `status/${file.carrier}`),
+    );
+    expect(ignoreTexts.every((name) => where.has(name))).toBe(true);
+  });
 
   it("finds the regexes it is meant to check", () => {
     expect(regexes.length).toBeGreaterThan(250);
