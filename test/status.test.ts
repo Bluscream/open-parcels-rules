@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ignoredStatus, mapStatus, pastDayOffset, resolveStatus } from "../src/index.ts";
 import { compileStatusTable, mapWithTable, resolveWithTable } from "../src/status.ts";
+import { statusFileSchema } from "../src/schema/status.ts";
 import type { RawStatus } from "../src/types.ts";
 import { testData, testRules } from "./helpers/rules.ts";
 
@@ -99,6 +100,20 @@ describe("match kinds", () => {
 
   it("names unmapped fields in the resolution", () => {
     expect(resolveWithTable(table, { fields: { kind: "NEW" } }, []).unmapped).toBe("kind=NEW");
+  });
+});
+
+describe("the status file schema", () => {
+  const file = (match: object) => ({
+    carrier: "dhl",
+    entries: [{ match, status: "delivered" }],
+    tests: [{ input: { code: "X" }, status: null }],
+  });
+
+  it("refuses a code or prefix of only whitespace, which would match every code", () => {
+    expect(statusFileSchema.safeParse(file({ code_prefix: "  " })).success).toBe(false);
+    expect(statusFileSchema.safeParse(file({ code: " \t" })).success).toBe(false);
+    expect(statusFileSchema.safeParse(file({ code_prefix: " DL" })).success).toBe(true);
   });
 });
 

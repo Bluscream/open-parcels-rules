@@ -2,12 +2,18 @@ import { z } from "zod";
 import { identifierSchema, parcelStatusSchema, regexFlagSchema } from "./common.ts";
 import { mailEventSchema } from "./mail.ts";
 
+/**
+ * Codes are compared trimmed, so one of only whitespace would become "" and, as a prefix, match
+ * every code. It needs at least one visible character.
+ */
+const codeTextSchema = z.string().regex(/\S/u, "Needs at least one non-space character.");
+
 const codeMatchSchema = z.strictObject({
-  code: z.string().min(1).meta({ description: "Exact machine status code (compared trimmed)." }),
+  code: codeTextSchema.meta({ description: "Exact machine status code (compared trimmed)." }),
 });
 
 const codePrefixMatchSchema = z.strictObject({
-  code_prefix: z.string().min(1).meta({
+  code_prefix: codeTextSchema.meta({
     description:
       "The code starts with this text (compared ignoring case). Tried after exact codes, in " +
       "file order.",

@@ -21,7 +21,7 @@
                 "properties": {
                   "code": {
                     "type": "string",
-                    "minLength": 1,
+                    "pattern": "\\S",
                     "description": "Exact machine status code (compared trimmed)."
                   }
                 },
@@ -35,7 +35,7 @@
                 "properties": {
                   "code_prefix": {
                     "type": "string",
-                    "minLength": 1,
+                    "pattern": "\\S",
                     "description": "The code starts with this text (compared ignoring case). Tried after exact codes, in file order."
                   }
                 },
@@ -167,7 +167,7 @@
                 "properties": {
                   "code": {
                     "type": "string",
-                    "minLength": 1,
+                    "pattern": "\\S",
                     "description": "Exact machine status code (compared trimmed)."
                   }
                 },
@@ -181,7 +181,7 @@
                 "properties": {
                   "code_prefix": {
                     "type": "string",
-                    "minLength": 1,
+                    "pattern": "\\S",
                     "description": "The code starts with this text (compared ignoring case). Tried after exact codes, in file order."
                   }
                 },
