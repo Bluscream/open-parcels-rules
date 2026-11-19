@@ -154,7 +154,7 @@ entries:
   - {
       match:
         {
-          text: "an einem ablageort hinterlegt|an der empfangsadresse zugestellt|wurde zugestellt|^zugestellt",
+          text: "an einem ablageort hinterlegt|an der empfangsadresse zugestellt|wurde zugestellt|^zugestellt|erfolgreich zugestellt|erfolgreiche (?:haustür|nachbarschafts|ablageort)?zustellung|haustürzustellung|zustellung (?:war )?erfolgreich|successfully delivered|has been delivered|was delivered",
           flags: [i],
         },
       status: delivered,
@@ -190,6 +190,10 @@ tests:
   - { input: { text: "Die Sendung wurde von Hermes im PaketShop abgeholt." }, status: in_transit }
   - { input: { text: "Die Sendung wurde ins Zustellfahrzeug geladen." }, status: out_for_delivery }
   - { input: { text: "Die Sendung wurde zugestellt." }, status: delivered }
+  - { input: { text: "Erfolgreiche Haustürzustellung" }, status: delivered }
+  - { input: { text: "Erfolgreiche Nachbarschaftszustellung" }, status: delivered }
+  - { input: { text: "Ihre Sendung wurde erfolgreich zugestellt" }, status: delivered }
+  - { input: { text: "Your parcel has been delivered" }, status: delivered }
   - { input: { text: "Die Sendung ist abholbereit." }, status: at_pickup_point, pickup: true }
   - { input: { text: "Die Sendung wurde Hermes elektronisch angekündigt." }, status: registered }
   - { input: { text: "Die Sendung wurde sortiert und weiterversandt." }, status: in_transit }
