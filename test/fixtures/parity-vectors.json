@@ -1,0 +1,29 @@
+{
+  "$comment": "Inputs on which every port must answer as the TypeScript engine does. Made-up numbers only.",
+  "names": [
+    { "name": "ceska posta", "carrier": "ceska_posta" },
+    { "name": "ČESKÁ POŠTA", "carrier": "ceska_posta" },
+    { "name": "Osterreichische Post", "carrier": "oesterreichische_post" },
+    { "name": "colis prive", "carrier": "colis_prive" },
+    { "name": "Ampere", "carrier": "ampere" }
+  ],
+  "detect": [
+    { "text": "Paketnummer 00340434123456789012", "numbers": ["00340434123456789012"] },
+    { "text": "﻿00340434123456789012", "numbers": ["00340434123456789012"] },
+    { "text": "Nr. 0034043412\u000b3456789012", "numbers": ["00340434123456789012"] },
+    { "text": "Nr. 0034043412\u001c3456789012", "numbers": [] },
+    { "text": "Nr.\r\n00340434123456789012", "numbers": ["00340434123456789012"] }
+  ],
+  "status": [
+    {
+      "carrier": "early_bird",
+      "input": { "text": "Early Bird has received your package", "fields": { "use": null } },
+      "status": null
+    },
+    {
+      "carrier": "early_bird",
+      "input": { "text": "﻿Early Bird has received your package", "fields": { "use": "status" } },
+      "status": "in_transit"
+    }
+  ]
+}

@@ -31,5 +31,9 @@ const vectors = {
       cases: unknown[];
     }
   ).cases,
+  // Names, texts and status inputs on which every port must answer as this engine does.
+  parity: JSON.parse(
+    readFileSync(join(ROOT, "test", "fixtures", "parity-vectors.json"), "utf8"),
+  ) as unknown,
 };
 writeFileSync(join(dist, "vectors.json"), `${JSON.stringify(vectors, null, 1)}\n`);

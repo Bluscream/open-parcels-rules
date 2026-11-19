@@ -15,6 +15,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from open_parcels_rules import (  # noqa: E402
     _flags,
+    _normalize_name,
+    detect_tracking_numbers,
     ignored_status,
     load_rules,
     map_status,
@@ -70,6 +72,25 @@ def main() -> int:
         regex = re.compile(to_python_regex(case["pattern"]), _flags(case.get("flags")))
         if (regex.search(case["input"]) is not None) != case["matches"]:
             failures.append(f"regex: {case['pattern']!r} on {case['input']!r} should match: {case['matches']}")
+
+    parity = vectors.get("parity", {})
+    for case in parity.get("names", []):
+        checked += 1
+        found = rules.carrier_names.get(_normalize_name(case["name"]))
+        if found != case["carrier"]:
+            failures.append(f"names: {case['name']!r} gave {found}, expected {case['carrier']}")
+    for case in parity.get("detect", []):
+        checked += 1
+        numbers = sorted({hit["tracking_number"] for hit in detect_tracking_numbers(rules, case["text"])})
+        if numbers != case["numbers"]:
+            failures.append(f"detect: {case['text']!r} gave {numbers}, expected {case['numbers']}")
+    for case in parity.get("status", []):
+        checked += 1
+        raw = case["input"]
+        mapped = map_status(rules, case["carrier"], raw.get("code"), raw.get("text"), raw.get("fields"))
+        status = None if mapped is None else mapped["status"]
+        if status != case["status"]:
+            failures.append(f"parity status/{case['carrier']}: {raw} gave {status}, expected {case['status']}")
 
     for failure in failures:
         print(f"FAIL {failure}")

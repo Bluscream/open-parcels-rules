@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -190,7 +191,26 @@ def _slug(text: str) -> str:
 
 
 def _normalize_name(name: str) -> str:
-    return re.sub(r"[\W_]+", "", name.lower())
+    """As the TypeScript engine does: NFKD, accents dropped, lower case, letters and digits only."""
+    decomposed = unicodedata.normalize("NFKD", name)
+    bare = "".join(char for char in decomposed if not unicodedata.combining(char))
+    return re.sub(r"[\W_]+", "", bare.lower())
+
+
+# JavaScript's whitespace, for trimming and removing spaces the way the TypeScript engine does:
+# Python's own str.strip() and \s leave U+FEFF in place and treat other characters as space.
+_JS_WHITESPACE = re.compile(f"[{_JS_SPACE}]+")
+_JS_EDGES = re.compile(f"^[{_JS_SPACE}]+|[{_JS_SPACE}]+$")
+_JS_LEADING = re.compile(f"^[{_JS_SPACE}]+")
+_JS_TRAILING = re.compile(f"[{_JS_SPACE}]+$")
+
+
+def _trim(value: str) -> str:
+    return _JS_EDGES.sub("", value)
+
+
+def _no_spaces(value: str) -> str:
+    return _JS_WHITESPACE.sub("", value)
 
 
 def load_rules(path: str | Path = DEFAULT_BUNDLE) -> Rules:
@@ -239,9 +259,9 @@ def _compile_matcher(entries: list[dict[str, Any]]) -> dict[str, Any]:
     for entry in entries:
         match = entry["match"]
         if "code" in match:
-            codes.setdefault(match["code"].strip(), entry)
+            codes.setdefault(_trim(match["code"]), entry)
         elif "code_prefix" in match:
-            prefixes.append((match["code_prefix"].strip().upper(), entry))
+            prefixes.append((_trim(match["code_prefix"]).upper(), entry))
         elif "text" in match:
             regex = re.compile(to_python_regex(match["text"]), _flags(match.get("flags")))
             texts.append((regex, _field_pairs(match.get("fields")), entry))
@@ -251,11 +271,14 @@ def _compile_matcher(entries: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def _field_pairs(fields: dict[str, str] | None) -> dict[str, str]:
-    return {k: v.strip() for k, v in (fields or {}).items()}
+    return {k: _trim(v) for k, v in (fields or {}).items()}
 
 
-def _fields_hold(wanted: dict[str, str], given: dict[str, str] | None) -> bool:
-    return all(given is not None and name in given and given[name].strip() == value for name, value in wanted.items())
+def _fields_hold(wanted: dict[str, str], given: dict[str, str | None] | None) -> bool:
+    """Every wanted field is given, as a string, with the same trimmed value; None never holds."""
+    if given is None:
+        return not wanted
+    return all(isinstance(given.get(name), str) and _trim(given[name] or "") == value for name, value in wanted.items())
 
 
 def _find_entry(
@@ -266,8 +289,8 @@ def _find_entry(
         for wanted, entry in matcher["fields"]:
             if _fields_hold(wanted, fields):
                 return entry
-    if code and code.strip():
-        stripped = code.strip()
+    if code and _trim(code):
+        stripped = _trim(code)
         folded = stripped.upper()
         entry = (
             matcher["codes"].get(stripped)
@@ -276,16 +299,16 @@ def _find_entry(
         )
         if entry is not None:
             return entry
-    if text and text.strip():
+    if text and _trim(text):
         return next(
-            (e for regex, wanted, e in matcher["texts"] if regex.search(text.strip()) and _fields_hold(wanted, fields)),
+            (e for regex, wanted, e in matcher["texts"] if regex.search(_trim(text)) and _fields_hold(wanted, fields)),
             None,
         )
     return None
 
 
 def _strip(value: str | None) -> str | None:
-    return None if value is None else re.sub(r"\s+", "", value)
+    return None if value is None else _no_spaces(value)
 
 
 def _check_type(kind: TrackingType, number: str) -> dict[str, Any] | None:
@@ -329,29 +352,71 @@ def _carrier(rules: Rules, kind: TrackingType, groups: dict[str, str]) -> str:
 
 def validate_tracking_number(rules: Rules, number: str, type_id: str) -> dict[str, Any] | None:
     """Checks one number against one format; None when the format does not fit at all."""
-    normalized = re.sub(r"\s+", "", number).upper()
+    normalized = _no_spaces(number).upper()
     kind = next(t for t in rules.types if t.id == type_id)
     return _check_type(kind, normalized)
+
+
+@dataclass
+class _Hit:
+    kind: TrackingType
+    number: str
+    result: dict[str, Any]
+    line: int
+    start: int
+    end: int
+
+
+def _scan_line(rules: Rules, line: str, index: int) -> list[_Hit]:
+    hits = []
+    for kind in rules.types:
+        for match in kind.search.finditer(line):
+            raw = match.group(0)
+            if not raw:
+                continue
+            result = _check_type(kind, _no_spaces(raw).upper())
+            if result is None:
+                continue
+            # The span without surrounding spaces, as the TypeScript engine measures it.
+            start = match.start() + len(raw) - len(_JS_LEADING.sub("", raw))
+            end = match.start() + len(_JS_TRAILING.sub("", raw))
+            hits.append(_Hit(kind, _no_spaces(raw).upper(), result, index, start, end))
+    return hits
+
+
+def _drop_contained(hits: list[_Hit]) -> list[_Hit]:
+    """Drops hits lying inside a longer valid hit on the same line (14 digits inside 20)."""
+    return [
+        hit
+        for hit in hits
+        if not any(
+            other is not hit
+            and other.result["valid"]
+            and other.line == hit.line
+            and other.start <= hit.start
+            and other.end >= hit.end
+            and other.end - other.start > hit.end - hit.start
+            for other in hits
+        )
+    ]
 
 
 def detect_tracking_numbers(rules: Rules, text: str) -> list[dict[str, Any]]:
     """Every valid number in the text with its carrier and format ids (no confidence model)."""
     found: dict[tuple[str, str], dict[str, Any]] = {}
-    for line in text.splitlines():
-        for kind in rules.types:
-            for match in kind.search.finditer(line):
-                number = re.sub(r"\s+", "", match.group(0)).upper()
-                result = _check_type(kind, number)
-                if result is None or not result["valid"]:
-                    continue
-                carrier = _carrier(rules, kind, result["groups"])
-                entry = found.setdefault(
-                    (carrier, number),
-                    {"carrier": carrier, "tracking_number": number, "types": [], "checksum_valid": None},
-                )
-                entry["types"].append(kind.id)
-                if entry["checksum_valid"] is not True:
-                    entry["checksum_valid"] = result["checksum_valid"]
+    # Lines split as the TypeScript engine splits them: only at \n and \r\n.
+    hits = [hit for index, line in enumerate(re.split(r"\r?\n", text)) for hit in _scan_line(rules, line, index)]
+    for hit in _drop_contained(hits):
+        if not hit.result["valid"]:
+            continue
+        carrier = _carrier(rules, hit.kind, hit.result["groups"])
+        entry = found.setdefault(
+            (carrier, hit.number),
+            {"carrier": carrier, "tracking_number": hit.number, "types": [], "checksum_valid": None},
+        )
+        entry["types"].append(hit.kind.id)
+        if entry["checksum_valid"] is not True:
+            entry["checksum_valid"] = hit.result["checksum_valid"]
     return list(found.values())
 
 
